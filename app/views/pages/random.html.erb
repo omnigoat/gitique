@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link href="javascripts/SH/styles/shCore.css" rel="stylesheet" type="text/css" />
+<link href="javascripts/SH/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
+<script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+
+<style type="text/css" media="screen">
+  ol {
+    font-family: "Courier New";
+    list-style-type: decimal-leading-zero;
+  }
+</style>
+
+
+
+
+
+</head>
+<body>
+<div style="position:absolute; left:400px;">
+<p>Here is some text:</p>
+
+<script type="text/javascript">
+  var from = -1;
+  var to = -1;
+
+  // returns the index of a SyntaxHighlighter line
+  function index_of(x) {
+    return x.attr('class').split(" ")[2].split("index")[1];
+  }
+  
+  function selection(){
+    var t = '';
+    if (window.getSelection) {
+      t = window.getSelection();
+    }
+    else if (document.getSelection) {
+      t = document.getSelection();
+    }
+    else if (document.selection) {
+      t = document.selection.createRange().text;
+    }
+    return t;
+  }
+  
+  $('document').ready(function() {
+    $('div.line').bind('mousedown', function(e)
+    {
+      // if we were to act when the shift key was down, people selecting text
+      // by clicking at one place, holding shift, then clicking the second
+      // place would only select the last line.
+      if (e.shiftKey) return;
+      index = index_of($(this));
+      window.from = index;
+    });
+    
+    $('div.line').mouseup(function(e)
+    {
+      if (selection() == "") return;
+      
+      var to = index_of($(this));
+      if (to < from) {
+        tmp = to;
+        to = from;
+        from = tmp;
+      }
+      
+      // copy lines content to other div
+      var content = "";
+      $('div.container div.line')
+        .filter(function(x) {
+          return window.from <= x && x <= to;
+        })
+        .each(function() {
+          content += $(this).text() + "<br />";
+        });
+      $('div#shower').html(content);
+    });
+  });
+</script>
+
+<pre class="brush: js">
+  <% @text.each do |x| %>
+  <%= x[1] %>
+  <% end %>
+</pre>
+
+<script type="text/javascript">
+    SyntaxHighlighter.highlight();
+</script>
+</div>
+
+
+<div id="shower" style="position:absolute; left:800px;">
+</div>
+
+</body>
+
+
+
+</html>
+
