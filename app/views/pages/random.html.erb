@@ -1,39 +1,56 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
 <head>
+  <!-- meta -->
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
 
-<link href="javascripts/SH/styles/shCore.css" rel="stylesheet" type="text/css" />
-<link href="javascripts/SH/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+  <!-- jquery -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
 
-<script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
-<script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
-
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
-
-
-<style type="text/css" media="screen">
-  ol {
-    font-family: "Courier New";
-    list-style-type: decimal-leading-zero;
-  }
-</style>
-
-
-
-
+  
+  <!-- syntaxhighlighter -->
+  <script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
+  <script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
+  <link   type="text/css" rel="stylesheet" href="/javascripts/SH/styles/shCoreDefault.css" />
 
 </head>
 <body>
-<div style="position:absolute; left:400px;">
-<p>Here is some text:</p>
+<div style="position:absolute; left:0px; top:0px; width:100%; height:100%;">
+  <div style="position:absolute; left:400px;">
+  <p>Here is some text: <a href="javascript:goh();">highlight</a></p>
 
-<script type="text/javascript">
-  var from = -1;
-  var to = -1;
+  <script type="text/javascript">
+  //
+  // HERE BE MY DATA
+  //
+  var jona = {
+    "page" : {},
+    "editor" : {}
+  };
+  </script>
+  
+  <script type="text/javascript">
+  //
+  // returns the position of an element on the page
+  //
+  function position_of(obj) {
+	  var curleft = curtop = 0;
+    if (obj.offsetParent) {
+      do {
+        curleft += obj.offsetLeft;
+        curtop += obj.offsetTop;
+      } while (obj = obj.offsetParent);
+	    return {left: curleft, top: curtop};
+    }
+  }
+  </script>
+  
+  <script type="text/javascript">
 
   // returns the index of a SyntaxHighlighter line
   function index_of(x) {
-    return x.attr('class').split(" ")[2].split("index")[1];
+    return parseInt(  x.attr('class').split(" ")[2].split("index")[1]  );
   }
   
   function selection(){
@@ -50,60 +67,178 @@
     return t;
   }
   
-  $('document').ready(function() {
-    $('div.line').bind('mousedown', function(e)
-    {
-      // if we were to act when the shift key was down, people selecting text
-      // by clicking at one place, holding shift, then clicking the second
-      // place would only select the last line.
-      if (e.shiftKey) return;
+  function line_is_selected(x, from, to) {
+    var position = position_of(x);
+    return from < (position.top + x.offsetHeight) && position.top < to;
+  }
+  
+  function clear_previous_lbl_selection()
+  {
+    if (jona.editor.highlighted) {
+      jona.editor.highlighted.each(function() {
+        $(this).removeClass('highlighted');
+      }
+    }
+  }
+  /*
+  function activate_line_by_line_selection()
+  {
+    $('body')
+      .bind('mousemove.highlight', function(e)
+      {
+        $('.line')
+          .filter(function() {
+            return line_is_selected(this, window.from, e.pageY);
+          })
+          .each(function() {
+            $(this).addClass('highlighted');
+          })
+          ;
+        
+        if (jona.page.mouseup_y)
+        {
+          $('.line')
+            .filter(function() {
+              var position = position_of(this);
+              return e.pageY < position.top && window.previous_to < position.top + this.offsetHeight;
+            })
+            .each(function() {
+              $(this).removeClass('highlighted');
+            })
+            ;
+        }
+        
+        jona.page.mousemouse_y = e.pageY;
+      })
+      ;
+    
+    $('body')
+      .one('mouseup.highlight', function(e) {
+        $(this).unbind('mousemove.highlight');
+        jona.page.mouseup_y = e.pageY;
+        jona.editor.highlighted = $('div.line.highlighted');
+      })
+      ;
+  }
+  */
+  
+  
+  
+  $('document').ready(function()
+  {
+    $('td.gutter div.line')
+      .mousedown(function(e)
+      {
+        e.preventDefault();
+      })
+      ;
+    
+    $('div.container div.line')
+      .bind('mousedown', function(e)
+      {
+        // if we were to act when the shift key was down, people selecting text
+        // by clicking at one place, holding shift, then clicking the second
+        // place would only select the last line.
+        if (e.shiftKey) return;
+        index = index_of($(this));
+        window.from = index;
+      })
+      ;
+    
+    $('td.gutter div.line').mouseup(function(e) {
+      e.preventDefault();
       index = index_of($(this));
-      window.from = index;
+      window.to = index;
     });
     
-    $('div.line').mouseup(function(e)
+    $('div.container div.line').mouseup(function(e)
     {
-      if (selection() == "") return;
-      
       var to = index_of($(this));
+      var from = window.from;
+      
+      // allow for people selecting bottom-to-top
       if (to < from) {
-        tmp = to;
+        var tmp = to;
         to = from;
         from = tmp;
       }
       
-      // copy lines content to other div
+      // remove highlighting from previous selections
+      if (window.previous_from && window.previous_to)
+      {
+        $('td.gutter div.line')
+          .filter(function(x){
+            return window.previous_from <= x && x <= window.previous_to;
+          })
+          .each(function(){
+            $(this).removeClass('highlighted');
+          })
+          ;
+        
+        $('div.container div.line')
+          .filter(function(x){
+            return window.previous_from <= x && x <= window.previous_to;
+          })
+          .each(function(){
+            $(this).removeClass('highlighted');
+          })
+          ;        
+      }
+      
+      
+      // no selection, no highlighting required
+      if (selection() == "") return;
+
+
+      // highlight gutter
+      $('td.gutter div.line')
+        .filter(function(x) {
+          return from <= x && x <= to;
+        })
+        .each(function() {
+          $(this).addClass('highlighted');
+        })
+        ;
+      
+      // highlight container and copy content
       var content = "";
       $('div.container div.line')
         .filter(function(x) {
-          return window.from <= x && x <= to;
+          return from <= x && x <= to;
         })
         .each(function() {
+          $(this).addClass('highlighted');
           content += $(this).text() + "<br />";
-        });
+        })
+        ;
       $('div#shower').html(content);
+      
+      window.previous_from = from;
+      window.previous_to = to;
     });
   });
-</script>
+  </script>
 
-<pre class="brush: js">
-  <% @text.each do |x| %>
-  <%= x[1] %>
-  <% end %>
-</pre>
+  <pre class="brush: js;">
+    <% @text.each do |x| %>
+    <%= x[1] %>
+    <% end %>
+  </pre>
 
-<script type="text/javascript">
-    SyntaxHighlighter.highlight();
-</script>
+
+
+  </div>
+
+
+  <div id="shower" style="position:absolute; left:800px;">
+  </div>
+
 </div>
-
-
-<div id="shower" style="position:absolute; left:800px;">
-</div>
-
 </body>
 
-
+<script type="text/javascript">
+  SyntaxHighlighter.highlight();
+</script>
 
 </html>
 
