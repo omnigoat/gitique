@@ -5,54 +5,36 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
 
   <!-- jquery -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
-
+  <!-- <script type="text/javascript" src="http://jquery-utils.googlecode.com/svn/trunk/src/jquery.arrayUtils.js"></script> -->
   
   <!-- syntaxhighlighter -->
   <script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
   <script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
   <link   type="text/css" rel="stylesheet" href="/javascripts/SH/styles/shCoreDefault.css" />
-
+  
+  <!-- jj -->
+  <script type="text/javascript" src="/javascripts/jj.js"></script>
+  
+  
 </head>
 <body>
 <div style="position:absolute; left:0px; top:0px; width:100%; height:100%;">
+
+  
+  
   <div style="position:absolute; left:400px;">
-  <p>Here is some text: <a href="javascript:goh();">highlight</a></p>
+  <p>Here is some text for <%= @thing %></p>
 
-  <script type="text/javascript">
-  //
-  // HERE BE MY DATA
-  //
-  var jona = {
-    "page" : {},
-    "editor" : {}
-  };
-  </script>
+ 
   
   <script type="text/javascript">
-  //
-  // returns the position of an element on the page
-  //
-  function position_of(obj) {
-	  var curleft = curtop = 0;
-    if (obj.offsetParent) {
-      do {
-        curleft += obj.offsetLeft;
-        curtop += obj.offsetTop;
-      } while (obj = obj.offsetParent);
-	    return {left: curleft, top: curtop};
-    }
-  }
-  </script>
   
-  <script type="text/javascript">
-
-  // returns the index of a SyntaxHighlighter line
-  function index_of(x) {
-    return parseInt(  x.attr('class').split(" ")[2].split("index")[1]  );
-  }
   
+  //=====================================================================
+  // return selected text
+  //=====================================================================
   function selection(){
     var t = '';
     if (window.getSelection) {
@@ -67,89 +49,26 @@
     return t;
   }
   
-  function line_is_selected(x, from, to) {
-    var position = position_of(x);
-    return from < (position.top + x.offsetHeight) && position.top < to;
-  }
-  
-  function clear_previous_lbl_selection()
-  {
-    if (jona.editor.highlighted) {
-      jona.editor.highlighted.each(function() {
-        $(this).removeClass('highlighted');
-      }
+  //=====================================================================
+  // clear selected text
+  //=====================================================================
+  function clear_selection() {
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    }
+    else {
+      document.selection.clear();
     }
   }
+  
+  
+  
+  
   /*
-  function activate_line_by_line_selection()
-  {
-    $('body')
-      .bind('mousemove.highlight', function(e)
-      {
-        $('.line')
-          .filter(function() {
-            return line_is_selected(this, window.from, e.pageY);
-          })
-          .each(function() {
-            $(this).addClass('highlighted');
-          })
-          ;
-        
-        if (jona.page.mouseup_y)
-        {
-          $('.line')
-            .filter(function() {
-              var position = position_of(this);
-              return e.pageY < position.top && window.previous_to < position.top + this.offsetHeight;
-            })
-            .each(function() {
-              $(this).removeClass('highlighted');
-            })
-            ;
-        }
-        
-        jona.page.mousemouse_y = e.pageY;
-      })
-      ;
-    
-    $('body')
-      .one('mouseup.highlight', function(e) {
-        $(this).unbind('mousemove.highlight');
-        jona.page.mouseup_y = e.pageY;
-        jona.editor.highlighted = $('div.line.highlighted');
-      })
-      ;
-  }
-  */
-  
-  
   
   $('document').ready(function()
   {
-    $('td.gutter div.line')
-      .mousedown(function(e)
-      {
-        e.preventDefault();
-      })
-      ;
     
-    $('div.container div.line')
-      .bind('mousedown', function(e)
-      {
-        // if we were to act when the shift key was down, people selecting text
-        // by clicking at one place, holding shift, then clicking the second
-        // place would only select the last line.
-        if (e.shiftKey) return;
-        index = index_of($(this));
-        window.from = index;
-      })
-      ;
-    
-    $('td.gutter div.line').mouseup(function(e) {
-      e.preventDefault();
-      index = index_of($(this));
-      window.to = index;
-    });
     
     $('div.container div.line').mouseup(function(e)
     {
@@ -208,15 +127,20 @@
         })
         .each(function() {
           $(this).addClass('highlighted');
-          content += $(this).text() + "<br />";
+          content += $(this).text() + "<br>";
         })
         ;
+      
       $('div#shower').html(content);
       
       window.previous_from = from;
       window.previous_to = to;
+      
+      jona.editor.highlighted = $('div.highlighted');
+      clear_selection();
     });
   });
+  */
   </script>
 
   <pre class="brush: js;">
