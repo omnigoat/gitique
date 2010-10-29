@@ -1,5 +1,6 @@
 
 
+
 ;(function(jj, $, undefined) {
   
   jj.page = {};
@@ -25,7 +26,6 @@
   jj.sh = {};
   jj.sh.all = [];
   
- 
 
   // clear highlighted lines
   jj.sh.clear_highlighted_lines = function(tso)
@@ -83,7 +83,25 @@
   };
   
   
-
+  
+  jj.sh.selected_range = function(tso, lbound, ubound)
+  {
+    var from_line_index = -1;
+    var to_line_index = -1;
+    
+    if (e.pageY < jj.page.mousedown_y) {
+      from_line_index = jj.sh.line_containing_point(tso.sh, e.pageY, tso.info.visible_lines_range)[0];
+      to_line_index = tso.info.mousedown_line + 1;
+    }
+    else {
+      from_line_index = tso.info.mousedown_line;
+      to_line_index = jj.sh.line_containing_point(tso.sh, e.pageY, tso.info.visible_lines_range)[0] + 1;
+    }
+    
+    return {from: from_line_index, to: to_line_index};
+  };
+  
+  
   // selecting line-by-line mode
   jj.sh.activate_line_by_line_selection = function(tso)
   {
@@ -94,6 +112,7 @@
         $(this).unbind('mousemove.highlight');
         tso.info.highlighted_lines = $('div.line.highlighted');
         tso.info.active_mousemove_range = undefined;
+        tso.info.hovering_line = undefined;
         jj.page.mouseup_y = e.pageY;
         jj.page.mousedown_y = null;
       })
@@ -105,9 +124,16 @@
         if (!jj.page.mousedown_y)
           return;
         
-        var gutter_lines = tso.sh.find('td.gutter div.line');
-        var container_lines = tso.sh.find('div.container div.line');
+        // don't do squat if we're just in our own line
+        var mouseline = -1;
+        if ( tso.info.hovering_line ) {
+          mouseline = jj.sh.line_containing_point(tso.sh, e.pageY, tso.info.visible_lines_range)[0];
+          if (mouseline  == tso.info.hovering_line ) {
+            return;
+          }
+        }
         
+         
         //
         // get our range of lines. this got complex because I wanted to reduce the amount
         // of operations to an aboslute minimum.
@@ -116,18 +142,21 @@
         var to_line_index = -1;
         
         if (e.pageY < jj.page.mousedown_y) {
-          from_line_index = jj.sh.line_containing_point(tso.sh, e.pageY, tso.info.visible_lines_range)[0];
+          from_line_index = mouseline;
           to_line_index = tso.info.mousedown_line + 1;
         }
         else {
           from_line_index = tso.info.mousedown_line;
-          to_line_index = jj.sh.line_containing_point(tso.sh, e.pageY, tso.info.visible_lines_range)[0] + 1;
+          to_line_index = mouseline + 1;
         }
+        
         
         
         //
         // highlight them! :D
         //
+        var gutter_lines = tso.gutter.children();
+        var container_lines = tso.container.children();
         gutter_lines.slice(from_line_index, to_line_index).addClass('highlighted');
         container_lines.slice(from_line_index, to_line_index).addClass('highlighted');
         
@@ -149,19 +178,27 @@
         
         
         tso.info.active_mousemove_range = [from_line_index, to_line_index];
+        tso.info.hovering_line = jj.sh.line_containing_point(tso.sh, e.pageY, tso.info.visible_lines_range)[0];
         jj.page.mousemove_y = e.pageY;
       })
       ;
-    
-    
-  }
+  };
  
 
   // all shs
   $('document').ready(function()
   {
-    $('div.syntaxhighlighter').each(function(){
-      jj.sh.all.push({"sh": $(this), "info": {}});
+    var kf = jj.sh.selected_highlighters ? $(jj.sh.selected_highlighters) : $('div.syntaxhighlighter');
+    
+    kf.each(function(){
+      jj.sh.all.push(
+        {
+          "sh": $(this),
+          "gutter": $(this).find('td.gutter'),
+          "container": $(this).find('div.container'),
+          "info": {}
+        }
+      );
     });
     
     // for each syntax-highlighter
@@ -169,33 +206,38 @@
     {
       tso = this;
       
-      // for each line
-      tso.sh.find("div.line")
-        // clear the selected lines, begin selecting the lines, and remember the mousedown-y
-        .bind('mousedown', function(e) {
-          jj.page.mousedown_y = e.pageY;
-          jj.sh.clear_highlighted_lines(tso);
-          jj.sh.activate_line_by_line_selection(tso);
-        })
-        
-        // for only gutter lines, prevent selection
-        .filter('td.gutter div.line')
-          .bind('mousedown.highlight', function(e) {
-             e.preventDefault();
-          })
-        .end()
-        
-        // for only code lines, prevent default event if shift is pressed
-        .filter('div.container div.line')
-          .bind('mousedown.highlight', function(e)
+      // wrap the container in a wrapper so we can scroll horizontally
+      tso.container.wrapAll('<div class="container-wrapper">');
+      
+      tso.gutter
+        .bind('mousedown.highlight', function(event)
+        {
+          var $target = $(event.target);
+          if ($target.is('div.line'))
           {
-            if (e.shiftKey) {
-              e.preventDefault();
-              return;
-            }
-          })
-        .end()
-        ; 
+            $target.addClass('highlighted');
+
+            $(tso.container.children()[$target.index()])
+              .addClass('highlighted')
+              ;
+            
+            jj.page.mousedown_y = event.pageY;
+            jj.sh.clear_highlighted_lines(tso);
+            jj.sh.activate_line_by_line_selection(tso);
+            event.preventDefault();
+            return false;
+          }
+        })
+        ;
+      
+      tso.container.bind('mousedown.highlight', function(e) {
+        if (e.shiftKey) {
+          e.preventDefault();
+          return false;
+        }
+      });
+      
+      jj.sh.async_load_file(tso, window.filename, 0);
     });
     
     //
@@ -217,13 +259,80 @@
             jj.sh.line_containing_point(this.sh, window.pageYOffset)[0],
             jj.sh.line_containing_point(this.sh, window.pageYOffset + window.innerHeight)[0]
           ];
+          jj.page.scroll_timeout = null;
         })
       }, 200);
     });
   });
   
-
   
+  //=====================================================================
+  //
+  // loading asynchronously
+  //
+  //=====================================================================
+  function removeClass(thing, string) {
+    var s = thing.className.match(string);
+    $(thing).removeClass(s);
+    return s;
+  }
+  
+  jj.sh.async_load_file_impl = function(tso, $buffer, filename, line)
+  {
+    if ( jQuery.type(line) != "number" ) {
+      alert('problem!');
+    }
+    
+    $.ajax({
+      url: 'ajax/load',
+      data: {"filename": filename, from: line, to: line + 1200},
+      
+      success: function(msg)
+      {
+        var $parent = $buffer.parent();
+        
+        $buffer
+          .append(msg)
+          .detach()
+          ;
+        
+        $buffer.find('td.gutter div.line')
+          .each(function(index) {
+            var $this = $(this);
+            $this.text((line+index));
+            $this.removeClass('index'+index);
+            $this.addClass('index'+(line+index));
+          })
+          .appendTo(tso.sh.find('td.gutter'))
+          ;
+        
+        $buffer.find('div.container .line')
+          .appendTo(tso.sh.find('div.container'))
+          ;
+
+        $buffer
+          .children()
+            .remove()
+          ;
+        
+        $parent.append($buffer);
+        
+        if ((line + 1200) < window.total_lines) {
+          jj.sh.async_load_file_impl(tso, $buffer, filename, line + 1200);
+        }
+      }
+    });
+  }
+  
+  jj.sh.async_load_file = function(tso, filename, line2)
+  {
+    tso.sh.find('.line').remove();
+    
+    jj.sh.async_load_file_impl(tso, $('#shower'), filename, 0);
+    
+  };
+  
+
   
   
 })(window.jj = window.jj || {}, jQuery);

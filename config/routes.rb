@@ -1,6 +1,13 @@
 Gitique::Application.routes.draw do
   get "pages/random"
-
+  # get "pages/ajax/load"
+  
+  match "pages/ajax/load", :to => 'pages#load'
+  
+  match "ajax/load", :to => 'ajax#load'
+  
+  # match 'ajax', :to => '/public/ajax/'
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

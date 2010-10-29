@@ -14,6 +14,7 @@
  * @license
  * Dual licensed under the MIT and GPL licenses.
  */
+
 .syntaxhighlighter a,
 .syntaxhighlighter div,
 .syntaxhighlighter code,
@@ -31,11 +32,11 @@
   bottom: auto !important;
   float: none !important;
   height: auto !important;
-  left: auto !important;
+  left: auto;
   line-height: 1.1em !important;
   margin: 0 !important;
   outline: 0 !important;
-  overflow: visible !important;
+  overflow: visible;
   padding: 0 !important;
   position: static !important;
   right: auto !important;
@@ -53,10 +54,8 @@
 }
 
 .syntaxhighlighter {
-  width: 100% !important;
   margin: 1em 0 1em 0 !important;
   position: relative !important;
-  overflow: auto !important;
   font-size: 1em !important;
 }
 .syntaxhighlighter.source {
@@ -71,18 +70,21 @@
 .syntaxhighlighter .line {
   white-space: pre !important;
 }
+
 .syntaxhighlighter table {
   width: 100% !important;
 }
 .syntaxhighlighter table caption {
   text-align: left !important;
   padding: .5em 0 0.5em 1em !important;
+
 }
 .syntaxhighlighter table td.code {
-  width: 100% !important;
+  overflow: hidden !important;
 }
+
 .syntaxhighlighter table td.code .container {
-  position: relative !important;
+/*  position: relative !important;*/
 }
 .syntaxhighlighter table td.code .container textarea {
   box-sizing: border-box !important;
@@ -104,6 +106,7 @@
 .syntaxhighlighter table td.code .line {
   padding: 0 1em !important;
 }
+
 .syntaxhighlighter.nogutter td.code .container textarea, .syntaxhighlighter.nogutter td.code .line {
   padding-left: 0em !important;
 }

@@ -1,35 +1,211 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
-<head>
-  <!-- meta -->
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
-
-  <!-- jquery -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
-  <!-- <script type="text/javascript" src="http://jquery-utils.googlecode.com/svn/trunk/src/jquery.arrayUtils.js"></script> -->
-  
-  <!-- syntaxhighlighter -->
-  <script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
-  <script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
-  <link   type="text/css" rel="stylesheet" href="/javascripts/SH/styles/shCoreDefault.css" />
-  
+ 
   <!-- jj -->
   <script type="text/javascript" src="/javascripts/jj.js"></script>
+  <script type="text/javascript" src="/javascripts/tinyscrollbar.min.js"></script>
+  
+  <style>
+   #simplemodal-container {
+    background: white;
+    -moz-box-shadow: 0px 0px 10px black;
+    padding: 10px;
+  }
   
   
-</head>
-<body>
-<div style="position:absolute; left:0px; top:0px; width:100%; height:100%;">
-
   
   
-  <div style="position:absolute; left:400px;">
-  <p>Here is some text for <%= @thing %></p>
-
+  
+  #viewer {
+    position: absolute;
+    left: 400px;
+    height: 500px;
+    width: 800px;
+  }
+  
+    #lhs-pane {
+      float: left;
+      height: 100%;
+    }
+    
+      #viewer-content-wrapper
+      {
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+      }
+  
+        #mainpre {
+          position: absolute;
+          top: 0px;
+          left: 0px;
+        }
+  
+      #vsb {
+        height: 100%;
+        margin-left: 30px;
+      }
  
+ 
+    #rhs-pane {
+      float: right;
+      height: 100%;
+    }
+    
+      #hsb {
+        bottom: 0px;
+      }
   
-  <script type="text/javascript">
+  
+  
+  
+  
+  #mainpre div.container {
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  
+  #mainpre div.container-wrapper {
+    overflow: hidden !important;
+    positiion: relative !important;
+  }
+  
+  #mainpre div.toolbar {
+    display: none !important;
+  }
+  
+</style>
+
+
+<!-- body div -->
+<div style="position: absolute; left:0px; top:0px; width:100%; height:100%;">
+<a href="javascript:go()">go</a>  
+
+  <!-- "viewer" -->
+  <div id="viewer">
+    
+    <!-- left pane (not vertical scrollbar) -->
+    <table style="width: 100%; height: 100%;">
+      <tr>
+        <td>        
+          <!-- actual code -->
+          <div id="viewer-content-wrapper">
+            <p>Here is some text for <%= @filename %></p>
+            
+            <pre id="mainpre" class="brush: js;">
+            </pre>
+          </div>
+        </td>
+        <td>
+          <!-- vertical scrollbar -->
+          <div id="vsb"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+        	<!-- horizontal scrollbar -->
+          <div id="hsb"></div>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+    
+  </div>
+  
+<!-- hidden "scratch" buffer -->
+<div id="shower" style="position:absolute; left:800px; visibility:hidden" class="hidden">
+</div>
+
+<!-- popup buffer -->
+<div id="popupbuffer" style="display:none">
+  Code:
+  <pre id="bdpo" class="brush: js;">
+  </pre>
+  Comments:
+  <form>
+  <input type="textarea"></input>
+  </form>
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+
+  $(function() {
+		$("#vsb").slider(
+		  {
+		    orientation: "vertical",
+		    
+		    value: "100",
+		    
+		    slide: function(event, ui) {
+		      var mp = $('#mainpre');
+          var topValue = -(100-ui.value) * (parseInt(mp.css('height'))/100);
+          console.log(topValue);
+          mp.css('top', topValue);
+        }
+      }
+		);
+		
+		$('#hsb').slider({
+		  slide: function(event, ui) {
+		    var c = $('#mainpre div.container');
+		    c.css('left', -ui.value);
+		  }
+		});
+	});
+
+  
+  document.body.style.overflow = 'hidden';
+  jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
+  
+  SyntaxHighlighter.highlight();
+  
+
+  
+  
+  function go()
+  {
+    $('#popupbuffer div.container').children().remove();
+    $('#popupbuffer td.gutter').children().remove();
+          
+    $("td.gutter div.highlighted").clone().toggle().removeClass('highlighted').appendTo($('#popupbuffer td.gutter'));
+    $("div.container div.highlighted").clone().toggle().removeClass('highlighted').appendTo($('#popupbuffer div.container'));
+    
+    $("#popupbuffer").modal(
+      {
+        persist: true,
+        
+        opacity: 66,
+        
+        overlayCss:{
+          backgroundColor: '#ffffff'
+        },
+        
+        onOpen: function(dialog) {
+          dialog.overlay.fadeIn('fast');
+          dialog.container.fadeIn('fast');
+          dialog.data.fadeIn('fast');
+        },
+        
+        onClose: function(dialog) {
+          dialog.overlay.fadeOut('fast');
+          dialog.container.fadeOut('fast');
+          dialog.data.fadeOut('fast');
+          $.modal.close();
+        }
+      }
+    );
+  }
   
   
   //=====================================================================
@@ -61,108 +237,14 @@
     }
   }
   
+  window.filename = "<%= @filename %>";
+  window.total_lines = <%= @total_lines %>;
   
   
   
-  /*
   
-  $('document').ready(function()
-  {
-    
-    
-    $('div.container div.line').mouseup(function(e)
-    {
-      var to = index_of($(this));
-      var from = window.from;
-      
-      // allow for people selecting bottom-to-top
-      if (to < from) {
-        var tmp = to;
-        to = from;
-        from = tmp;
-      }
-      
-      // remove highlighting from previous selections
-      if (window.previous_from && window.previous_to)
-      {
-        $('td.gutter div.line')
-          .filter(function(x){
-            return window.previous_from <= x && x <= window.previous_to;
-          })
-          .each(function(){
-            $(this).removeClass('highlighted');
-          })
-          ;
-        
-        $('div.container div.line')
-          .filter(function(x){
-            return window.previous_from <= x && x <= window.previous_to;
-          })
-          .each(function(){
-            $(this).removeClass('highlighted');
-          })
-          ;        
-      }
-      
-      
-      // no selection, no highlighting required
-      if (selection() == "") return;
-
-
-      // highlight gutter
-      $('td.gutter div.line')
-        .filter(function(x) {
-          return from <= x && x <= to;
-        })
-        .each(function() {
-          $(this).addClass('highlighted');
-        })
-        ;
-      
-      // highlight container and copy content
-      var content = "";
-      $('div.container div.line')
-        .filter(function(x) {
-          return from <= x && x <= to;
-        })
-        .each(function() {
-          $(this).addClass('highlighted');
-          content += $(this).text() + "<br>";
-        })
-        ;
-      
-      $('div#shower').html(content);
-      
-      window.previous_from = from;
-      window.previous_to = to;
-      
-      jona.editor.highlighted = $('div.highlighted');
-      clear_selection();
-    });
-  });
-  */
-  </script>
-
-  <pre class="brush: js;">
-    <% @text.each do |x| %>
-    <%= x[1] %>
-    <% end %>
-  </pre>
-
-
-
-  </div>
-
-
-  <div id="shower" style="position:absolute; left:800px;">
-  </div>
-
-</div>
-</body>
-
-<script type="text/javascript">
-  SyntaxHighlighter.highlight();
+  
+  
 </script>
 
-</html>
 

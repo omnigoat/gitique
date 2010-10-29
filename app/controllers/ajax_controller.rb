@@ -1,0 +1,3 @@
+class AjaxController < ApplicationController
+  
+end
