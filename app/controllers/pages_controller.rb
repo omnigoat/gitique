@@ -19,7 +19,6 @@ def random_file()
     
   rescue IOError
     logger.debug "there was an error reading this stuff!"
-    
   end
   
   return ""
@@ -40,10 +39,10 @@ end
 
 class PagesController < ApplicationController
   def random
-    #logger.debug "HERERE"
-    #IO.popen("pwd").readlines.each do |x|
-    #  logger.debug x
-    #end
+    logger.debug "HERERE"
+    IO.popen("pwd").readlines.each do |x|
+      logger.debug x
+    end
     
     @filename = random_file()
     @total_lines = file_lines(@filename, 0, 1)[0]
