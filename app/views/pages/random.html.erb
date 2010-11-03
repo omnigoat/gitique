@@ -131,10 +131,10 @@
   <pre id="bdpo" class="brush: js;">
   </pre>
   Comments:
-  <form method=post action="random/post">
   <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
-  <input type=submit>Ok</input>
+  <a href="javascript:jkkj()">Ok</a>
   </form>
+  
 </div>
 
 </div>
@@ -149,6 +149,19 @@
 
 
 <script type="text/javascript">
+  
+  function jkkj()
+  {
+    console.log( $('#t')[0].value );
+    
+    $.post(
+      "random/post",
+      {lines: [4], comments: $('#t')[0].value},
+      function(msg) {
+        alert(msg);
+      }
+    );
+  }
   
   //jaja.scrollbar($("#blah"));
 

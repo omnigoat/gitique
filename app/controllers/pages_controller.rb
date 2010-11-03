@@ -55,8 +55,14 @@ class PagesController < ApplicationController
   end
   
   def post
-    logger.debug "WHOOOO!: " + params[:t]
-    render
+    logger.debug "WHOOOO!: " + params[:comments]
+    
+    critique = Critique.new(:comments => params[:comments])
+    critique.save
+    
+    @critiques = Critique.find(:all)
+    
+    render :layout => false
   end
   
 end

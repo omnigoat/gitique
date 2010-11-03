@@ -22,17 +22,22 @@
   <!-- end -->
   
   
+  <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
   
-  
-  
-  <% if protect_against_forgery? %>
-    <script type='text/javascript'>
-      //<![CDATA[
-        window._auth_token_name = "#{request_forgery_protection_token}";
-        window._auth_token = "#{form_authenticity_token}";
-      //]]>
-    </script>
-  <% end %>
+  <script type="text/javascript">
+    // Always send the authenticity_token with ajax
+    $(document).ajaxSend(function(event, request, settings) {
+        if ( settings.type == 'post' ) {
+            settings.data = (settings.data ? settings.data + "&" : "") + "authenticity_token=" + encodeURIComponent( AUTH_TOKEN );
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        }
+    });
+
+    // When I say html I really mean script for rails
+    $.ajaxSettings.accepts.html = $.ajaxSettings.accepts.script;
+  </script>
+
+
   
   
   <!-- syntaxhighlighter -->
