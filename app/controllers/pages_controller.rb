@@ -54,4 +54,27 @@ class PagesController < ApplicationController
     render :layout => false
   end
   
+  def post
+    logger.debug "WHOOOO!: " + params[:t]
+    render
+  end
+  
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

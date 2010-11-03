@@ -1,7 +1,7 @@
  
   <!-- jj -->
   <script type="text/javascript" src="/javascripts/jj.js"></script>
-  <script type="text/javascript" src="/javascripts/tinyscrollbar.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jaja.js"></script>
   
   <style>
    #simplemodal-container {
@@ -54,7 +54,10 @@
         bottom: 0px;
       }
   
-  
+  table {
+    margin: 0;
+    padding: 0;
+  }
   
   
   
@@ -68,9 +71,17 @@
     positiion: relative !important;
   }
   
-  #mainpre div.toolbar {
+  div.toolbar {
     display: none !important;
   }
+  
+  .jaja-scrollbar {
+    height: 300px;
+    width: 80px;
+  }
+  
+  .jaja-scrollbar-nub { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; cursor: default; border: thin solid black; }
+
   
 </style>
 
@@ -78,18 +89,18 @@
 <!-- body div -->
 <div style="position: absolute; left:0px; top:0px; width:100%; height:100%;">
 <a href="javascript:go()">go</a>  
-
+  
+  <div id="blah"></div>
+  
   <!-- "viewer" -->
   <div id="viewer">
     
     <!-- left pane (not vertical scrollbar) -->
     <table style="width: 100%; height: 100%;">
       <tr style="width: 100%; height: 100%;">
-        <td>        
+        <td style="width: 100%">        
           <!-- actual code -->
           <div id="viewer-content-wrapper">
-            <p>Here is some text for <%= @filename %></p>
-            
             <pre id="mainpre" class="brush: js;">
             </pre>
           </div>
@@ -120,8 +131,9 @@
   <pre id="bdpo" class="brush: js;">
   </pre>
   Comments:
-  <form>
-  <input type="textarea"></input>
+  <form method=post action="random/post">
+  <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
+  <input type=submit>Ok</input>
   </form>
 </div>
 
@@ -138,30 +150,13 @@
 
 <script type="text/javascript">
   
+  //jaja.scrollbar($("#blah"));
 
-  $(function() {
-		$("#vsb").slider(
-		  {
-		    orientation: "vertical",
-		    
-		    value: 100,
-		    
-		    slide: function(event, ui) {
-		      var mp = $('#mainpre');
-          var topValue = -(100-ui.value) * (parseInt(mp.css('height'))/100);
-          console.log(topValue);
-          mp.css('top', topValue);
-        }
-      }
-		);
-		
-		$('#hsb').slider({
-		  slide: function(event, ui) {
-		    var c = $('#mainpre div.container');
-		    var topValue = -(ui.value) * (parseInt(c.css('width'))/100);
-		    c.css('left', topValue);
-		  }
-		});
+  
+  
+  $(function()
+  {
+    
 	});
 
   
@@ -170,7 +165,13 @@
   
   SyntaxHighlighter.highlight();
   
-
+  var s = $('#vsb');
+  
+  $('#viewer').mousewheel(function(event, delta) {
+    s.slider("value", s.slider("value") + delta * 3);
+    s.slider('option', 'slide').call(s, event, {handle: s.slider('widget'), value: s.slider('value')});
+    event.preventDefault();
+  });
   
   
   function go()
@@ -206,6 +207,42 @@
       }
     );
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   //=====================================================================

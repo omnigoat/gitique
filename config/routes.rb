@@ -1,5 +1,8 @@
 Gitique::Application.routes.draw do
   get "pages/random"
+  
+  match "pages/random/post", :to => "pages#post"
+  
   # get "pages/ajax/load"
   
   match "pages/ajax/load", :to => 'pages#load'

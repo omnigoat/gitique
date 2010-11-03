@@ -6,12 +6,24 @@
   <%= csrf_meta_tag %>
   
   <!-- jquery -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
-  
-  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <!-- core -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    
+    <!-- ui -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 
-  <script type="text/javascript" src="/javascripts/jquery.simplemodal.1.4.min.js"></script>
+    <!-- mousewheel -->
+    <script type="text/javascript" src="/javascripts/jquery.mousewheel.min.js"></script>
+    
+    <!-- modal -->
+    <script type="text/javascript" src="/javascripts/jquery.simplemodal.1.4.min.js"></script>
+  
+  <!-- end -->
+  
+  
+  
+  
   
   <% if protect_against_forgery? %>
     <script type='text/javascript'>

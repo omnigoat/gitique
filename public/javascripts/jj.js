@@ -263,6 +263,38 @@
         })
       }, 200);
     });
+    
+    
+    var k = $('#viewer #mainpre div.container').children().length;
+    
+    console.log(k);
+    $("#vsb").slider(
+		  {
+		    orientation: "vertical",
+		    
+		    value: 100,
+		    
+		    min: 0,
+		    max: 100,
+		    
+		    slide: function(event, ui)
+		    {
+		      var $this = $(this);
+		      var mp = $('#viewer #mainpre');
+		      var range = $this.slider('option', 'max');
+          var value = -(range-ui.value) * (parseInt(mp.css('height')) / range);
+          mp.css('top', value);
+        }
+      }
+		);
+		
+		$('#hsb').slider({
+		  slide: function(event, ui) {
+		    var c = $('#mainpre div.container');
+		    var topValue = -(ui.value) * (parseInt(c.css('width'))/150);
+		    c.css('left', topValue);
+		  }
+		});
   });
   
   
@@ -316,6 +348,11 @@
           ;
         
         $parent.append($buffer);
+        
+        // update scrollbar
+        $('#hsb').slider('option', 'max', tso.container.children().length);
+        
+        
         
         if ((line + 1200) < window.total_lines) {
           jj.sh.async_load_file_impl(tso, $buffer, filename, line + 1200);
