@@ -27,7 +27,7 @@ end
 
 def file_lines(filename, from, to)
   begin
-    fhi = IO.popen("git show HEAD:" + @filename)
+    fhi = IO.popen("git show HEAD:" + filename)
     
     lines = fhi.readlines.map {|x| x.chomp}
     
