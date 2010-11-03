@@ -9,11 +9,11 @@ class Array
 end
 
 def random_file()
-  return "public/javascripts/SH/tests/theme_tests.html"
+  #return "public/javascripts/SH/tests/theme_tests.html"
   #return "public/javascripts/SH/src/shCore.js"
   
   begin
-    fhi = IO.popen("cd ~/rails_projects/gitique && git ls-files")
+    fhi = IO.popen("git ls-files")
     files = fhi.readlines.map {|x| x.chomp}
     return files[rand(files.length)]
     
@@ -27,7 +27,7 @@ end
 
 def file_lines(filename, from, to)
   begin
-    fhi = IO.popen("cd ~/rails_projects/gitique && git show HEAD:" + @filename)
+    fhi = IO.popen("git show HEAD:" + @filename)
     
     lines = fhi.readlines.map {|x| x.chomp}
     
@@ -40,6 +40,11 @@ end
 
 class PagesController < ApplicationController
   def random
+    #logger.debug "HERERE"
+    #IO.popen("pwd").readlines.each do |x|
+    #  logger.debug x
+    #end
+    
     @filename = random_file()
     @total_lines = file_lines(@filename, 0, 1)[0]
   end
@@ -55,7 +60,7 @@ class PagesController < ApplicationController
   end
   
   def post
-    logger.debug "WHOOOO!: " + params[:comments]
+    # logger.debug "WHOOOO!: " + params[:comments]
     
     critique = Critique.new(:comments => params[:comments])
     critique.save
