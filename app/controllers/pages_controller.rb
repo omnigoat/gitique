@@ -13,7 +13,7 @@ def random_file()
   #return "public/javascripts/SH/src/shCore.js"
   
   begin
-    fhi = IO.popen("git ls-files")
+    fhi = IO.popen("cd resources/gitique && git ls-files")
     files = fhi.readlines.map {|x| x.chomp}
     return files[rand(files.length)]
     
@@ -26,7 +26,7 @@ end
 
 def file_lines(filename, from, to)
   begin
-    fhi = IO.popen("git show HEAD:" + filename)
+    fhi = IO.popen("cd resources/gitique && git show HEAD:" + filename)
     
     lines = fhi.readlines.map {|x| x.chomp}
     
