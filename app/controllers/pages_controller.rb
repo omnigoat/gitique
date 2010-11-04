@@ -44,6 +44,10 @@ class PagesController < ApplicationController
       puts x
     end
     puts "END BLAM!"
+    IO.popen("ls").readlines.each do |x|
+      puts x
+    end
+    puts "END BLAM AGAIN!"
     
     @filename = random_file()
     @total_lines = file_lines(@filename, 0, 1)[0]
