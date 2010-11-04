@@ -39,6 +39,7 @@ end
 
 class PagesController < ApplicationController
   def random
+    puts "BLAM!"
     logger.debug "HERERE"
     IO.popen("pwd").readlines.each do |x|
       logger.debug x
