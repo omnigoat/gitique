@@ -18,7 +18,7 @@ def random_file()
     return files[rand(files.length)]
     
   rescue IOError
-    logger.debug "there was an error reading this stuff!"
+    puts "there was an error listing this stuff!"
   end
   
   return ""
@@ -33,7 +33,7 @@ def file_lines(filename, from, to)
     return [lines.length, lines.slice(from, to - from)]
     
   rescue IOError
-    logger.debug "there was an error reading this stuff!"
+    puts "there was an error reading this stuff!"
   end
 end
 
@@ -44,7 +44,7 @@ class PagesController < ApplicationController
       puts x
     end
     puts "END BLAM!"
-    IO.popen("ls").readlines.each do |x|
+    IO.popen("ls -a").readlines.each do |x|
       puts x
     end
     puts "END BLAM AGAIN!"
