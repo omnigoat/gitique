@@ -39,9 +39,11 @@ end
 
 class PagesController < ApplicationController
   def random
+    puts "BLAM!"
     IO.popen("pwd").readlines.each do |x|
       puts x
     end
+    puts "END BLAM!"
     
     @filename = random_file()
     @total_lines = file_lines(@filename, 0, 1)[0]
