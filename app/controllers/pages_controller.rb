@@ -40,14 +40,10 @@ end
 class PagesController < ApplicationController
   def random
     puts "BLAM!"
-    IO.popen("pwd").readlines.each do |x|
+    IO.popen("ls -la resources/gitique").readlines.each do |x|
       puts x
     end
     puts "END BLAM!"
-    IO.popen("ls -a").readlines.each do |x|
-      puts x
-    end
-    puts "END BLAM AGAIN!"
     
     @filename = random_file()
     @total_lines = file_lines(@filename, 0, 1)[0]
