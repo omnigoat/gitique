@@ -1,11 +1,17 @@
 Gitique::Application.routes.draw do
   get "pages/random"
   
+  match "repositories", :to => 'repositories#main'
+  match "repositories/add", :to => 'repositories#add'
+  match "repositories/remove", :to => 'repositories#remove'
+  
+  
   match "pages/random/post", :to => "pages#post"
   
   # get "pages/ajax/load"
   
   match "pages/ajax/load", :to => 'pages#load'
+  
   
   match "ajax/load", :to => 'ajax#load'
   

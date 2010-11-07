@@ -1,0 +1,30 @@
+
+<input id="repository" name="repository" class="text_input" type=text></input>
+<a href="javascript:add_repository()">Add Repository</a>
+<a href="javascript:remove_repository()">Remove Repository</a>
+
+<script type="text/javascript">
+function add_repository()
+{
+  $.post(
+    "repositories/add",
+
+    {url: $('#repository')[0].value},
+
+    function(msg) {
+    }
+  );
+}
+
+function remove_repository()
+{
+  $.post(
+    "repositories/remove",
+
+    {url: $('#repository')[0].value},
+
+    function(msg) {
+    }
+  );
+}
+</script>

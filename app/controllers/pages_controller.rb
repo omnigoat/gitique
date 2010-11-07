@@ -41,7 +41,7 @@ class PagesController < ApplicationController
   def random
     puts "BLAM!"
     IO.popen("ls -la resources/gitique").readlines.each do |x|
-      puts x
+      logger.debug x
     end
     puts "END BLAM!"
     

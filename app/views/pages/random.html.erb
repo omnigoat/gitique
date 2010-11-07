@@ -133,8 +133,6 @@
   Comments:
   <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
   <a href="javascript:jkkj()">Ok</a>
-  </form>
-  
 </div>
 
 </div>
@@ -152,8 +150,6 @@
   
   function jkkj()
   {
-    console.log( $('#t')[0].value );
-    
     $.post(
       "random/post",
       {lines: [4], comments: $('#t')[0].value},
