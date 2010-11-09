@@ -8,12 +8,11 @@ class RepositoriesController < ApplicationController
       logger.debug "ADDING REPO: " + params[:url]
       
       repo = Repository.new(:url => params[:url])
-      k = "cd resources/repositories && git clone --bare " + params[:url] + " repo" + repo.id.to_s
-      logger.debug k
-      IO.popen(k)
-      
-      
       repo.save
+      
+      k = "cd resources/repositories && git clone --bare " + params[:url] + " repo" + repo.id.to_s
+      #logger.debug k
+      IO.popen(k)
     end
     
     render :nothing => true
@@ -21,14 +20,16 @@ class RepositoriesController < ApplicationController
   
   
   def remove
+    render :nothing => true
+    
     repo = Repository.find_by_url(params[:url])
     return if not repo
-    
-    IO.popen("rm -rf resources/repositories/repo" + repo.id.to_s)
+      
+    k = "rm -rf resources/repositories/repo" + repo.id.to_s
+    #logger.debug k
+    IO.popen(k)
     
     repo.delete
-    
-    render :nothing => true
   end
   
   def main

@@ -8,6 +8,23 @@ require 'rails/all'
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 
+
+
+#======================================================================
+# modify active-record so we can get a random record
+#======================================================================
+module ActiveRecord
+  class Base
+    def self.random
+      if (c = count) != 0
+        find(:first, :offset => rand(c))
+      end
+    end
+  end
+end
+
+
+
 module Gitique
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.

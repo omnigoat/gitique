@@ -94,6 +94,8 @@
   
   <!-- "viewer" -->
   <div id="viewer">
+    <%= @repo.url %><br />
+    <%= @branch + ":" + @filename %>
     
     <!-- left pane (not vertical scrollbar) -->
     <table style="width: 100%; height: 100%;">
@@ -283,9 +285,10 @@
     }
   }
   
+  window.repo_id = <%= @repo.id.to_s %>;
+  window.branch = "<%= @branch %>";
   window.filename = "<%= @filename %>";
   window.total_lines = <%= @total_lines %>;
-  
   
   
   

@@ -317,7 +317,7 @@
     
     $.ajax({
       url: 'ajax/load',
-      data: {"filename": filename, from: line, to: line + 1200},
+      data: {"repo_id": repo_id, "branch": branch, "filename": filename, from: line, to: line + 1200},
       
       success: function(msg)
       {
