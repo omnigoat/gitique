@@ -3,63 +3,100 @@
   <script type="text/javascript" src="/javascripts/jj.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.js"></script>
   
-  <style>
-   #simplemodal-container {
+<style>
+  html, body {
+    position: absolute;
+    bottom: 0px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+  }
+
+  #simplemodal-container {
     background: white;
     -moz-box-shadow: 0px 0px 10px black;
     padding: 10px;
   }
   
+  .floatingbox {
+    -moz-box-shadow: 0px 0px 10px black;
+  }
   
+  #title {
+    padding: 2px;
+    margin: 10px;
+  }
   
+  #title span.title {
+    font-size: 3em;
+  }
   
+  #title span.info {
+    font-size: 1em;
+    color: #aaaaaa;
+    font-style: italic;
+  }
+  
+  #critiques {
+    float: left;
+    width: 40%;
+    overflow: hidden;
+  }
+  
+    .critique {
+      -moz-box-shadow: 0px 0px 10px black;
+      margin: 10px;
+      padding: 50px;
+      width: 100%px;
+    }
+    
+    .critique:hover {
+      -moz-box-shadow: 0px 0px 10px blue;
+    }
+  
+  #viewer-wrapper {
+    float: right;
+    width: 60%;
+    height: 100%;
+    overflow:hidden;
+  }
   
   #viewer {
-    position: absolute;
-    left: 400px;
-    height: 500px;
-    width: 800px;
+    margin: 10px 0px 10px 10px;
+    -moz-box-shadow: 0px -0px 10px black;
   }
+   
+    #viewer-content-wrapper
+    {
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+
+      #mainpre {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+      }
   
-    #lhs-pane {
-      float: left;
+    #vsb {
       height: 100%;
     }
-    
-      #viewer-content-wrapper
-      {
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        width: 100%;
-      }
-  
-        #mainpre {
-          position: absolute;
-          top: 0px;
-          left: 0px;
-        }
-  
-      #vsb {
-        height: 100%;
-      }
  
- 
-    #rhs-pane {
-      float: right;
-      height: 100%;
+    #hsb {
+      bottom: 0px;
     }
-    
-      #hsb {
-        bottom: 0px;
-      }
-  
-  table {
+
+  table.coding-window {
     margin: 0;
-    padding: 0;
+    padding: 20px 0px 0px 20px;
+    height: 100%;
+    width: 100%;
   }
-  
-  
   
   #mainpre div.container {
     position: relative !important;
@@ -75,30 +112,38 @@
     display: none !important;
   }
   
-  .jaja-scrollbar {
-    height: 300px;
-    width: 80px;
-  }
-  
-  .jaja-scrollbar-nub { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; cursor: default; border: thin solid black; }
-
-  
 </style>
 
 
-<!-- body div -->
-<div style="position: absolute; left:0px; top:0px; width:100%; height:100%;">
-<a href="javascript:go()">go</a>  
-  
-  <div id="blah"></div>
-  
+<!--- ----------------------------------------------------
+visible layout
+----------------------------------------------------- --->
+
+  <!-- title -->
+  <div id="title">
+    <span class='title'>Gitique</span><span class='info'>logged in as blah blah blah</span>
+  </div>
+
+  <!-- critiques -->
+  <div id="critiques">
+    Critiques <a href="javascript:go()">go</a>  
+    <div class="critique">
+      <span class="name"></span>
+    </div>
+  </div>
+
   <!-- "viewer" -->
+  <div id="viewer-wrapper">
   <div id="viewer">
-    <%= @repo.url %><br />
-    <%= @branch + ":" + @filename %>
-    
-    <!-- left pane (not vertical scrollbar) -->
-    <table style="width: 100%; height: 100%;">
+    <table class="coding-window">
+      <tr>
+        <td>
+          <%= @repo.url %><br />
+          <%= @branch + ":" + @filename %>
+        </td>
+        <td>
+        </td>
+      </tr>
       <tr style="width: 100%; height: 100%;">
         <td style="width: 100%">        
           <!-- actual code -->
@@ -120,9 +165,12 @@
         <td></td>
       </tr>
     </table>
-    
   </div>
-  
+  </div>
+
+
+
+
 <!-- hidden "scratch" buffer -->
 <div id="shower" style="position:absolute; left:800px; visibility:hidden" class="hidden">
 </div>
@@ -137,24 +185,59 @@
   <a href="javascript:jkkj()">Ok</a>
 </div>
 
-</div>
-
-
-
-
-
 
 
 
 
 
 <script type="text/javascript">
+  window.repo_id = <%= @repo.id.to_s %>;
+  window.branch = "<%= @branch %>";
+  window.filename = "<%= @filename %>";
+  window.total_lines = <%= @total_lines %>;
+  
+  
+  $(window).resize(function() {
+    //$('#critiques').height($('body').height() - $('#title').height());
+    //$('#viewer').height($('body').height() - $('#title').height());
+    $('#critiques').height($(window).height() - $('#critiques').position().top);
+    $('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').position().top);
+    $('#viewer').height($('#viewer-wrapper').height() - 10);
+  });
+
+  
+  $(document).ready(function(){
+    $(window).trigger('resize');
+  });
+  
+  $(function() {
+    $.getJSON('/critiques/get_all', {"repo_id": repo_id, "branch": branch, "filename": filename}, function(data) {
+      //console.log(data[0].comments);
+      //console.log(data.length);
+      
+      var directive = {
+        'div.critique':{
+          'critique <- critiques':{
+            'span.name': 'critique.comments'
+          }
+        }
+      };
+      
+      $('#critiques').render({critiques: data}, directive);
+    });
+  });
   
   function jkkj()
   {
+    var $lines = $('#mainpre div.highlighted');
+    if ($lines.length == 0) {
+      alert("you haven't written anything!");
+      return;
+    }
+    
     $.post(
-      "random/post",
-      {lines: [4], comments: $('#t')[0].value},
+      "/critiques/add",
+      {lines: [parseInt($lines.first().index()), parseInt($lines.last().index())], comments: $('#t')[0].value},
       function(msg) {
         alert(msg);
       }
@@ -163,24 +246,16 @@
   
   //jaja.scrollbar($("#blah"));
 
-  
-  
-  $(function()
-  {
-    
-	});
-
-  
   document.body.style.overflow = 'hidden';
   jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
   
   SyntaxHighlighter.highlight();
   
-  var s = $('#vsb');
   
   $('#viewer').mousewheel(function(event, delta) {
-    s.slider("value", s.slider("value") + delta * 3);
-    s.slider('option', 'slide').call(s, event, {handle: s.slider('widget'), value: s.slider('value')});
+    var $vsb = $('#vsb');
+    $vsb.slider("value", $vsb.slider("value") + delta * 3);
+    $vsb.slider('option', 'slide').call($vsb, event, {handle: $vsb.slider('widget'), value: $vsb.slider('value')});
     event.preventDefault();
   });
   
@@ -285,10 +360,7 @@
     }
   }
   
-  window.repo_id = <%= @repo.id.to_s %>;
-  window.branch = "<%= @branch %>";
-  window.filename = "<%= @filename %>";
-  window.total_lines = <%= @total_lines %>;
+  
   
   
   

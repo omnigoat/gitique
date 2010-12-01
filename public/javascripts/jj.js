@@ -265,25 +265,30 @@
     });
     
     
-    var k = $('#viewer #mainpre div.container').children().length;
+    jj.mainpre = $('#viewer #mainpre');
     
-    console.log(k);
-    $("#vsb").slider(
+    var $vsb = $('#vsb');
+    
+    setInterval(function() {
+      var current_top = parseInt(jj.mainpre.css('top'));
+      var offset = ($vsb.data('scroll.target') - current_top) * 0.6;
+      jj.mainpre.css('top', current_top + offset);
+    }, 1);
+    
+    
+    $vsb.slider(
 		  {
 		    orientation: "vertical",
 		    
-		    value: 100,
-		    
+		    value: 0,
 		    min: 0,
-		    max: 100,
+		    max: 0,
 		    
-		    slide: function(event, ui)
-		    {
-		      var $this = $(this);
-		      var mp = $('#viewer #mainpre');
-		      var range = $this.slider('option', 'max');
-          var value = -(range-ui.value) * (parseInt(mp.css('height')) / range);
-          mp.css('top', value);
+		    slide: function(event, ui) {
+		      //$(this).data('sv', ui.value);
+		      var v = parseInt($vsb.slider('option', 'max')) - ui.value;
+		      $(this).data('scroll.target', -$('div.container div.line:eq(' + v + ')').position().top);
+		      console.log(v + ":" + $(this).data('scroll.target'));
         }
       }
 		);
@@ -303,12 +308,6 @@
   // loading asynchronously
   //
   //=====================================================================
-  function removeClass(thing, string) {
-    var s = thing.className.match(string);
-    $(thing).removeClass(s);
-    return s;
-  }
-  
   jj.sh.async_load_file_impl = function(tso, $buffer, filename, line)
   {
     if ( jQuery.type(line) != "number" ) {
@@ -350,9 +349,15 @@
         $parent.append($buffer);
         
         // update scrollbar
-        $('#hsb').slider('option', 'max', tso.container.children().length);
+        var cvsbv = $('#vsb').slider('option', 'value');
+        var cvsbm = $('#vsb').slider('option', 'max');
+        var k = cvsbm - cvsbv;
+        var nl = tso.container.children().length - 1;
+        $('#vsb').slider('option', 'max', nl);
+        $('#vsb').slider('option', 'value', nl - k);
+        console.log($('#vsb').slider('option', 'value'));
         
-        
+        jj.mainpre_height = parseInt(jj.mainpre.css('height'));
         
         if ((line + 1200) < window.total_lines) {
           jj.sh.async_load_file_impl(tso, $buffer, filename, line + 1200);

@@ -25,6 +25,11 @@ end
 
 
 
+#======================================================================
+# not needed!
+#======================================================================
+ActiveRecord::Base.include_root_in_json = false
+
 module Gitique
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
