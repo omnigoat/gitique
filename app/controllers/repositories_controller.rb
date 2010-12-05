@@ -5,7 +5,7 @@ class RepositoriesController < ApplicationController
   def add
     repo = Repository.find_by_url(params[:url])
     if repo == nil
-      logger.debug "ADDING REPO: " + params[:url]
+      logger.info  "adding repo " + params[:url]
       
       repo = Repository.new(:url => params[:url])
       repo.save
@@ -13,6 +13,8 @@ class RepositoriesController < ApplicationController
       k = "cd resources/repositories && git clone --bare " + params[:url] + " repo" + repo.id.to_s
       logger.info "{{" + k + "}}"
       logger.info IO.popen(k)
+    else
+      logger.info "can't add repo" + repo.id.to_s + " - it already exists!"
     end
     
     render :nothing => true
