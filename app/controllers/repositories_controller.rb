@@ -11,7 +11,7 @@ class RepositoriesController < ApplicationController
       repo.save
       
       k = "cd resources/repositories && git clone --bare " + params[:url] + " repo" + repo.id.to_s
-      #logger.debug k
+      logger.info "{{" + k + "}}"
       IO.popen(k)
     end
     
