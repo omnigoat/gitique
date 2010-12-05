@@ -12,7 +12,7 @@ class RepositoriesController < ApplicationController
       
       k = "cd resources/repositories && git clone --bare " + params[:url] + " repo" + repo.id.to_s
       logger.info "{{" + k + "}}"
-      IO.popen(k)
+      logger.info IO.popen(k)
     end
     
     render :nothing => true

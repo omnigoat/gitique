@@ -20,6 +20,7 @@ server "184.106.168.45", :app, :web, :db, :primary => true
 
 namespace :deploy do
   task :start, :roles => :app do
+    run "rake db:migrate RAILS_ENV=production"
     run "touch #{current_release}/tmp/restart.txt"
   end
 
