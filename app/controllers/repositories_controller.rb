@@ -8,7 +8,8 @@ class RepositoriesController < ApplicationController
     
     repo = Repository.find_by_url(params[:url])
     if repo == nil
-      logger.info  "adding repo " + params[:url]
+      logger.info "adding repo '" + params[:url] + "'"
+      logger.info Dir.pwd
       
       repo = Repository.new(:url => params[:url])
       repo.save
