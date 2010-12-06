@@ -19,8 +19,8 @@ class RepositoriesController < ApplicationController
       logger.info "{{" + k + "}}"
       
       Open3.popen3(k) do |stdin, stdout, stderr|
-       logger.info "STDOUT[" + stdout.readlines.join + "]"
-      logger.info "STDERR[" + stderr.readlines.join + "]"
+        logger.info "STDOUT[" + stdout.readlines.join + "]"
+        logger.info "STDERR[" + stderr.readlines.join + "]"
       end
       #system k
       
