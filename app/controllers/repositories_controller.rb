@@ -10,6 +10,7 @@ class RepositoriesController < ApplicationController
     if repo == nil
       logger.info "adding repo '" + params[:url] + "'"
       logger.info Dir.pwd
+      logger.info IO.popen("pwd").readlines
       
       repo = Repository.new(:url => params[:url])
       repo.save
