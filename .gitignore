@@ -4,8 +4,7 @@ log/*.log
 *.log
 tmp/**/*
 tmp/*
-resources/**/*
-resources/*
+resources/repositories/*
 doc/api
 doc/app
 *.swp

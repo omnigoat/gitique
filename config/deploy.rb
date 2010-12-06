@@ -27,11 +27,10 @@ namespace :deploy do
     # Do nothing.
   end
   
-  run("cd #{deploy_to}/current && /usr/bin/env rake db:migrate RAILS_ENV=production")
   
   desc "Restart Application"
   task :restart, :roles => :app do
-    run "rake db:migrate RAILS_ENV=production"
+    run "cd #{deploy_to}/current && /usr/bin/env rake db:migrate RAILS_ENV=production"
     run "touch #{current_release}/tmp/restart.txt"
   end
 end

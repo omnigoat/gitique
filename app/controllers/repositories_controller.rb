@@ -12,7 +12,8 @@ class RepositoriesController < ApplicationController
       
       k = "cd resources/repositories && git clone --bare " + params[:url] + " repo" + repo.id.to_s
       logger.info "{{" + k + "}}"
-      logger.info IO.popen(k)
+      fd = IO.popen(k)
+      logger.info fd.readlines.join('\n')
     else
       logger.info "can't add repo" + repo.id.to_s + " - it already exists!"
     end
