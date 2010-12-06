@@ -15,13 +15,14 @@ class RepositoriesController < ApplicationController
       repo = Repository.new(:url => params[:url])
       repo.save
       
-      k = "git clone --bare " + params[:url] + " resources/repositories/repo" + repo.id.to_s + ".git"
+      k = "git clone --bare " + params[:url] + " repo" + repo.id.to_s + ".git"
       logger.info "{{" + k + "}}"
       
-      Open3.popen3(k) do |stdin, stdout, stderr|
-        logger.info "STDOUT[" + stdout.readlines.join + "]"
-        logger.info "STDERR[" + stderr.readlines.join + "]"
-      end
+      #Open3.popen3(k) do |stdin, stdout, stderr|
+      # logger.info "STDOUT[" + stdout.readlines.join + "]"
+      #logger.info "STDERR[" + stderr.readlines.join + "]"
+      #end
+      system k
       
       
       
