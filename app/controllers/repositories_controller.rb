@@ -18,11 +18,11 @@ class RepositoriesController < ApplicationController
       k = "git clone --bare " + params[:url] + " repo" + repo.id.to_s + ".git"
       logger.info "{{" + k + "}}"
       
-      #Open3.popen3(k) do |stdin, stdout, stderr|
-      # logger.info "STDOUT[" + stdout.readlines.join + "]"
-      #logger.info "STDERR[" + stderr.readlines.join + "]"
-      #end
-      system k
+      Open3.popen3(k) do |stdin, stdout, stderr|
+       logger.info "STDOUT[" + stdout.readlines.join + "]"
+      logger.info "STDERR[" + stderr.readlines.join + "]"
+      end
+      #system k
       
       
       
