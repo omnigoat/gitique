@@ -9,7 +9,7 @@ class Array
 end
 
 def git_do(repo, string)
-  command = "cd resources/repositories/repo" + repo.id.to_s + " && " + string
+  command = "cd resources/repositories/" + repo.id.to_s + ".git && " + string
   begin
     return IO.popen(command)
   rescue IOError
@@ -72,7 +72,9 @@ class PagesController < ApplicationController
     @to = Integer(params[:to])
     @lines = file_lines(repo, @branch, @filename, @from, @to)[1]
     
-    render :layout => false
+    respond_to do |format|
+      format.html { render "load", :layout => false }
+    end
   end
   
   def post

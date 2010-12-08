@@ -8,6 +8,7 @@ Gitique::Application.routes.draw do
   match "critiques/add", :to => 'critiques#add'
   match "critiques/get_all", :to => 'critiques#get_all'
   
+  
   match "pages/random/post", :to => "pages#post"
   
   # get "pages/ajax/load"

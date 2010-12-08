@@ -273,7 +273,7 @@
       var current_top = parseInt(jj.mainpre.css('top'));
       var offset = ($vsb.data('scroll.target') - current_top) * 0.6;
       jj.mainpre.css('top', current_top + offset);
-    }, 1);
+    }, 16);
     
     
     $vsb.slider(
