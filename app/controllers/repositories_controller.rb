@@ -17,7 +17,9 @@ class RepositoriesController < ApplicationController
       
       # this is a little hacky, but I need it to work both on my development machine
       # and my production machine
-      k = "cd `pwd -P` && " + IO.popen('which git').readlines[0].chomp! + " clone --bare " + params[:url] + " resources/repositories/r" + repo.id.to_s + ".git"
+      #k = "cd `pwd -P` && " + IO.popen('which git').readlines[0].chomp! + " clone --bare " + params[:url] + " resources/repositories/r" + repo.id.to_s + ".git"
+      k = "git clone --bare " + params[:url] + " resources/repositories/" + repo.id.to_s + ".git"
+      
       logger.info "{{" + k + "}}"
       
       Open3.popen3(k) do |stdin, stdout, stderr|
