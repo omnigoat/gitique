@@ -159,7 +159,7 @@
               var nl = esh.container.children().length - 1;
               esh.vsb.slider('option', 'max', nl);
               esh.vsb.slider('option', 'value', nl - k);
-              //console.log($('#vsb').slider('option', 'value'));
+              console.log($('#vsb').slider('option', 'value'));
               
 
               if ((line + 1200) < window.total_lines) {
@@ -418,7 +418,7 @@
     //---------------------------------------------------------------------
     setInterval(function() {
       var k = esh.vsb.data('scroll.target');
-      if (k) {
+      if (k !== undefined) {
         var current_top = parseInt(esh.sh.css('top'));
         var offset = (k - current_top) * 0.6;
         esh.sh.css('top', current_top + offset);
@@ -434,9 +434,10 @@
 		    max: 1,
 		    
 		    slide: function(event, ui) {
-		      var v = parseInt(esh.vsb.slider('option', 'max')) - ui.value;
-		      $(this).data('scroll.target', -esh.container.find('div.line:eq(' + v + ')').position().top);
-		      //console.log(v + ":" + $(this).data('scroll.target'));
+		      $(this).data(
+		        'scroll.target',
+		        -esh.container.find('div.line:eq(' + (parseInt(esh.vsb.slider('option', 'max')) - ui.value) + ')').position().top
+		      );
         }
       }
 		);
