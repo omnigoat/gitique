@@ -69,51 +69,34 @@
     float: right;
     width: 60%;
     height: 100%;
-    overflow:hidden;
+    overflow: hidden;
   }
   
   #viewer {
-    margin: 10px 0px 10px 10px;
-    -moz-box-shadow: 0px -0px 10px black;
-  }
-   
-    #viewer-content-wrapper
-    {
-      position: relative;
-      overflow: hidden;
-      height: 100%;
-      width: 100%;
-    }
-
-      #mainpre {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-      }
-  
-    #vsb {
-      height: 100%;
-    }
- 
-    #hsb {
-      bottom: 0px;
-    }
-
-  table.coding-window {
-    margin: 0;
-    padding: 20px 0px 0px 20px;
-    height: 100%;
+//    margin: 10px 0px 10px 10px;
+  //  -moz-box-shadow: 0px -0px 10px black;
     width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #mainpre {
+    overflow: hidden;
   }
   
-  #mainpre div.container {
+  div.container {
     position: relative !important;
     overflow: hidden !important;
+    top: 0px !important;
   }
   
-  #mainpre div.container-wrapper {
+  div.container-wrapper {
     overflow: hidden !important;
-    positiion: relative !important;
+  }
+  
+  div.syntaxhighlighter {
+    top: 0px;
   }
   
   div.toolbar {
@@ -142,38 +125,15 @@ visible layout
 
   <!-- "viewer" -->
   <div id="viewer-wrapper">
-  <div id="viewer">
-    <table class="coding-window">
-      <tr>
-        <td>
-          <%= @repo.url %><br />
-          <%= @branch + ":" + @filename %>
-        </td>
-        <td>
-        </td>
-      </tr>
-      <tr style="width: 100%; height: 100%;">
-        <td style="width: 100%">        
-          <!-- actual code -->
-          <div id="viewer-content-wrapper">
-            <pre id="mainpre" class="brush: js;">
-            </pre>
-          </div>
-        </td>
-        <td>
-          <!-- vertical scrollbar -->
-          <div id="vsb"></div>
-        </td>
-      </tr>
-      <tr>
-        <td>
-        	<!-- horizontal scrollbar -->
-        	<div><div id="hsb"></div></div>
-        </td>
-        <td></td>
-      </tr>
-    </table>
-  </div>
+    <div id="viewer">
+        <%= @repo.url %><br />
+        <%= @branch + ":" + @filename %>
+    
+        <!-- actual editor -->
+        <pre id="mainpre" class="brush: js;">
+        </pre>
+
+    </div>
   </div>
 
 
@@ -204,23 +164,38 @@ visible layout
   window.filename = "<%= @filename %>";
   window.total_lines = <%= @total_lines %>;
   
-  
-  $(window).resize(function() {
-    //$('#critiques').height($('body').height() - $('#title').height());
-    //$('#viewer').height($('body').height() - $('#title').height());
-    $('#critiques').height($(window).height() - $('#critiques').position().top);
-    $('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').position().top);
-    $('#viewer').height($('#viewer-wrapper').height() - 10);
-  });
-
-  
-  $(document).ready(function(){
-    $(window).trigger('resize');
-  });
-  
   $(function() {
-    $.getJSON('/critiques/get_all', {"repo_id": repo_id, "branch": branch, "filename": filename}, function(data) {
-     
+    // calculate heights and widths for certain things
+    $(window).resize(function() {
+      //$('#critiques').height($('body').height() - $('#title').height());
+      //$('#viewer').height($('body').height() - $('#title').height());
+      $('#critiques').height($(window).height() - $('#critiques').position().top);
+      $('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').offset().top);
+      $('#viewer').height($('#viewer-wrapper').height());
+      console.log( $('#viewer-wrapper').height());
+    });
+    $(window).trigger('resize');
+    $(window).unbind('resize');
+    // no scrollbars - this is an app!
+    document.body.style.overflow = 'hidden';
+    
+    // convert all appropriate 'pre's into syntax-highlighters
+    //SyntaxHighlighter.highlight();
+    
+    
+    //jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
+    
+    var $m = $("#mainpre");
+    var main_esh = jj.sh.initialise($m);
+    
+    main_esh.load_file(filename);
+    
+    
+    
+    
+    
+    // get html
+    $.getJSON('/critiques/get_all', {"repo_id": repo_id, "branch": branch, "filename": filename}, function(data) { 
       var directive = {
         'div.critique':{
           'critique <- critiques':{
@@ -249,22 +224,6 @@ visible layout
       }
     );
   }
-  
-  //jaja.scrollbar($("#blah"));
-
-  document.body.style.overflow = 'hidden';
-  jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
-  
-  SyntaxHighlighter.highlight();
-  
-  
-  $('#viewer').mousewheel(function(event, delta) {
-    var $vsb = $('#vsb');
-    $vsb.slider("value", $vsb.slider("value") + delta * 3);
-    $vsb.slider('option', 'slide').call($vsb, event, {handle: $vsb.slider('widget'), value: $vsb.slider('value')});
-    event.preventDefault();
-  });
-  
   
   function go()
   {
