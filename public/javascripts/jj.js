@@ -1,4 +1,135 @@
 
+//=====================================================================
+//
+//=====================================================================
+;(function(jj, $, undefined) {
+  jj.ui = jj.ui || {};
+  jj.ui.detail = jj.ui.detail || {};
+  
+  jj.ui.detail.scrollbar_default_options = 
+  {
+    min: 0,
+    max: 100,
+    value: 0,
+    step: 1,
+    orientation: "horizontal",
+    enabled: true,
+    
+    colors: {
+      bar: "#efefef",
+      nub: "#dedede"
+    }
+  };
+  
+  jj.ui.detail.scrollbar_nub_mouseenter = function() {
+    var $this = $(this);
+    $this.addClass("jj-ui-active");
+    $this.bind("mouseleave.scrollbar", jj.ui.detail.scrollbar_nub_mouseleave);
+  };
+  
+  jj.ui.detail.scrollbar_nub_mouseleave = function() {
+    $(this).removeClass("jj-ui-active");
+  };
+  
+  jj.ui.detail.scrollbar_nub_mousedown = function(event) {
+    var $this = $(this);
+    $this.unbind("mouseleave.scrollbar");
+    $this.unbind("mouseenter.scrollbar");
+    $(document).one("mouseup.jj-ui-scrollbar", function() {
+      $this.removeClass("jj-ui-active");
+      $this.bind("mouseenter.scrollbar", jj.ui.detail.scrollbar_nub_mouseenter);
+    });
+    
+    event.data.target.unbind("mouseleave");
+    event.data.target.bind("mouseleave", function() {
+      var k = this;
+      $(document).one("mouseup.jj-ui-scrollbar", function() {
+        //console.log(k);
+        jj.ui._scrollbar_unpoised.call(k);
+      });
+    });
+  };
+  
+  jj.ui._scrollbar_poised = function() {
+    var $this = $(this);
+    $this.find(".jj-ui-button", ".jj-ui-scrollbar-nub").addClass("jj-ui-poised", 600);
+    //$this.find(".jj-ui-scrollbar-nub").addClass("jj-ui-poised", 600);
+  };
+  
+  jj.ui._scrollbar_unpoised = function() {
+    //console.log(this);
+    var $this = $(this);
+    $this.find(".jj-ui-button").removeClass("jj-ui-poised", 1200);
+    //$this.find(".jj-ui-scrollbar-nub").removeClass("jj-ui-poised", 1200);
+  };
+  
+  jj.ui.scrollbar = function($target, options)
+  {
+    // defaults are overridden by the supplied options
+    $.extend(options, jj.ui.detail.scrollbar_default_options, options);
+    
+    $('<a href="#" class="jj-ui-button jj-ui-scrollbutton-left"><</a>')
+      .css({
+        'float': 'left',
+        width: $target.innerHeight(),
+        height: $target.innerHeight() - 2,
+        'text-decoration': 'none',
+      })
+      .appendTo($target)
+      ;
+    
+    $target.append
+    (
+      $('<div class="jj-ui-scrollbar-bar"></div>')
+        .css({
+          'float': 'left',
+          width: $target.innerWidth() - $target.innerHeight() * 2 - 6,
+          height: $target.innerHeight(),
+        })
+        .append
+        (
+          $('<a href="#" class="jj-ui-scrollbar-nub">||</a>')
+            .css({
+              display: 'block',
+              width: 30,
+              height: $target.innerHeight() - 2,
+              "text-align": "center",
+              "vertical-align": "middle",
+              "text-decoration": "none",
+              'font-size': '0.6em'
+            })
+            .draggable({
+              axis: "x",
+              containment: "parent"
+            })
+            .bind("mouseenter.scrollbar", jj.ui.detail.scrollbar_nub_mouseenter)
+            .bind("mousedown.scrollbar", {target: $target}, jj.ui.detail.scrollbar_nub_mousedown)
+            .mousedown(function(event) {
+              event.preventDefault();
+            })
+        )
+    )
+    .append(
+      $('<a href="#" class="jj-ui-scrollbutton-left jj-ui-button">></a>').css({
+        'float': 'left',
+        width: $target.innerHeight(),
+        height: $target.innerHeight() - 2,
+        'text-decoration': 'none',
+      })
+    )
+    .mouseenter(jj.ui._scrollbar_poised)
+    .mouseleave(jj.ui._scrollbar_unpoised)
+  };
+  
+})(window.jj = window.jj || {}, jQuery);
+
+
+
+
+
+
+
+
 
 
 ;(function(jj, $, undefined) {
@@ -442,6 +573,20 @@
       }
 		);
 		
+		esh.hsb.css({
+      position: 'absolute',
+		  left: '10px',
+      top: esh.workspace.position().top + esh.workspace.outerHeight(),
+      width: esh.workspace.width() - jj.page.scrollbar_width - 20,
+      height: jj.page.scrollbar_width - (esh.hsb.outerHeight(true) - esh.hsb.height()),
+    });
+    
+    
+		jj.ui.scrollbar( esh.hsb, {} );
+		
+		
+		
+		/*
 		esh.hsb.slider({
 		  slide: function(event, ui) {
 		    var c = esh.container;
@@ -450,16 +595,16 @@
 		  }
 		});
 		
-		esh.hsb.css({
-		  position: 'absolute',
-		  top: esh.workspace.position().top + esh.workspace.outerHeight()
-		});
-		
-    esh.hsb.css('width', esh.workspace.width() - jj.page.scrollbar_width);
-    esh.hsb.css('left', '10px');
-    esh.hsb.css('height', jj.page.scrollbar_width - (esh.hsb.outerHeight(true) - esh.hsb.height()));
+    
+
     esh.hsb.find('a.ui-slider-handle').css('height', esh.hsb.height());
-    esh.hsb.find('a.ui-slider-handle').css('top', '-1px');
+    
+    esh.hsb.find('a.ui-slider-handle').css({
+      top: -1,
+      margin: 0
+    });*/
+    
+    //esh.hsb.find('a.ui-slider-handle').append("||");
     
     
     esh.vsb.css('position', 'absolute');

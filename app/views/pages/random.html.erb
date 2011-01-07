@@ -85,6 +85,47 @@
     overflow: hidden;
   }
   
+  .jj-ui-button {
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background: #efefef;
+    text-align: center;
+    vertical-align: text-bottom;
+    font-size: 12px !important;
+    border: 1px solid #efefef;
+  }
+  
+  .jj-ui-scrollbar-bar {
+    background: #f2f2f2;
+  }
+  
+  .jj-ui-scrollbar-nub {
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background: #dddddd;
+    border: 1px solid #bebebe;
+  }
+  
+  .jj-ui-scrollbar-nub.jj-ui-poised {
+    border: 1px solid #999999;
+  }
+  
+  .jj-ui-scrollbar-nub.jj-ui-active {
+    background: #ddddff;
+    border: 1px solid #aaaaff;
+  }
+  
+
+  .jj-ui-button.jj-ui-poised {
+    background: #e5e5e5;
+    border: 1px solid #aaaaaa;
+  }
+  
+  .jj-ui-button:hover {
+    background: #eeeeff;
+  }
+  
+  
   div.container {
     position: relative !important;
     overflow: hidden !important;
@@ -293,25 +334,7 @@ visible layout
   
   
   
-  
-  
-  
-  //=====================================================================
-  // return selected text
-  //=====================================================================
-  function selection(){
-    var t = '';
-    if (window.getSelection) {
-      t = window.getSelection();
-    }
-    else if (document.getSelection) {
-      t = document.getSelection();
-    }
-    else if (document.selection) {
-      t = document.selection.createRange().text;
-    }
-    return t;
-  }
+
   
   //=====================================================================
   // clear selected text
