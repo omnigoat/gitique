@@ -31,21 +31,27 @@
     $(this).removeClass("jj-ui-active");
   };
   
-  jj.ui.detail.scrollbar_nub_mousedown = function(event) {
-    var $this = $(this);
+  jj.ui.detail.scrollbar_nub_mousedown = function(event)
+  {
+    var nub = this, $this = $(nub);
     $this.unbind("mouseleave.scrollbar");
     $this.unbind("mouseenter.scrollbar");
-    $(document).one("mouseup.jj-ui-scrollbar", function() {
-      $this.removeClass("jj-ui-active");
-      $this.bind("mouseenter.scrollbar", jj.ui.detail.scrollbar_nub_mouseenter);
+    
+    $(document).one("mouseup.jj-ui-scrollbar", function(event) {
+      if (event.target === nub) {
+        $this.bind("mouseleave.scrollbar", jj.ui.detail.scrollbar_nub_mouseleave);
+      }
+      else {
+        $this.removeClass("jj-ui-active");
+        $this.bind("mouseenter.scrollbar", jj.ui.detail.scrollbar_nub_mouseenter);
+      }
     });
     
     event.data.target.unbind("mouseleave");
     event.data.target.bind("mouseleave", function() {
-      var k = this;
+      var target = this;
       $(document).one("mouseup.jj-ui-scrollbar", function() {
-        //console.log(k);
-        jj.ui._scrollbar_unpoised.call(k);
+        jj.ui._scrollbar_unpoised.call(target);
       });
     });
   };
@@ -53,14 +59,14 @@
   jj.ui._scrollbar_poised = function() {
     var $this = $(this);
     $this.find(".jj-ui-button", ".jj-ui-scrollbar-nub").addClass("jj-ui-poised", 600);
-    //$this.find(".jj-ui-scrollbar-nub").addClass("jj-ui-poised", 600);
+    $this.find(".jj-ui-scrollbar-nub").addClass("jj-ui-poised", 600);
   };
   
   jj.ui._scrollbar_unpoised = function() {
     //console.log(this);
     var $this = $(this);
     $this.find(".jj-ui-button").removeClass("jj-ui-poised", 1200);
-    //$this.find(".jj-ui-scrollbar-nub").removeClass("jj-ui-poised", 1200);
+    $this.find(".jj-ui-scrollbar-nub").removeClass("jj-ui-poised", 1200);
   };
   
   jj.ui.scrollbar = function($target, options)
