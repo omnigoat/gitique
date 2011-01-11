@@ -9,7 +9,7 @@ class Array
 end
 
 def git_do(repo, string)
-  command = "cd resources/repositories/" + repo.id.to_s + ".git && " + string
+  command = "cd resources/repositories/" + repo.id.to_s + "_git && " + string
   begin
     return IO.popen(command)
   rescue IOError
