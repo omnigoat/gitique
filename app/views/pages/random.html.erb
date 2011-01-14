@@ -115,7 +115,6 @@
     border: 1px solid #aaaaff;
   }
   
-
   .jj-ui-button.jj-ui-poised {
     background: #e5e5e5;
     border: 1px solid #aaaaaa;
@@ -125,6 +124,11 @@
     background: #eeeeff;
   }
   
+  .jj-ui-scrollbar.jj-ui-vertical .jj-ui-button {
+    -moz-transform: rotate(90deg);  /* FF3.5+ */
+    -o-transform: rotate(90deg);  /* Opera 10.5 */
+    -webkit-transform: rotate(90deg);  /* Saf3.1+, Chrome */
+  }
   
   div.container {
     position: relative !important;
@@ -227,7 +231,7 @@ visible layout
     //jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
     
     var $m = $("#mainpre");
-    var main_esh = jj.sh.initialise($m);
+    main_esh = jj.sh.initialise($m);
     
     main_esh.load_file(filename);
     
@@ -251,7 +255,7 @@ visible layout
   
   function jkkj()
   {
-    var $lines = $('#mainpre div.highlighted');
+    var $lines = main_esh.selected_lines();
     if ($lines.length == 0) {
       alert("you haven't written anything!");
       return;
@@ -268,9 +272,13 @@ visible layout
   
   function go()
   {
+    
+    var k = main_esh.selected_lines();
+    console.log(k);
+    
     $('#popupbuffer div.container').children().remove();
     $('#popupbuffer td.gutter').children().remove();
-          
+    
     $("td.gutter div.highlighted").clone().toggle().removeClass('highlighted').appendTo($('#popupbuffer td.gutter'));
     $("div.container div.highlighted").clone().toggle().removeClass('highlighted').appendTo($('#popupbuffer div.container'));
     

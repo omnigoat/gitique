@@ -1,4 +1,17 @@
 
+;(function($, undefined)
+{
+	$.extend({
+		zip: function(lhs, rhs) {
+			var result = [];
+			$.each(lhs, function(i, x){
+				output.push([x, rhs[i]]);
+			});
+			return output;
+		}
+	});
+})(jQuery);
+
 //=====================================================================
 //
 //=====================================================================
@@ -83,36 +96,37 @@
 			});
 	};
 	
-	
-	jj.ui.scrollbar = function($target, options)
+	function layout_horizontal($target, options)
 	{
-		// defaults are overridden by the supplied options
-		$.extend(options, jj.ui.detail.scrollbar_default_options, options);
-		
 		
 		function set_value(value) {
 			$nub.css('left', value);
 			jj.ui._scrollbar_calculate_innerbars($nub);
 		}
 		
-		
-		
-		
 		function pixel_delta() {
 			return range_width / (options.max - options.min);
 		}
 		
+		function calculate_nub_size() {
+			return 30;
+		}
+		
+		var hz = options.orientation == "horizontal";
 		
 		$target
+			.addClass("jj-ui-scrollbar")
+			.addClass(hz ? "" : "jj-ui-vertical")
 			.mouseenter(jj.ui._scrollbar_poised)
 			.mouseleave(jj.ui._scrollbar_unpoised)
 			;
 		
-		var $less_button = $('<a href="#" class="jj-ui-button jj-ui-scrollbutton-left"><</a>')
+		var $less_button = $('<a href="#" class="jj-ui-button jj-ui-scrollbutton-less"><</a>')
 			.css({
-				'float': 'left',
-				width: $target.innerHeight(),
-				height: $target.innerHeight() - 2,
+				'float': hz ? 'left' : undefined,
+				display: "block",
+				width: hz ? $target.innerHeight() - 2 : $target.innerWidth() - 2,
+				height: hz ? $target.innerHeight() - 2 : $target.innerWidth() - 2,
 				'text-decoration': 'none',
 			})
 			.appendTo($target)
@@ -120,23 +134,25 @@
 		
 		var $bar = $('<div class="jj-ui-scrollbar-bar"></div>')
 			.css({
-				'float': 'left',
-				width: $target.innerWidth() - $target.innerHeight() * 2 - 6,
-				height: $target.innerHeight(),
+				'float': hz ? 'left' : 'none',
+				dispaly: "block",
+				width: hz ? $target.innerWidth() - $less_button.outerWidth() * 2 : $target.innerWidth(),
+				height: hz ? $target.innerHeight() : $target.innerHeight() - $less_button.outerHeight() * 2,
 			})
 			.bind("mousedown", jj.ui._scrollbar_bar_mousedown)
 			.appendTo($target)
 			;
 		
 		var $wrapper = $('<div></div>')
-			.css({position: 'relative', height: 1})
+			.css({position: 'relative'})
 			.appendTo($bar)
 			;
 		
 		var $less_bar = $('<div id="less" class="jj-ui-scrollbar-innerbar"></div>')
 			.css({
 				position: 'absolute',
-				height: $target.innerHeight(),
+				height: hz ? $target.innerHeight() : 1,
+				width: hz ? 1 : $target.innerWidth(),
 				background: "#ff0000",
 				opacity: 0.2
 			})
@@ -148,11 +164,19 @@
 			.appendTo($wrapper)
 			;
 		
-		var $nub = $('<div class="jj-ui-scrollbar-nub">||</div>')
+		var $nub = $('<a href="#" class="jj-ui-scrollbar-nub"></a>')
+			.append($('<span>' + (hz ? '||' : '=') + '</span>')
+				.css({
+					display: "table-cell",
+					'vertical-align': hz ? "auto" : "middle",
+					"text-align": "center",
+					width: hz ? calculate_nub_size() : $bar.innerWidth() - 2,
+					height: hz ? $bar.innerHeight() - 2 : calculate_nub_size(),
+				})
+			)
 			.css({
-				display: 'block',
-				width: 30,
-				height: $target.innerHeight() - 2,
+				width: hz ? calculate_nub_size() : $bar.innerWidth() - 2,
+				height: hz ? $bar.innerHeight() - 2 : calculate_nub_size(),
 				"text-align": "center",
 				"vertical-align": "middle",
 				"text-decoration": "none",
@@ -161,7 +185,7 @@
 				"z-index": 2,
 			})
 			.draggable({
-				axis: "x",
+				axis: hz ? "x" : "y",
 				containment: $bar,
 				
 				stop: function(event) {
@@ -183,8 +207,10 @@
 		var $more_bar = $('<div id="more" class="jj-ui-scrollbar-innerbar"></div>')
 			.css({
 				position: 'absolute',
-				right: 0,
-				height: $target.innerHeight(),
+				right: hz ? 0 : "auto",
+				bottom: hz ? "auto" : 0,
+				height: hz ? $target.innerHeight() : "auto",
+				width: hz ? "auto" : $target.innerWidth(),
 				background: "#00ff00",
 				opacity: 0.2
 			})
@@ -197,11 +223,12 @@
 			;
 		
 		// "more" button
-		var $more_button = $('<a href="#" class="jj-ui-scrollbutton-left jj-ui-button">></a>')
+		var $more_button = $('<a href="#" class="jj-ui-scrollbutton-more jj-ui-button">></a>')
 			.css({
-				'float': 'left',
-				width: $target.innerHeight(),
-				height: $target.innerHeight() - 2,
+				'float': hz ? 'left' : 'none',
+				display: "block",
+				width: hz ? $target.innerHeight() - 2 : $target.innerWidth() - 2,
+				height: hz ? $target.innerHeight() - 2 : $target.innerWidth() - 2,
 				'text-decoration': 'none',
 			})
 			.appendTo($target)
@@ -210,6 +237,15 @@
 		var range_width = $wrapper.innerWidth() - $nub.outerWidth();
 		
 		jj.ui._scrollbar_calculate_innerbars( $nub );
+	}
+	
+	jj.ui.scrollbar = function($target, options)
+	{
+		// defaults are overridden by the supplied options
+		var new_options = {};
+		$.extend(new_options, jj.ui.detail.scrollbar_default_options, options);
+		
+		layout_horizontal($target, new_options);
 	};
 	
 	
@@ -376,12 +412,12 @@
 							//esh.sh.append(this.buffer);
 							
 							// update scrollbar
-							var cvsbv = esh.vsb.slider('option', 'value');
-							var cvsbm = esh.vsb.slider('option', 'max');
-							var k = cvsbm - cvsbv;
-							var nl = esh.container.children().length - 1;
-							esh.vsb.slider('option', 'max', nl);
-							esh.vsb.slider('option', 'value', nl - k);
+							//var cvsbv = esh.vsb.slider('option', 'value');
+							//var cvsbm = esh.vsb.slider('option', 'max');
+							//var k = cvsbm - cvsbv;
+							//var nl = esh.container.children().length - 1;
+							//esh.vsb.slider('option', 'max', nl);
+							//esh.vsb.slider('option', 'value', nl - k);
 							
 							
 
@@ -391,7 +427,26 @@
 							
 						}
 					});
-				}
+				},
+				
+				
+				
+				
+				selected_lines: function()
+				{
+					var esh = this;
+					
+					var indices = [];
+					var $content = esh.container.find('div.line.highlighted')
+						.each(function() {
+							indices.push($(this).index());
+						})
+						;
+					
+					return {indices: indices, lines: $content};
+				},
+				
+				
 			}
 		},
 		
@@ -648,7 +703,7 @@
 			}
 		}, 16);
 		
-		esh.vsb.slider(
+		/*esh.vsb.slider(
 			{
 				orientation: "vertical",
 				
@@ -664,19 +719,26 @@
 				}
 			}
 		);
+		*/
 		
 		esh.hsb.css({
 			position: 'absolute',
-			left: '10px',
+			right: jj.page.scrollbar_width,
 			top: esh.workspace.position().top + esh.workspace.outerHeight(),
-			width: esh.workspace.width() - jj.page.scrollbar_width - 20,
-			height: jj.page.scrollbar_width - (esh.hsb.outerHeight(true) - esh.hsb.height()),
+			width: esh.workspace.width(),
+			height: jj.page.scrollbar_width,
 		});
 		
+		esh.vsb.css({
+			position: 'absolute',
+			right: 0,
+			top: esh.workspace.position().top,
+			width: jj.page.scrollbar_width,
+			height: esh.workspace.height(),
+		});
 		
 		jj.ui.scrollbar( esh.hsb, {} );
-		
-		
+		jj.ui.scrollbar( esh.vsb, {orientation: "vertical"} );
 		
 		/*
 		esh.hsb.slider({
@@ -698,7 +760,7 @@
 		
 		//esh.hsb.find('a.ui-slider-handle').append("||");
 		
-		
+		/*
 		esh.vsb.css('position', 'absolute');
 		esh.vsb.css('top', '0px');
 		esh.vsb.css('left', esh.workspace.width());
@@ -706,7 +768,7 @@
 		esh.vsb.css('width', jj.page.scrollbar_width - (esh.vsb.outerWidth(true) - esh.vsb.width()));
 		esh.vsb.find('a.ui-slider-handle').css('width', esh.vsb.width());
 		esh.vsb.find('a.ui-slider-handle').css('left', '-1px');
-		
+		*/
 		//esh.gutter.css('width', '100%');
 		//esh.sh.find('table').css('left', '0px');
 		//esh.sh.find('td.code').css('width', '100%');
@@ -728,7 +790,7 @@
 				{
 					$target.addClass('highlighted');
 
-					$(tso.container.children()[$target.index()])
+					$(esh.container.children()[$target.index()])
 						.addClass('highlighted')
 						;
 					
