@@ -483,7 +483,20 @@
 				console.log(value);
 			}
 		});
-		jaja.ui.scrollbar( esh.vsb, {orientation: "vertical"} );
+		
+		jaja.ui.scrollbar(
+			esh.vsb,
+			{
+				orientation: "vertical",
+				
+				change: function(value, scrollbar) {
+					this.data(
+						'scroll.target',
+						-esh.container.find('div.line:eq(' + parseInt(scrollbar.value()) + ')').position().top
+					);
+				}
+			}
+		);
 		
 		/*
 		esh.hsb.slider({
@@ -520,9 +533,8 @@
 		// bind mousewheel event to syntax-highlighter
 		esh.parent.mousewheel(function(event, delta) {
 			var $vsb = esh.vsb;
-			$vsb.slider("value", $vsb.slider("value") + delta * 3);
-			//console.log($vsb.slider('option', 'slide'));
-			$vsb.slider('option', 'slide').call($vsb, event, {handle: $vsb.slider('widget'), value: $vsb.slider('value')});
+			$vsb.scrollbar.value(3, true);
+			//$vsb.slider('option', 'slide').call($vsb, event, {handle: $vsb.slider('widget'), value: $vsb.slider('value')});
 			event.preventDefault();
 		});
 		

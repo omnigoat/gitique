@@ -59,7 +59,8 @@
 				var bounded_value = jaja.bounded(0, relative ? this.value() + v : v, this._settings.max);
 				this.$nub.css(axis, bounded_value * step * delta);
 				this._recalculate_innerbars();
-				this._settings.change(this.value());
+				this._settings.change.apply(this.$whole, [this.value(), this]);
+				
 			}
 		},
 		
@@ -284,12 +285,11 @@
 					
 					stop: function(event) {
 						self._recalculate_innerbars();
-						self._settings.change(self.value());
+						self._settings.change.apply(self.$whole, [self.value(), self]);
 					},
 					
 					drag: function(event) {
-						//self._recalculate_innerbars();
-						self._settings.change(self.value());
+						self._settings.change.apply(self.$whole, [self.value(), self]);
 					}
 					
 				})
@@ -341,6 +341,10 @@
 			
 			this._recalculate_innerbars();
 			this._calculate_deltas();
+			
+			//$elem[0].scrollbar = this;
+			$elem.data('jaja.ui.scrollbar', this);
+			return this;
 		},
 	});
 	
