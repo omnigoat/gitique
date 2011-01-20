@@ -479,9 +479,8 @@
 		});
 		
 		jaja.ui.scrollbar( esh.hsb, {
-			change: function(value)
-			{
-				alert(value);
+			change: function(value) {
+				console.log(value);
 			}
 		});
 		jaja.ui.scrollbar( esh.vsb, {orientation: "vertical"} );

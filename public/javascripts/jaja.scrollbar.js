@@ -45,7 +45,9 @@
 		
 		value: function(v, relative)
 		{
-			var x = this.$nub.position().left,
+			var hz = this._settings.horizontal,
+			    axis = hz ? 'left' : 'top',
+			    x = this.$nub.position()[axis],
 				  step = this._settings.step,
 				  delta = this._settings.pixel_delta
 				  ;
@@ -55,7 +57,7 @@
 			}
 			else {
 				var bounded_value = jaja.bounded(0, relative ? this.value() + v : v, this._settings.max);
-				this.$nub.css('left', bounded_value * step * delta);
+				this.$nub.css(axis, bounded_value * step * delta);
 				this._recalculate_innerbars();
 				this._settings.change(this.value());
 			}
@@ -78,13 +80,24 @@
 		// the size of the bars on either side of the nub must change whenever
 		// the nub moves
 		_recalculate_innerbars: function() {
-			this.$less_bar.css({
-					width: this.$nub.position().left,
-				});
-			
-			this.$more_bar.css({
-					width: this.$nub.parent().innerWidth() - this.$nub.position().left - this.$nub.outerWidth(),
-				});
+			if (this._settings.horizontal) {
+				this.$less_bar.css({
+						width: this.$nub.position().left,
+					});
+				
+				this.$more_bar.css({
+						width: this.$bar.innerWidth() - this.$nub.position().left - this.$nub.outerWidth(),
+					});
+			}
+			else {
+				this.$less_bar.css({
+						height: this.$nub.position().top,
+					});
+				
+				this.$more_bar.css({
+						height: this.$bar.innerHeight() - this.$nub.position().top - this.$nub.outerHeight(),
+					});
+			}	
 		},
 		
 		
@@ -221,7 +234,11 @@
 				
 			this.$wrapper
 				.appendTo(this.$bar)
-				.css({position: 'relative'})
+				.css({
+					position: 'relative',
+					height: this.$bar.innerHeight(),
+					width: this.$bar.innerWidth(),
+				})
 				;
 				
 				
@@ -270,6 +287,11 @@
 						self._settings.change(self.value());
 					},
 					
+					drag: function(event) {
+						//self._recalculate_innerbars();
+						self._settings.change(self.value());
+					}
+					
 				})
 				.bind("mouseenter", this._nub_mouseenter) //jaja.ui.detail.scrollbar_nub_mouseenter)
 				.bind("mousedown", function() {this._nub_mousedown})
@@ -283,14 +305,15 @@
 				.appendTo(this.$wrapper)
 				.css({
 					position: 'absolute',
-					right: hz ? 0 : "auto",
-					//bottom: hz ? "auto" : 0,
+					right: hz ? 0 : undefined,
+					bottom: hz ? undefined : 0,
 					height: hz ? this.$bar.innerHeight() : 1,
-					width: hz ? 1 : this.$whole.innerWidth(),
+					width: hz ? 1 : this.$bar.innerWidth(),
 					background: "#00ff00",
 					opacity: 0.2
 				})
 				.click(function(event) {
+					console.log("blha");
 					self.value(self._settings.step * self._settings.paging_multiplier, true);
 					event.preventDefault();
 				})
