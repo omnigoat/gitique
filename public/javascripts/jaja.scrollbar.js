@@ -56,11 +56,43 @@
 				return Math.round(x / delta) * step;
 			}
 			else {
-				var bounded_value = jaja.bounded(0, relative ? this.value() + v : v, this._settings.max);
-				this.$nub.css(axis, bounded_value * step * delta);
-				this._recalculate_innerbars();
-				this._settings.change.apply(this.$whole, [this.value(), this]);
-				
+				var bounded_value = jaja.bounded(0, relative ? this._settings.current_value + v : v, this._settings.max);
+				this._round_nub(bounded_value);
+				this._send_change(bounded_value, true);
+			}
+		},
+		
+		_round_nub: function(bounded_value) {
+			bounded_value = bounded_value === undefined ? this._settings.current_value : bounded_value;
+			this.$nub.css(this._settings.horizontal ? 'left' : 'top', bounded_value * this._settings.step * this._settings.pixel_delta)
+			this._recalculate_innerbars();
+		},
+		
+		_send_change: function(bounded_value)
+		{
+			var old_value = this._settings.old_value = this._settings.current_value;
+			this._settings.current_value = bounded_value;
+			this._settings.change.apply(this.$whole, [bounded_value, old_value, this]);
+		},
+		
+		// returns true if the nub has moved enough to change the value. 
+		// also returns the value
+		_changed: function(position)
+		{
+			// only calculate the position of the nub if we've not been given it
+			position = position || this.$nub.position()[this._settings.horizontal ? 'left' : 'top']
+			var v = Math.round(position / this._settings.pixel_delta) * this._settings.step;
+			var changed = v != this._settings.current_value;
+			
+			return {'changed': changed, 'value': v};
+		},
+		
+		setting: function(s, v) {
+			if (v === undefined) {
+				return this._settings[s];
+			} else {
+				this._settings[s] = v;
+				this._calculate_deltas();
 			}
 		},
 		
@@ -70,7 +102,6 @@
 			sb._poisable().addClass("jaja-ui-poised", 600);
 		},
 		_unpoised: function(sb) {
-			//console.log("unpoising");
 			sb = sb || this;
 			sb._poisable(sb).removeClass("jaja-ui-poised", 1200);
 		},
@@ -157,7 +188,6 @@
 			    default_step = this._settings.step
 			    ;
 			
-			console.log(this, range, max, default_step);
 			if (range > max) {
 				this._settings.pixel_delta = (range / max) * default_step;
 				this._settings.step = default_step;
@@ -180,6 +210,9 @@
 			// this._settings now has the combined options
 			this._settings = $.extend({}, this.defaults, options);
 			this._settings.horizontal = this._settings.orientation === "horizontal";
+			this._settings.orientation = undefined;
+			this._settings.old_value = 0;
+			this._settings.current_value = 0;
 			
 			// set up the structure of our scrollbar
 			this.$whole = $elem;
@@ -284,12 +317,19 @@
 					containment: this.$bar,
 					
 					stop: function(event) {
-						self._recalculate_innerbars();
-						self._settings.change.apply(self.$whole, [self.value(), self]);
+						var cv = self._changed();
+						self._round_nub(cv.value);
+						if (cv.changed) {
+							self._send_change(cv.value);
+						}
 					},
 					
 					drag: function(event) {
-						self._settings.change.apply(self.$whole, [self.value(), self]);
+						var cv = self._changed();
+						if (cv.changed) {
+							console.log("changed", cv.value);
+							self._send_change(cv.value, false);
+						}
 					}
 					
 				})
@@ -313,7 +353,7 @@
 					opacity: 0.2
 				})
 				.click(function(event) {
-					console.log("blha");
+					//console.log("blha");
 					self.value(self._settings.step * self._settings.paging_multiplier, true);
 					event.preventDefault();
 				})

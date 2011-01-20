@@ -153,15 +153,11 @@
 							//esh.sh.append(this.buffer);
 							
 							// update scrollbar
-							//var cvsbv = esh.vsb.slider('option', 'value');
-							//var cvsbm = esh.vsb.slider('option', 'max');
-							//var k = cvsbm - cvsbv;
-							//var nl = esh.container.children().length - 1;
-							//esh.vsb.slider('option', 'max', nl);
-							//esh.vsb.slider('option', 'value', nl - k);
+							var vsb = esh.vsb.data('jaja.ui.scrollbar');
+							vsb.setting('max', esh.container.children().length - 1);
 							
 							
-
+							
 							if ((line + 1200) < window.total_lines) {
 								this.load_file(filename, line + 1200);
 							}
@@ -480,7 +476,9 @@
 		
 		jaja.ui.scrollbar( esh.hsb, {
 			change: function(value) {
-				console.log(value);
+				var c = esh.container;
+				var topValue = -(value) * (parseInt(c.css('width'))/150);
+				c.css('left', topValue);
 			}
 		});
 		
@@ -489,76 +487,42 @@
 			{
 				orientation: "vertical",
 				
-				change: function(value, scrollbar) {
+				change: function(value) {
 					this.data(
 						'scroll.target',
-						-esh.container.find('div.line:eq(' + parseInt(scrollbar.value()) + ')').position().top
+						-esh.container.find('div.line:eq(' + value + ')').position().top
 					);
 				}
 			}
 		);
 		
-		/*
-		esh.hsb.slider({
-			slide: function(event, ui) {
-				var c = esh.container;
-				var topValue = -(ui.value) * (parseInt(c.css('width'))/150);
-				c.css('left', topValue);
-			}
-		});
-		
-		
-
-		esh.hsb.find('a.ui-slider-handle').css('height', esh.hsb.height());
-		
-		esh.hsb.find('a.ui-slider-handle').css({
-			top: -1,
-			margin: 0
-		});*/
-		
-		//esh.hsb.find('a.ui-slider-handle').append("||");
-		
-		/*
-		esh.vsb.css('position', 'absolute');
-		esh.vsb.css('top', '0px');
-		esh.vsb.css('left', esh.workspace.width());
-		esh.vsb.css('height', esh.workspace.height());
-		esh.vsb.css('width', jj.page.scrollbar_width - (esh.vsb.outerWidth(true) - esh.vsb.width()));
-		esh.vsb.find('a.ui-slider-handle').css('width', esh.vsb.width());
-		esh.vsb.find('a.ui-slider-handle').css('left', '-1px');
-		*/
-		//esh.gutter.css('width', '100%');
-		//esh.sh.find('table').css('left', '0px');
-		//esh.sh.find('td.code').css('width', '100%');
 		// bind mousewheel event to syntax-highlighter
 		esh.parent.mousewheel(function(event, delta) {
 			var $vsb = esh.vsb;
-			$vsb.scrollbar.value(3, true);
-			//$vsb.slider('option', 'slide').call($vsb, event, {handle: $vsb.slider('widget'), value: $vsb.slider('value')});
+			$vsb.data('jaja.ui.scrollbar').value(-delta * 3, true);
 			event.preventDefault();
 		});
 		
 		// mousedown action for highlighting lines
-		esh.gutter
-			.bind('mousedown.highlight', function(event)
+		esh.gutter.bind('mousedown.highlight', function(event)
+		{
+			var $target = $(event.target);
+			if ($target.is('div.line'))
 			{
-				var $target = $(event.target);
-				if ($target.is('div.line'))
-				{
-					$target.addClass('highlighted');
+				$target.addClass('highlighted');
 
-					$(esh.container.children()[$target.index()])
-						.addClass('highlighted')
-						;
-					
-					jj.page.mousedown_y = event.pageY;
-					jj.sh.clear_highlighted_lines(esh);
-					jj.sh.activate_line_by_line_selection(esh);
-					event.preventDefault();
-					return false;
-				}
-			})
-			;
+				$(esh.container.children()[$target.index()])
+					.addClass('highlighted')
+					;
+				
+				jj.page.mousedown_y = event.pageY;
+				jj.sh.clear_highlighted_lines(esh);
+				jj.sh.activate_line_by_line_selection(esh);
+				event.preventDefault();
+				return false;
+			}
+		})
+		;
 		
 		// um... can't remember
 		esh.container.bind('mousedown.highlight', function(e) {
