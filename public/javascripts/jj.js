@@ -64,30 +64,6 @@
 		}
 	
 	
-	// binary search! :D
-	jj.binary_search = function(range, pred, opt_bounds)
-	{
-		var l = opt_bounds ? opt_bounds[0] : 0;
-		var u = opt_bounds ? opt_bounds[1] : range.length;
-		
-		while (u - l > 1)
-		{
-			var m = (u + l) >> 1;
-			var r = pred(range[m]);
-			if (r == -1) {
-				l = m;
-			}
-			else if (r == 1) {
-				u = m;
-			}
-			else {
-				return [m, true];
-			}
-		}
-		
-		return [m, false];
-	};
-	
 	
 	
 	

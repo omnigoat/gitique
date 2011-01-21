@@ -327,7 +327,6 @@
 					drag: function(event) {
 						var cv = self._changed();
 						if (cv.changed) {
-							console.log("changed", cv.value);
 							self._send_change(cv.value, false);
 						}
 					}

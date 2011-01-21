@@ -4,6 +4,7 @@
   <script type="text/javascript" src="/javascripts/jaja.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.core.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
+  <script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
   
 <style>
   html, body {
@@ -16,7 +17,20 @@
     padding: 0px;
     border: none;
   }
-
+  
+  td.gutter div.line.active {
+    border-top: 1px dashed white !important;
+    border-bottom: 1px dashed white !important;
+    border-left: 1px dashed white !important;
+  }
+  
+  div.container div.line.active {
+    border-top: 1px dashed white !important;
+    border-right: 1px dashed white !important;
+    border-bottom: 1px dashed white !important;
+  }
+  
+  
   #simplemodal-container {
     background: white;
     -moz-box-shadow: 0px 0px 10px black;
@@ -219,7 +233,6 @@ visible layout
       $('#critiques').height($(window).height() - $('#critiques').position().top);
       $('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').offset().top);
       $('#viewer').height($('#viewer-wrapper').height());
-      console.log( $('#viewer-wrapper').height());
     });
     $(window).trigger('resize');
     $(window).unbind('resize');
@@ -233,7 +246,7 @@ visible layout
     //jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
     
     var $m = $("#mainpre");
-    main_esh = jj.sh.initialise($m);
+    main_esh = jaja.ui.esh( $('#mainpre') );
     
     main_esh.load_file(filename);
     
@@ -274,9 +287,7 @@ visible layout
   
   function go()
   {
-    
     var k = main_esh.selected_lines();
-    console.log(k);
     
     $('#popupbuffer div.container').children().remove();
     $('#popupbuffer td.gutter').children().remove();
