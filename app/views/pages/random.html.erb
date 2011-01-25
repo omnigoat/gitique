@@ -16,6 +16,7 @@
     margin: 0px;
     padding: 0px;
     border: none;
+    overflow: hidden;
   }
   
   td.gutter div.line.active {
@@ -167,9 +168,9 @@
 </style>
 
 
-<!--- ----------------------------------------------------
+<!-- -----------------------------------------------------
 visible layout
------------------------------------------------------ --->
+------------------------------------------------------ -->
 
   <!-- title -->
   <div id="title">
@@ -198,20 +199,17 @@ visible layout
   </div>
 
 
-
-
-<!-- hidden "scratch" buffer -->
-<div id="shower" style="position:absolute; left:800px; visibility:hidden" class="hidden">
-</div>
-
-<!-- popup buffer -->
-<div id="popupbuffer" style="display:none">
-  Code:
-  <pre id="bdpo" class="brush: js;">
+<!-- -----------------------------------------------------
+popup buffer
+------------------------------------------------------ -->
+<div id="popupbuffer" style="width: 50%">
+  <div>Code:</div>
+  <pre id="code-display" class="brush: js;">
   </pre>
-  Comments:
+  <div>Comments:</br>
   <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
   <a href="javascript:jkkj()">Ok</a>
+  </div>
 </div>
 
 
@@ -237,7 +235,7 @@ visible layout
     $(window).trigger('resize');
     $(window).unbind('resize');
     // no scrollbars - this is an app!
-    document.body.style.overflow = 'hidden';
+    
     
     // convert all appropriate 'pre's into syntax-highlighters
     //SyntaxHighlighter.highlight();
@@ -248,9 +246,13 @@ visible layout
     var $m = $("#mainpre");
     main_esh = jaja.ui.esh( $('#mainpre') );
     
+    console.log( "woop: " + $('#popupbuffer').outerWidth() );
+    
     main_esh.load_file(filename);
     
+    console.log( "woop: " + $('#popupbuffer').outerWidth() );
     
+    popup_esh = jaja.ui.esh( $('#code-display') );
     
     
     
@@ -288,12 +290,21 @@ visible layout
   function go()
   {
     var k = main_esh.selected_lines();
+    console.log(k);
     
-    $('#popupbuffer div.container').children().remove();
-    $('#popupbuffer td.gutter').children().remove();
+    //$('#popupbuffer div.container').children().remove();
+    //$('#popupbuffer td.gutter').children().remove();
     
-    $("td.gutter div.highlighted").clone().toggle().removeClass('highlighted').appendTo($('#popupbuffer td.gutter'));
-    $("div.container div.highlighted").clone().toggle().removeClass('highlighted').appendTo($('#popupbuffer div.container'));
+    k.lines.clone().removeClass('highlighted').appendTo(popup_esh.$container);
+    
+    //$("td.gutter div.highlighted").clone().removeClass('highlighted').appendTo($('#popupbuffer td.gutter'));
+    //$("div.container div.highlighted").clone().removeClass('highlighted').appendTo($('#popupbuffer div.container'));
+    $.each(k.indices, function(i, x) {
+      if (i > 0 && x != k.indices[i - 1] + 1) {
+        //console.log("gap: ", x, k.indices[i - 1]);
+        
+      }
+    });
     
     $("#popupbuffer").modal(
       {
