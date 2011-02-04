@@ -194,7 +194,75 @@
 			}
 		},
 		
-		
+		_resize: function()
+		{
+			console.log(
+				this.$parent,
+				this.$parent.outerWidth() + "x" + this.$parent.outerHeight() + " @ " + this.$parent.position().left + ":" + this.$parent.position().top
+			);
+			
+			//console.log(this.$parent.outerHeight() - this.$whole.position().top);
+			
+			jaja.dynamically_size({
+				element: this.$whole,
+				in_response_to: [this.$parent],
+				using: {
+					width: function($parent) {return $parent.outerWidth() - this.position().left;},
+					height: function($parent) {return $parent.outerHeight() - this.position().top;},
+				}
+			});
+
+			//this.$whole
+			//	.css({
+			//		width: this.$parent.outerWidth() - this.$whole.position().left,
+			//		height: this.$parent.outerHeight() - this.$whole.position().top
+			//	})
+			//	;
+			
+			jaja.dynamically_size({
+				element: this.$workspace,
+				in_response_to: [this.$whole],
+				using: {
+					height: function($whole) {return $whole.outerHeight() - this.position().top - jj.page.scrollbar_width;},
+					width: function($whole) {return $whole.outerWidth() - this.position().left - jj.page.scrollbar_width;},
+				},
+			});
+
+			//this.$workspace
+			//	.css({
+			//		height: this.$whole.outerHeight() - this.$workspace.position().top - jj.page.scrollbar_width,
+			//		width: this.$whole.outerWidth() - this.$workspace.position().left - jj.page.scrollbar_width,
+			//	})
+			//	;
+			
+			jaja.dynamically_size({
+				element: this.$vsb,
+				in_response_to: [this.$workspace],
+				using: {
+					top: function($w) {return $w.position().top;},
+					height: function($w) {return $w.height();},
+				}
+			});
+
+			this.$vsb.css({
+				right: 0,
+				width: jj.page.scrollbar_width,
+			});
+			
+			jaja.dynamically_size({
+				element: this.$hsb,
+				in_response_to: [this.$workspace],
+				using: {
+					top: function($w) {console.log("yep"); return $w.position().top + $w.outerHeight();},
+					width: function($w) { return $w.width();},
+				}
+			});
+
+			this.$hsb.css({
+				right: jj.page.scrollbar_width,
+				height: jj.page.scrollbar_width,
+			});
+		},
 		
 		_init: function($sh, options)
 		{
@@ -206,9 +274,6 @@
 			    sh_id = $sh.attr('id'),
 			    adder = $next[0] ? {f: 'insertBefore', v: $next} : {f: 'appendTo', v: $parent}
 			    ;
-			
-			console.log($parent)
-			console.log($parent.outerWidth());
 			
 			// 1) syntax-highlight it!
 			SyntaxHighlighter.highlight({}, $sh[0]);
@@ -229,22 +294,19 @@
 						$buffer: $('<div class="buffer" style="display: hidden"></div>'),
 			});
 			
-			console.log(this.$parent, this.$parent.outerWidth(), this.$parent.position().left, this.$whole.position().left,
-				this.$parent.offset().left, this.$whole.offset().left);
-			
+
 			this.$whole
 				[adder.f](adder.v)
 				.css({
-					width: this.$parent.outerWidth() - this.$whole.position().left,
-					height: this.$parent.outerHeight() - this.$whole.position().top
+					position: 'relative',
+					width: '100%',
+					height: '100%',
 				})
 				;
 			
 			this.$workspace
 				.appendTo(this.$whole)
 				.css({
-					height: this.$whole.outerHeight() - this.$workspace.position().top - jj.page.scrollbar_width,
-					width: this.$whole.outerWidth() - this.$workspace.position().left - jj.page.scrollbar_width,
 					overflow: 'hidden'
 				})
 				;
@@ -258,9 +320,6 @@
 				.css({
 					position: 'absolute',
 					right: 0,
-					top: this.$workspace.position().top,
-					width: jj.page.scrollbar_width,
-					height: this.$workspace.height(),
 				})
 				;
 			
@@ -268,10 +327,6 @@
 				.appendTo(this.$whole)
 				.css({
 					position: 'absolute',
-					right: jj.page.scrollbar_width,
-					top: this.$workspace.position().top + this.$workspace.outerHeight(),
-					width: this.$workspace.width(),
-					height: jj.page.scrollbar_width,
 				})
 				;
 			
@@ -293,6 +348,8 @@
 				.children().remove()
 				;
 			
+
+			this._resize();
 			
 			//=====================================================================
 			// scrolling

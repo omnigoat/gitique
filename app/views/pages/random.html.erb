@@ -1,10 +1,16 @@
- 
+
+  <!-- resize plugin for jquery -->
+  <script type="text/javascript" src="/javascripts/jquery.ba-resize.min.js"></script>
+   
   <!-- jj -->
   <script type="text/javascript" src="/javascripts/jj.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.core.js"></script>
+  <script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
   <script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
+
+
   
 <style>
   html, body {
@@ -202,13 +208,16 @@ visible layout
 <!-- -----------------------------------------------------
 popup buffer
 ------------------------------------------------------ -->
-<div id="popupbuffer" style="width: 50%">
+<div id="popupbuffer">
   <div>Code:</div>
-  <pre id="code-display" class="brush: js;">
-  </pre>
-  <div>Comments:</br>
-  <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
-  <a href="javascript:jkkj()">Ok</a>
+  <div style="height: 40%">
+    <pre id="code-display" class="brush: js;">
+    </pre>
+  </div>
+  <div>Comments:</div>
+  <div style="height: 40%">
+    <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
+    <a href="javascript:jkkj()">Ok</a>
   </div>
 </div>
 
@@ -223,6 +232,19 @@ popup buffer
   window.filename = "<%= @filename %>";
   window.total_lines = <%= @total_lines %>;
   
+  // the popup needs an absolute width and height, but we want it based
+  // upon the width and height of the window
+  var $popup = $("#popupbuffer");
+
+  jaja.dynamically_size({
+    element: $popup,
+    using: {
+      height: function($window) {return $window.height() / 2},
+      width: function($window) {return $window.width() / 2},
+    },
+  });
+
+
   $(function() {
     // calculate heights and widths for certain things
     $(window).resize(function() {
@@ -233,24 +255,17 @@ popup buffer
       $('#viewer').height($('#viewer-wrapper').height());
     });
     $(window).trigger('resize');
-    $(window).unbind('resize');
-    // no scrollbars - this is an app!
     
+    // if this is uncommented, then we've been testing layout stuff
+    //$(window).unbind('resize');
     
-    // convert all appropriate 'pre's into syntax-highlighters
-    //SyntaxHighlighter.highlight();
-    
-    
-    //jj.sh.selected_highlighters = "#mainpre .syntaxhighlighter";
     
     var $m = $("#mainpre");
     main_esh = jaja.ui.esh( $('#mainpre') );
     
-    console.log( "woop: " + $('#popupbuffer').outerWidth() );
-    
     main_esh.load_file(filename);
     
-    console.log( "woop: " + $('#popupbuffer').outerWidth() );
+    //console.log( "woop: " + $('#popupbuffer').outerWidth() + "x" + $('#popupbuffer').outerHeight() );
     
     popup_esh = jaja.ui.esh( $('#code-display') );
     
@@ -289,29 +304,35 @@ popup buffer
   
   function go()
   {
-    var k = main_esh.selected_lines();
-    console.log(k);
+    // copying the lines over, making sure to remove highlighting, and also
+    // placing a gap between non-sequential regions
+    popup_esh.$gutter.children().remove();
+    popup_esh.$container.children().remove();
     
-    //$('#popupbuffer div.container').children().remove();
-    //$('#popupbuffer td.gutter').children().remove();
-    
-    k.lines.clone().removeClass('highlighted').appendTo(popup_esh.$container);
-    
-    //$("td.gutter div.highlighted").clone().removeClass('highlighted').appendTo($('#popupbuffer td.gutter'));
-    //$("div.container div.highlighted").clone().removeClass('highlighted').appendTo($('#popupbuffer div.container'));
-    $.each(k.indices, function(i, x) {
-      if (i > 0 && x != k.indices[i - 1] + 1) {
-        //console.log("gap: ", x, k.indices[i - 1]);
-        
+    var selected_lines = main_esh.selected_lines();
+    var cloned_lines = selected_lines.lines.clone().removeClass('highlighted');
+
+    $.each(selected_lines.indices, function(i, x)
+    {
+      if (i > 0 && x != selected_lines.indices[i - 1] + 1) {
+        popup_esh.$gutter.append('<div style="font-size: 50%">&nbsp;</div>');
+        popup_esh.$container.append('<div style="font-size: 50%">&nbsp;</div>');
       }
+
+      popup_esh.$gutter.append('<div>' + (x + 1) + '</div>');
+      popup_esh.$container.append(cloned_lines[i]);
     });
     
+
     $("#popupbuffer").modal(
       {
         persist: true,
         
         opacity: 66,
         
+        //minHeight: "50%",
+        //maxHeight: "50%",
+
         overlayCss:{
           backgroundColor: '#ffffff'
         },
