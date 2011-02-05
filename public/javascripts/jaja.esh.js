@@ -53,8 +53,9 @@
 						;
 					
 					// update scrollbar
-					var vsb = self.$vsb.data('jaja.ui.scrollbar');
-					vsb.setting('max', self.$container.children().length - 1);
+					self._recalculate_vsb_range();
+					//var vsb = self.$vsb.data('jaja.ui.scrollbar');
+					//vsb.setting('max', self.$container.children().length - 1);
 					
 					
 					
@@ -66,7 +67,30 @@
 			});
 		},
 		
+		// indices is an array of numbers, lines is an array of corresponding code-lines
+		push_lines: function(indices, lines)
+		{
+			var $gutter = this.$gutter, $container = this.$container;
+
+			$.each(indices, function(i, x)
+			{
+				if (i > 0 && x != indices[i - 1] + 1) {
+					$gutter.append('<div style="font-size: 50%">&nbsp;</div>');
+					$container.append('<div style="font-size: 50%">&nbsp;</div>');
+				}
+
+				$gutter.append('<div>' + (x + 1) + '</div>');
+				$container.append(lines[i]);
+			});
+
+			this._recalculate_vsb_range();
+		},
 		
+		_recalculate_vsb_range: function()
+		{
+			var vsb = this.$vsb.data('jaja.ui.scrollbar');
+			vsb.setting('max', this.$container.children().length - 1);
+		},
 		
 		_line_containing_point: function(point)
 		{
@@ -75,8 +99,8 @@
 			return jaja.binary_search(lines, function(line)
 			{
 				var $line = $(line),
-				    pos = $line.offset()
-				    ;
+						pos = $line.offset()
+						;
 				
 				if (pos.top < point) {
 					if (point < pos.top + $line.outerHeight()) {
@@ -270,10 +294,10 @@
 			this._settings = {};
 			
 			var $parent = $sh.parent(),
-			    $next = $sh.next(),
-			    sh_id = $sh.attr('id'),
-			    adder = $next[0] ? {f: 'insertBefore', v: $next} : {f: 'appendTo', v: $parent}
-			    ;
+					$next = $sh.next(),
+					sh_id = $sh.attr('id'),
+					adder = $next[0] ? {f: 'insertBefore', v: $next} : {f: 'appendTo', v: $parent}
+					;
 			
 			// 1) syntax-highlight it!
 			SyntaxHighlighter.highlight({}, $sh[0]);
@@ -373,13 +397,13 @@
 				}
 			});
 			
-			jaja.ui.scrollbar(this.$vsb,	{
+			jaja.ui.scrollbar(this.$vsb, {
 				orientation: "vertical",
 				
 				change: function(value) {
 					self.$vsb.data(
 						'scroll.target',
-						-self.$container.find('div.line:eq(' + value + ')').position().top
+						-self.$container.find('div.line').eq(value).position().top
 					);
 				}
 			});
@@ -387,7 +411,7 @@
 			// bind mousewheel event to syntax-highlighter
 			this.$parent.mousewheel(function(event, delta) {
 				var $vsb = self.$vsb;
-				$vsb.data('jaja.ui.scrollbar').value(-delta * 3, true);
+				$vsb.data('jaja.ui.scrollbar').value(-delta, true, true);
 				event.preventDefault();
 			});
 			
@@ -402,9 +426,9 @@
 				.bind('mousedown.highlight', function(event)
 				{
 					var $target = $(event.target),
-					    target_index = $target.index(),
-						  $code_line = self.$container.children().eq(target_index)
-						  ;
+							target_index = $target.index(),
+							$code_line = self.$container.children().eq(target_index)
+							;
 					
 					if ($target.is('div.line'))
 					{
@@ -432,7 +456,7 @@
 								from: Math.min(self._settings.shift_select_start_line, target_index),
 								to: Math.max(self._settings.shift_select_start_line, target_index) + 1,
 							};
-									     
+											 
 							self.$gutter.children().slice(range.from, range.to).addClass('highlighted');
 							self.$container.children().slice(range.from, range.to).addClass('highlighted');	
 						}
@@ -453,9 +477,9 @@
 				.bind('mouseup.highlight2', function(event)
 				{
 					var $target = $(event.target),
-					    target_index = $target.index(),
-						  $code_line = self.$container.children().eq(target_index)
-						  ;
+							target_index = $target.index(),
+							$code_line = self.$container.children().eq(target_index)
+							;
 					
 					
 					if ($target.is('div.line') && $target.hasClass('highlighted'))

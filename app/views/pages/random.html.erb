@@ -312,6 +312,8 @@ popup buffer
     var selected_lines = main_esh.selected_lines();
     var cloned_lines = selected_lines.lines.clone().removeClass('highlighted');
 
+    popup_esh.push_lines(selected_lines.indices, cloned_lines);
+/*
     $.each(selected_lines.indices, function(i, x)
     {
       if (i > 0 && x != selected_lines.indices[i - 1] + 1) {
@@ -322,7 +324,7 @@ popup buffer
       popup_esh.$gutter.append('<div>' + (x + 1) + '</div>');
       popup_esh.$container.append(cloned_lines[i]);
     });
-    
+*/  
 
     $("#popupbuffer").modal(
       {

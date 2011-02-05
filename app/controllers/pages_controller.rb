@@ -27,6 +27,7 @@ end
 
 
 def random_file(repo, chosen_branch)
+  return "public/javascripts/notused/prototype.js"
   #return "public/javascripts/SH/tests/theme_tests.html"
   #return "public/javascripts/SH/src/shCore.js"
   

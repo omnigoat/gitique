@@ -33,7 +33,16 @@
 			orientation: "horizontal",
 			enabled: true,
 			paging_multiplier: 5,
-			
+
+			// the actual step used
+			used_step: undefined,
+			min_pixel_step: 6,
+
+			// it's possible we'd have a range so large we'd move < 1 pixel
+			// for every step. force_pixelstep would mean we'd multiply the
+			// used step until the nub moved > 1 pixel for every step
+			force_pixelstep: true,
+
 			// default change function does nothing
 			change: function() {},
 		},
@@ -43,13 +52,14 @@
 		//=====================================================================
 		_settings: undefined, // please define later
 		
-		value: function(v, relative)
+		value: function(v, relative, require_step)
 		{
 			var hz = this._settings.horizontal,
 			    axis = hz ? 'left' : 'top',
 			    x = this.$nub.position()[axis],
-				  step = this._settings.step,
+				  step = this._settings.used_step,
 				  delta = this._settings.pixel_delta
+				  v = require_step ? v * step : v
 				  ;
 			
 			if (v === undefined) {
@@ -64,7 +74,7 @@
 		
 		_round_nub: function(bounded_value) {
 			bounded_value = bounded_value === undefined ? this._settings.current_value : bounded_value;
-			this.$nub.css(this._settings.horizontal ? 'left' : 'top', bounded_value * this._settings.step * this._settings.pixel_delta)
+			this.$nub.css(this._settings.horizontal ? 'left' : 'top', (bounded_value / this._settings.used_step) * this._settings.pixel_delta)
 			this._recalculate_innerbars();
 		},
 		
@@ -81,7 +91,7 @@
 		{
 			// only calculate the position of the nub if we've not been given it
 			position = position || this.$nub.position()[this._settings.horizontal ? 'left' : 'top']
-			var v = Math.round(position / this._settings.pixel_delta) * this._settings.step;
+			var v = Math.round(position / this._settings.pixel_delta) * this._settings.used_step;
 			var changed = v != this._settings.current_value;
 			
 			return {'changed': changed, 'value': v};
@@ -183,18 +193,18 @@
 		
 		_calculate_deltas: function()
 		{
-			var range = this._range(),
-			    max = this._settings.max,
-			    default_step = this._settings.step
+			var pixels = this._range(),
+			    range = this._settings.max,
+			    step = this._settings.step
 			    ;
 			
-			if (range > max) {
-				this._settings.pixel_delta = (range / max) * default_step;
-				this._settings.step = default_step;
-			}
-			else {
-				this._settings.step = (max / range) * default_step;
-				this._settings.pixel_delta = default_step;
+			this._settings.used_step = step;
+			this._settings.pixel_delta = pixels / (range / step);
+			if (this._settings.force_pixelstep) {
+				while (this._settings.pixel_delta < this._settings.min_pixel_step) {
+					this._settings.used_step *= 2;
+					this._settings.pixel_delta = pixels / (range / this._settings.used_step);
+				}
 			}
 		},
 		
@@ -248,7 +258,7 @@
 					'text-decoration': 'none',
 				})
 				.bind("click", function() {
-					self.value(-self._settings.step, true);
+					self.value(-self._settings.used_step, true);
 					event.preventDefault();
 				})
 				;
@@ -286,7 +296,7 @@
 					opacity: 0.2
 				})
 				.click(function(event) {
-					self.value(-self._settings.step * self._settings.paging_multiplier, true);
+					self.value(-self._settings.used_step * self._settings.paging_multiplier, true);
 					event.preventDefault();
 				})
 				;
@@ -353,7 +363,7 @@
 				})
 				.click(function(event) {
 					//console.log("blha");
-					self.value(self._settings.step * self._settings.paging_multiplier, true);
+					self.value(self._settings.used_step * self._settings.paging_multiplier, true);
 					event.preventDefault();
 				})
 				;
@@ -370,7 +380,7 @@
 					'text-decoration': 'none',
 				})
 				.click(function() {
-					self.value(self._settings.step, true);
+					self.value(self._settings.used_step, true);
 					event.preventDefault();
 				})
 				;
