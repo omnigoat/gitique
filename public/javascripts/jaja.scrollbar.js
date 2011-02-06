@@ -108,12 +108,10 @@
 		
 		// "poised" bits change colour on mouse-hover
 		_poised: function(sb) {
-			sb = sb || this;
-			sb._poisable().addClass("jaja-ui-poised", 600);
+			this._poisable().addClass("jaja-ui-poised", 600);
 		},
 		_unpoised: function(sb) {
-			sb = sb || this;
-			sb._poisable(sb).removeClass("jaja-ui-poised", 1200);
+			this._poisable().removeClass("jaja-ui-poised", 1200);
 		},
 		_poisable: function() {
 			return this.$less_button.add(this.$more_button).add(this.$nub);
@@ -200,7 +198,7 @@
 			
 			this._settings.used_step = step;
 			this._settings.pixel_delta = pixels / (range / step);
-			if (this._settings.force_pixelstep) {
+			if (this._settings.pixel_delta > 0 && this._settings.force_pixelstep) {
 				while (this._settings.pixel_delta < this._settings.min_pixel_step) {
 					this._settings.used_step *= 2;
 					this._settings.pixel_delta = pixels / (range / this._settings.used_step);
@@ -243,8 +241,8 @@
 			this.$whole
 				.addClass("jaja-ui-scrollbar")
 				.addClass(hz ? "" : "jaja-ui-vertical")
-				.mouseenter(this._poised.partial(this.self))
-				.mouseleave(this._unpoised.partial(this.self))
+				.bind('mouseenter', function () {self._poised();})
+				.bind('mouseleave', function () {self._unpoised();})
 				;
 			
 				
@@ -269,19 +267,26 @@
 				.css({
 					'float': hz ? 'left' : undefined,
 					dispaly: "block",
-					width: hz ? this.$whole.innerWidth() - this.$less_button.outerWidth() * 2 : this.$whole.innerWidth(),
-					height: hz ? this.$whole.innerHeight() : this.$whole.innerHeight() - this.$less_button.outerHeight() * 2,
 				})
 				;
 			
+			jaja.dynamically_size({
+				element: this.$bar,
+				in_response_to: [this.$whole, this.$less_button],
+				using: {
+					width: function($whole) {return hz ? $whole.innerWidth() - self.$less_button.outerWidth() * 2 : $whole.innerWidth();},
+					height: function($whole) {return hz ? $whole.innerHeight() : $whole.innerHeight() - self.$less_button.outerHeight() * 2;},
+				}
+			});
 			
+
 				
 			this.$wrapper
 				.appendTo(this.$bar)
 				.css({
 					position: 'relative',
-					height: this.$bar.innerHeight(),
-					width: this.$bar.innerWidth(),
+					height: '100%',
+					width: '100%',
 				})
 				;
 				
@@ -292,8 +297,6 @@
 					position: 'absolute',
 					height: hz ? this.$whole.innerHeight() : 1,
 					width: hz ? 1 : this.$whole.innerWidth(),
-					background: "#ff0000",
-					opacity: 0.2
 				})
 				.click(function(event) {
 					self.value(-self._settings.used_step * self._settings.paging_multiplier, true);
@@ -358,8 +361,6 @@
 					bottom: hz ? undefined : 0,
 					height: hz ? this.$bar.innerHeight() : 1,
 					width: hz ? 1 : this.$bar.innerWidth(),
-					background: "#00ff00",
-					opacity: 0.2
 				})
 				.click(function(event) {
 					//console.log("blha");

@@ -259,14 +259,7 @@
 			//	})
 			//	;
 			
-			jaja.dynamically_size({
-				element: this.$vsb,
-				in_response_to: [this.$workspace],
-				using: {
-					top: function($w) {return $w.position().top;},
-					height: function($w) {return $w.height();},
-				}
-			});
+			
 
 			this.$vsb.css({
 				right: 0,
@@ -274,13 +267,25 @@
 			});
 			
 			jaja.dynamically_size({
+				element: this.$vsb,
+				in_response_to: [this.$workspace],
+				using: {
+					top: function($w) {return $w.position().top;},
+					height: function($w) {console.log("yep", $w.height()); return $w.height();},
+				}
+			});
+
+
+			jaja.dynamically_size({
 				element: this.$hsb,
 				in_response_to: [this.$workspace],
 				using: {
-					top: function($w) {console.log("yep"); return $w.position().top + $w.outerHeight();},
+					top: function($w) {return $w.position().top + $w.outerHeight();},
 					width: function($w) { return $w.width();},
 				}
 			});
+			
+			
 
 			this.$hsb.css({
 				right: jj.page.scrollbar_width,
@@ -382,6 +387,11 @@
 			setInterval(function() {
 				var k = self.$vsb.data('scroll.target');
 				if (k !== undefined) {
+					self.$vsb.css({
+							top: self.$workspace.position().top,
+							height: self.$workspace.height(),
+					});
+
 					var current_top = parseInt(self.$sh.css('top'));
 					var offset = (k - current_top) * 0.6;
 					self.$sh.css('top', current_top + offset);

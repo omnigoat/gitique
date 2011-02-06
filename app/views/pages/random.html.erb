@@ -24,19 +24,23 @@
     border: none;
     overflow: hidden;
   }
-  
+  /*
   td.gutter div.line.active {
     border-top: 1px dashed white !important;
     border-bottom: 1px dashed white !important;
     border-left: 1px dashed white !important;
+    margin-top: -1px !important;
+    margin-bottom: -1px !important;
+    margin-left: -1px !important;
   }
   
   div.container div.line.active {
     border-top: 1px dashed white !important;
     border-right: 1px dashed white !important;
     border-bottom: 1px dashed white !important;
+    margin: -1px !important;
   }
-  
+  */
   
   #simplemodal-container {
     background: white;
@@ -108,6 +112,10 @@
     overflow: hidden;
   }
   
+  #new_critique {
+    display: none;
+  }
+
   .jaja-ui-button {
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -183,13 +191,30 @@ visible layout
     <span class='title'>Gitique</span><span class='info'>logged in as blah blah blah</span>
   </div>
 
-  <!-- critiques -->
-  <div id="critiques">
-    Critiques <a href="javascript:go()">go</a>  
-    <div class="critique">
-      <span class="name"></span>
+
+
+  <!-- LHS -->
+  <div id="lhs">
+
+    <!-- critiques (default) -->
+    <div id="critiques" class="tool-pane active">
+      Critiques <a href="javascript:new_critique()">new critique</a>  
+      <div class="critique">
+        <span class="name"></span>
+      </div>
     </div>
+    
+    <!-- new critique -->
+    <div id="new_critique" class="tool-pane">
+      New Critique
+      <div>
+      </div>
+    </div>
+
   </div>
+  
+
+  
 
   <!-- "viewer" -->
   <div id="viewer-wrapper">
@@ -210,7 +235,7 @@ popup buffer
 ------------------------------------------------------ -->
 <div id="popupbuffer">
   <div>Code:</div>
-  <div style="height: 40%">
+  <div style="height: 50%">
     <pre id="code-display" class="brush: js;">
     </pre>
   </div>
@@ -302,7 +327,7 @@ popup buffer
     );
   }
   
-  function go()
+  function new_critique()
   {
     // copying the lines over, making sure to remove highlighting, and also
     // placing a gap between non-sequential regions
