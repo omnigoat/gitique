@@ -71,10 +71,40 @@
     font-style: italic;
   }
   
-  #critiques {
+  #lhs {
     float: left;
     width: 40%;
+    height: 800px;
+    position: relative;
+  }
+  
+  div.tool-pane {
+    position: absolute;
+    top: 2.5%;
+    left: 2.5%;
+    width: 95%;
+    height: 97.5%;
+    margin: auto;
+  }
+
+  div.tool-pane span.heading {
+    font-size: 2em;
+    font-family: Georgia, serif;
+    font-style: italic;
+    //font-weight: normal;
+    color: #aaaaaa;
+  }
+
+  div.tool-pane span.minor-heading {
+    font-size: 0.9em;
+    font-family: Courier New;
+    color: #aaaaaa;
+  }
+
+  #critiques {
     overflow: hidden;
+    width: 100%;
+    height: 100%;
   }
   
     .critique {
@@ -111,9 +141,14 @@
   #mainpre {
     overflow: hidden;
   }
+
   
-  #new_critique {
-    display: none;
+  .tool-pane {
+    visibility: hidden;
+  }
+
+  .tool-pane.active {
+    visibility: visible;
   }
 
   .jaja-ui-button {
@@ -206,9 +241,13 @@ visible layout
     
     <!-- new critique -->
     <div id="new_critique" class="tool-pane">
-      New Critique
-      <div>
+      <span class="heading">New Critique</span><br />
+      <div style="padding-left: 10px;">
+        <span class="minor-heading">Lines: <span class="line-display">n/a</span></span><br />
+        <textarea style="width: 100%; height: 200px; border: 1px solid black; resize: none"></textarea>
       </div>
+      <div><a href="#">Submit</a></div>
+
     </div>
 
   </div>
@@ -233,7 +272,7 @@ visible layout
 <!-- -----------------------------------------------------
 popup buffer
 ------------------------------------------------------ -->
-<div id="popupbuffer">
+<div id="popupbuffer" style="display: none">
   <div>Code:</div>
   <div style="height: 50%">
     <pre id="code-display" class="brush: js;">
@@ -241,7 +280,7 @@ popup buffer
   </div>
   <div>Comments:</div>
   <div style="height: 40%">
-    <textarea class="text_input text_area" name="t" id="t" cols="80" rows="4"></textarea>
+    <textarea class="text_input text_area" name="t" id="t"></textarea>
     <a href="javascript:jkkj()">Ok</a>
   </div>
 </div>
@@ -257,20 +296,22 @@ popup buffer
   window.filename = "<%= @filename %>";
   window.total_lines = <%= @total_lines %>;
   
-  // the popup needs an absolute width and height, but we want it based
-  // upon the width and height of the window
-  var $popup = $("#popupbuffer");
-
-  jaja.dynamically_size({
-    element: $popup,
-    using: {
-      height: function($window) {return $window.height() / 2},
-      width: function($window) {return $window.width() / 2},
-    },
-  });
-
 
   $(function() {
+    /*
+    // the popup needs an absolute width and height, but we want it based
+    // upon the width and height of the window
+    var $popup = $("#popupbuffer");
+
+    jaja.dynamically_size({
+      element: $popup,
+      using: {
+        height: function($window) {return $window.height() / 2},
+        width: function($window) {return $window.width() / 2},
+      },
+    });
+    */
+
     // calculate heights and widths for certain things
     $(window).resize(function() {
       //$('#critiques').height($('body').height() - $('#title').height());
@@ -286,9 +327,15 @@ popup buffer
     
     
     var $m = $("#mainpre");
-    main_esh = jaja.ui.esh( $('#mainpre') );
+    main_esh = jaja.ui.esh($m, {
+      selection_changed: function(ni, oi) {
+        console.log(ni, oi);
+      }
+    });
     
-    main_esh.load_file(filename);
+    setTimeout(function(){
+      main_esh.load_file(filename);
+    }, 1);
     
     //console.log( "woop: " + $('#popupbuffer').outerWidth() + "x" + $('#popupbuffer').outerHeight() );
     
@@ -329,6 +376,9 @@ popup buffer
   
   function new_critique()
   {
+    $("#critiques").removeClass("active");
+    $("#new_critique").addClass("active");
+/*
     // copying the lines over, making sure to remove highlighting, and also
     // placing a gap between non-sequential regions
     popup_esh.$gutter.children().remove();
@@ -338,7 +388,7 @@ popup buffer
     var cloned_lines = selected_lines.lines.clone().removeClass('highlighted');
 
     popup_esh.push_lines(selected_lines.indices, cloned_lines);
-/*
+
     $.each(selected_lines.indices, function(i, x)
     {
       if (i > 0 && x != selected_lines.indices[i - 1] + 1) {
@@ -349,7 +399,7 @@ popup buffer
       popup_esh.$gutter.append('<div>' + (x + 1) + '</div>');
       popup_esh.$container.append(cloned_lines[i]);
     });
-*/  
+
 
     $("#popupbuffer").modal(
       {
@@ -378,6 +428,7 @@ popup buffer
         }
       }
     );
+    */  
   }
   
   

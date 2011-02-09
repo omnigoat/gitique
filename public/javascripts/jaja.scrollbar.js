@@ -218,7 +218,7 @@
 			// this._settings now has the combined options
 			this._settings = $.extend({}, this.defaults, options);
 			this._settings.horizontal = this._settings.orientation === "horizontal";
-			this._settings.orientation = undefined;
+			delete this._settings.orientation;
 			this._settings.old_value = 0;
 			this._settings.current_value = 0;
 			

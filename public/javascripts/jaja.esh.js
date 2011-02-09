@@ -11,7 +11,18 @@
 	};
 	
 	$.extend(jaja.ui.esh, {
-		
+		//=====================================================================
+		// default options for extended syntax highlighter
+		//=====================================================================
+		defaults:
+		{
+			// default selection_change function does nothing
+			selection_changed: function() {},
+		},
+
+
+
+
 		load_file: function(filename, line)
 		{
 			if (line === undefined) {
@@ -131,7 +142,8 @@
 			$(window)
 			.one('mouseup.highlight', function(e) {
 					$(this).unbind('mousemove.highlight');
-					esh._settings.highlighted_lines = $('div.line.highlighted');
+					//esh._settings.selected_lines = $('div.line.highlighted');
+					esh._recalculate_selected_lines();
 					esh._settings.hovering_line = undefined;
 			})
 			.bind('mousemove.highlight', function(e)
@@ -199,24 +211,61 @@
 		
 		selected_lines: function()
 		{
-			var indices = [];
-			var $content = this.$container.find('div.line.highlighted')
-				.each(function() {
-					indices.push($(this).index());
-				})
-				;
-			
-			return {indices: indices, lines: $content};
+			return this._settings.selected_lines;
 		},
 		
 		
 		
-		_clear_highlighted_lines: function()
+		_clear_selected_lines: function()
 		{
-			if (this._settings.highlighted_lines) {
-				this._settings.highlighted_lines.removeClass('highlighted');
+			if (this._settings.selected_lines) {
+				this._settings.selected_lines.gutter.removeClass('highlighted');
+				this._settings.selected_lines.code.removeClass('highlighted');
+				this._recalculate_selected_lines();
 			}
 		},
+
+		_recalculate_selected_lines: function()
+		{
+			// store the lines, both gutter and code
+			this._settings.selected_lines = {
+				indices: [],
+				gutter: this.$gutter.children('.highlighted'),
+				code: this.$container.children('.highlighted'),
+			};
+
+			// calculate the indices, an array of arrays, where sequential lines
+			// are in the same inner-array. single lines, with no adjoining lines
+			// on either side are in an array of one. all by their lonesome. :(
+			var self = this, current_range = [], all_indices = [];
+			this._settings.selected_lines.code.each(function(i)
+			{
+				var index = $(this).index();
+
+				if (i > 0 && index != self._settings.selected_lines.code.eq(i - 1).index() + 1) {
+					all_indices.push(current_range);
+					current_range = [];
+				}
+
+				if (current_range.length < 2) {
+					current_range.push(index);
+				} else {
+					current_range[1] = index;
+				}
+			});
+
+			if (current_range.length > 0) {
+				all_indices.push(current_range);
+			}
+
+			// update indices, and if they've changed, send a signal
+			var old_indices = this._settings.selected_lines.indices;
+			this._settings.selected_lines.indices = all_indices;
+			if (!jaja.arrays_equal(old_indices, all_indices)) {
+				this._settings.selection_changed(all_indices, old_indices);
+			}
+		},
+
 		
 		_resize: function()
 		{
@@ -236,13 +285,6 @@
 				}
 			});
 
-			//this.$whole
-			//	.css({
-			//		width: this.$parent.outerWidth() - this.$whole.position().left,
-			//		height: this.$parent.outerHeight() - this.$whole.position().top
-			//	})
-			//	;
-			
 			jaja.dynamically_size({
 				element: this.$workspace,
 				in_response_to: [this.$whole],
@@ -251,15 +293,6 @@
 					width: function($whole) {return $whole.outerWidth() - this.position().left - jj.page.scrollbar_width;},
 				},
 			});
-
-			//this.$workspace
-			//	.css({
-			//		height: this.$whole.outerHeight() - this.$workspace.position().top - jj.page.scrollbar_width,
-			//		width: this.$whole.outerWidth() - this.$workspace.position().left - jj.page.scrollbar_width,
-			//	})
-			//	;
-			
-			
 
 			this.$vsb.css({
 				right: 0,
@@ -293,11 +326,20 @@
 			});
 		},
 		
+
+
+
+
+
+
 		_init: function($sh, options)
 		{
 			$.extend(this, jaja.ui.esh);
-			this._settings = {};
+			this._settings = $.extend({}, this.defaults, options);
 			
+
+
+
 			var $parent = $sh.parent(),
 					$next = $sh.next(),
 					sh_id = $sh.attr('id'),
@@ -443,16 +485,22 @@
 					if ($target.is('div.line'))
 					{
 						// if we're mousedowning on a selected line, then unselect it instead
-						if (event.ctrlKey === true && event.shiftKey === false &&$target.hasClass('highlighted'))
+						if (event.ctrlKey === true && event.shiftKey === false && $target.hasClass('highlighted'))
 						{
 							$target.removeClass('highlighted');
 							$code_line.removeClass('highlighted');
 							self._settings.shift_select_start_line = undefined;
+							
+							// remove line from our highligthed_lines
+							//self._settings.selected_lines.gutter = self._settings.selected_lines.gutter.not(".index" + target_index);
+							//self._settings.selected_lines.code = self._settings.selected_lines.code.not(".index" + target_index);
+							self._recalculate_selected_lines();
+
 							return true;
 						}
 						
 						if (event.ctrlKey === false) {
-							self._clear_highlighted_lines();
+							self._clear_selected_lines();
 						}
 						
 						// if the shift key is down, hmm......
@@ -506,7 +554,8 @@
 							self._settings.shift_select_start_line = undefined;
 						}
 						
-						self._settings.highlighted_lines = self.$sh.find('div.highlighted');
+						//self._settings.selected_lines = self.$container.find('div.highlighted');
+						self._recalculate_selected_lines();
 						self._settings.mouseup_line = target_index;
 						
 						
@@ -518,14 +567,6 @@
 					}
 				})
 				;
-			
-			// um... can't remember
-			this.$container.bind('mousedown.highlight', function(e) {
-				if (e.shiftKey) {
-					e.preventDefault();
-					return false;
-				}
-			});
 			
 			return this;
 		},

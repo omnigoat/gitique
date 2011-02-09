@@ -28,6 +28,43 @@
 		return ys;
 	},
 
+	arrays_equal: function(lhs, rhs) {
+		var temp = new Array();
+		
+		// make sure it's an array, make sure lengths are same
+		if ( !lhs[0] || !rhs[0] || lhs.length != rhs.length ) {
+			return false;
+		}
+		
+		for (var i = 0, ie = lhs.length; i != ie; ++i) {
+			// false if they're not the same type
+			var lhse = lhs[i], rhse = rhs[i], lhst = typeof lhse;
+			if (lhst !== (typeof rhse)) {
+				return false;
+			}
+
+			if (lhst === "object") {
+				// if they're arrays, recurse!
+				if ("length" in lhse && lhse[0] && "length" in rhse && rhse[0]) {
+					if (!this.arrays_equal(lhse, rhse)) {
+						return false;
+					}
+				}
+				// otherwise... okay?
+				else {
+					//return false;
+				}
+			}
+			else {
+				if (lhse != rhse) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	},
+
 	// splits a jquery object consisting of multiple objects into an array of jquery objects,
 	// each object containing a single object. if that makes sense.
 	jquery_split: function($o) {
