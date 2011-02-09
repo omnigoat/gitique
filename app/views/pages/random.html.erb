@@ -101,6 +101,12 @@
     color: #aaaaaa;
   }
 
+  div.tool-pane span.minor-heading a {
+    font-size: 0.9em;
+    font-family: Courier New;
+    color: #aaaaaa;
+  }
+
   #critiques {
     overflow: hidden;
     width: 100%;
@@ -243,7 +249,7 @@ visible layout
     <div id="new_critique" class="tool-pane">
       <span class="heading">New Critique</span><br />
       <div style="padding-left: 10px;">
-        <span class="minor-heading">Lines: <span class="line-display">n/a</span></span><br />
+        <span class="minor-heading">Lines: <span class="line-display"><span>n/a</span></span></span><br />
         <textarea style="width: 100%; height: 200px; border: 1px solid black; resize: none"></textarea>
       </div>
       <div><a href="#">Submit</a></div>
@@ -296,6 +302,12 @@ popup buffer
   window.filename = "<%= @filename %>";
   window.total_lines = <%= @total_lines %>;
   
+  var $m = $("#mainpre");
+
+
+  function to_line(n) {
+    main_esh.set_line(n);
+  }
 
   $(function() {
     /*
@@ -326,10 +338,27 @@ popup buffer
     //$(window).unbind('resize');
     
     
-    var $m = $("#mainpre");
     main_esh = jaja.ui.esh($m, {
       selection_changed: function(ni, oi) {
-        console.log(ni, oi);
+        //console.log(ni, oi);
+        var display = $("#new_critique .line-display");
+        console.log(display.length);
+        display.children().remove();
+
+        $.each(ni, function(i) {
+          if (i) display.append($("<span>, </span>"));
+
+          var elemstr = "<a href='javascript:to_line(" + this[0] + ")'>" + this[0];
+          if (this.length == 2) {
+            elemstr += "-" + this[1];
+          }
+          elemstr += "</a>";
+          display.append($(elemstr));
+        });
+
+        if (ni.length == 0) {
+          display.append( $("<span>n/a</span>") );
+        }
       }
     });
     

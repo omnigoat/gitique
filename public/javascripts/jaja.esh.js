@@ -128,7 +128,13 @@
 		},
 			
 		
-		
+		set_line: function(n)
+		{
+			if (n < 0 || this.$container.children().length < n)
+				return false;
+			
+			this.$vsb.data('jaja.ui.scrollbar').value(n);
+		},
 		
 		
 		
