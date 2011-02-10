@@ -128,12 +128,19 @@
 		},
 			
 		
-		set_line: function(n)
+		set_line: function(n, highlight)
 		{
 			if (n < 0 || this.$container.children().length < n)
 				return false;
 			
 			this.$vsb.data('jaja.ui.scrollbar').value(n);
+
+			if (highlight !== undefined) {
+				var from = highlight[0], to = highlight[1] || (highlight[0] + 1);
+
+				this.$container.children().slice(from, to).removeClass('highlighted').addClass('highlighted2');
+				this.$gutter.children().slice(from, to).removeClass('highlighted').addClass('highlighted2');
+			}
 		},
 		
 		
@@ -220,7 +227,11 @@
 			return this._settings.selected_lines;
 		},
 		
-		
+		// return the number of lines we can display at once
+		displayable_lines: function()
+		{
+			return Math.floor(this.$workspace.height() / this.$container.find("div.line").height());
+		},
 		
 		_clear_selected_lines: function()
 		{
@@ -432,17 +443,19 @@
 			// scrolling
 			//=====================================================================
 			var self = this;
-			setInterval(function() {
-				var k = self.$vsb.data('scroll.target');
-				if (k !== undefined) {
-					self.$vsb.css({
-							top: self.$workspace.position().top,
-							height: self.$workspace.height(),
-					});
+			setInterval(function()
+			{
+				var target = self.$vsb.data('scroll.target');
+				if (target !== undefined)
+				{
+					var current_top = self.$vsb.data('scroll.current-top');
+					if (current_top === undefined) {
+						current_top = parseInt(self.$sh.css('top'));
+					}
 
-					var current_top = parseInt(self.$sh.css('top'));
-					var offset = (k - current_top) * 0.6;
-					self.$sh.css('top', current_top + offset);
+					var new_top = current_top + (target - current_top) * 0.1;
+					self.$sh.css('top', new_top);
+					self.$vsb.data('scroll.current-top', new_top);
 				}
 			}, 16);
 

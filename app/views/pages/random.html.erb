@@ -11,7 +11,11 @@
   <script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
 
 
-  
+
+
+<!-- -----------------------------------------------------
+style
+------------------------------------------------------ -->
 <style>
   html, body {
     position: absolute;
@@ -93,6 +97,11 @@
     font-style: italic;
     //font-weight: normal;
     color: #aaaaaa;
+  }
+
+  td.gutter div.line.highlighted2 {
+    background-color: #ffffaa !important;
+    border: 1px solid black;
   }
 
   div.tool-pane span.minor-heading {
@@ -223,6 +232,9 @@
 </style>
 
 
+
+
+
 <!-- -----------------------------------------------------
 visible layout
 ------------------------------------------------------ -->
@@ -250,7 +262,7 @@ visible layout
       <span class="heading">New Critique</span><br />
       <div style="padding-left: 10px;">
         <span class="minor-heading">Lines: <span class="line-display"><span>n/a</span></span></span><br />
-        <textarea style="width: 100%; height: 200px; border: 1px solid black; resize: none"></textarea>
+        <textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
       </div>
       <div><a href="#">Submit</a></div>
 
@@ -275,27 +287,13 @@ visible layout
   </div>
 
 
+
+
+
+
 <!-- -----------------------------------------------------
-popup buffer
+script
 ------------------------------------------------------ -->
-<div id="popupbuffer" style="display: none">
-  <div>Code:</div>
-  <div style="height: 50%">
-    <pre id="code-display" class="brush: js;">
-    </pre>
-  </div>
-  <div>Comments:</div>
-  <div style="height: 40%">
-    <textarea class="text_input text_area" name="t" id="t"></textarea>
-    <a href="javascript:jkkj()">Ok</a>
-  </div>
-</div>
-
-
-
-
-
-
 <script type="text/javascript">
   window.repo_id = <%= @repo.id.to_s %>;
   window.branch = "<%= @branch %>";
@@ -303,26 +301,14 @@ popup buffer
   window.total_lines = <%= @total_lines %>;
   
   var $m = $("#mainpre");
+  var main_esh = {};
 
-
-  function to_line(n) {
-    main_esh.set_line(n);
+  function to_line(n, m) {
+    console.log( main_esh.displayable_lines() );
+    main_esh.set_line( Math.max(0, n - (main_esh.displayable_lines() / 4)) /*,  m ? [n, m + 1] : [n] */ );
   }
 
   $(function() {
-    /*
-    // the popup needs an absolute width and height, but we want it based
-    // upon the width and height of the window
-    var $popup = $("#popupbuffer");
-
-    jaja.dynamically_size({
-      element: $popup,
-      using: {
-        height: function($window) {return $window.height() / 2},
-        width: function($window) {return $window.width() / 2},
-      },
-    });
-    */
 
     // calculate heights and widths for certain things
     $(window).resize(function() {
@@ -348,11 +334,11 @@ popup buffer
         $.each(ni, function(i) {
           if (i) display.append($("<span>, </span>"));
 
-          var elemstr = "<a href='javascript:to_line(" + this[0] + ")'>" + this[0];
-          if (this.length == 2) {
-            elemstr += "-" + this[1];
-          }
-          elemstr += "</a>";
+          var elemstr =
+            "<a href='javascript:to_line(" + this[0] + (this.length == 2 ? "," + this[1] : "") + ")'>"
+            + (this[0] + 1) + (this.length == 2 ? "-" + (this[1] + 1) : "")
+            + "</a>";
+          
           display.append($(elemstr));
         });
 
@@ -365,12 +351,6 @@ popup buffer
     setTimeout(function(){
       main_esh.load_file(filename);
     }, 1);
-    
-    //console.log( "woop: " + $('#popupbuffer').outerWidth() + "x" + $('#popupbuffer').outerHeight() );
-    
-    popup_esh = jaja.ui.esh( $('#code-display') );
-    
-    
     
     // get html
     $.getJSON('/critiques/get_all', {"repo_id": repo_id, "branch": branch, "filename": filename}, function(data) { 
@@ -407,57 +387,6 @@ popup buffer
   {
     $("#critiques").removeClass("active");
     $("#new_critique").addClass("active");
-/*
-    // copying the lines over, making sure to remove highlighting, and also
-    // placing a gap between non-sequential regions
-    popup_esh.$gutter.children().remove();
-    popup_esh.$container.children().remove();
-    
-    var selected_lines = main_esh.selected_lines();
-    var cloned_lines = selected_lines.lines.clone().removeClass('highlighted');
-
-    popup_esh.push_lines(selected_lines.indices, cloned_lines);
-
-    $.each(selected_lines.indices, function(i, x)
-    {
-      if (i > 0 && x != selected_lines.indices[i - 1] + 1) {
-        popup_esh.$gutter.append('<div style="font-size: 50%">&nbsp;</div>');
-        popup_esh.$container.append('<div style="font-size: 50%">&nbsp;</div>');
-      }
-
-      popup_esh.$gutter.append('<div>' + (x + 1) + '</div>');
-      popup_esh.$container.append(cloned_lines[i]);
-    });
-
-
-    $("#popupbuffer").modal(
-      {
-        persist: true,
-        
-        opacity: 66,
-        
-        //minHeight: "50%",
-        //maxHeight: "50%",
-
-        overlayCss:{
-          backgroundColor: '#ffffff'
-        },
-        
-        onOpen: function(dialog) {
-          dialog.overlay.fadeIn('fast');
-          dialog.container.fadeIn('fast');
-          dialog.data.fadeIn('fast');
-        },
-        
-        onClose: function(dialog) {
-          dialog.overlay.fadeOut('fast');
-          dialog.container.fadeOut('fast');
-          dialog.data.fadeOut('fast');
-          $.modal.close();
-        }
-      }
-    );
-    */  
   }
   
   
