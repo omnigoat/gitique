@@ -1,7 +1,16 @@
 
-<input id="repository" name="repository" class="text_input" type=text></input>
-<a href="javascript:add_repository()">Add Repository</a>
-<a href="javascript:remove_repository()">Remove Repository</a>
+<div>
+  <input id="repository" name="repository" class="text_input" type=text></input>
+  <a href="javascript:add_repository()">Add Repository</a>
+  <a href="javascript:remove_repository()">Remove Repository</a>
+</div>
+<br />
+<div>
+  Existing Repositories:<br />
+  <% @repositories.each do |repo| %>
+    &nbsp;&nbsp;<%= repo.url %><br />
+  <% end %>
+</div>
 
 <script type="text/javascript">
 function add_repository()

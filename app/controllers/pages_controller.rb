@@ -1,3 +1,7 @@
+require 'grit'
+include Grit
+
+
 class Array
   def shuffle
     sort_by { rand }
@@ -50,6 +54,14 @@ end
 
 class PagesController < ApplicationController
   def random
+    gritty = Grit::Git.new('/tmp/filling-in')
+    gritty.clone({}, "blah", "blah", "blah")
+
+    #  => "Initialized empty Git repository in /tmp/cc-aws2/.git/\n"
+    Dir.entries('/tmp/cc-aws2').size
+
+
+
     @repo = Repository.random()
     #logger.debug "REPO.ID: " + repo.id.to_s
   

@@ -332,14 +332,12 @@ script
         display.children().remove();
 
         $.each(ni, function(i) {
-          if (i) display.append($("<span>, </span>"));
-
-          var elemstr =
-            "<a href='javascript:to_line(" + this[0] + (this.length == 2 ? "," + this[1] : "") + ")'>"
+          display.append(
+              (i > 0 ? "<span>, </span>" : "")
+            + "<a href='javascript:to_line(" + this[0] + (this.length == 2 ? "," + this[1] : "") + ")'>"
             + (this[0] + 1) + (this.length == 2 ? "-" + (this[1] + 1) : "")
-            + "</a>";
-          
-          display.append($(elemstr));
+            + "</a>"
+          );
         });
 
         if (ni.length == 0) {

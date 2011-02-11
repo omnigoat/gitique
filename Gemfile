@@ -7,7 +7,8 @@ gem 'rails', '3.0.0'
 
 gem 'sqlite3-ruby', '1.3.3', :require => 'sqlite3'
 
-gem 'grit'
+gem 'grit', '2.4.1'
+
 # Use unicorn as the web server
 # gem 'unicorn'
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101103021406) do
+ActiveRecord::Schema.define(:version => 20110211041414) do
 
   create_table "critiques", :force => true do |t|
     t.string   "comments"
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(:version => 20101103021406) do
     t.string   "url"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "sha1",       :default => "tba", :null => false
   end
 
 end

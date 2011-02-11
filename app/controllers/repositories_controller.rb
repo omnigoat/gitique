@@ -1,30 +1,28 @@
-require 'rubygems'
 require 'grit'
+require 'digest/sha1'
+
 include Grit
+
 
 class RepositoriesController < ApplicationController
 	def add
-		#g = Repo.new('git://github.com/omnigoat/gitique.git')
-		
-		repo = Repository.find_by_url(params[:url])
+		url = params[:url]
+
+		repo = Repository.find_by_url(url)
 		if repo == nil
-			logger.info "adding repo '" + params[:url] + "'"
-			logger.info Dir.pwd
-			#logger.info IO.popen("pwd").readlines
 			
-			repo = Repository.new(:url => params[:url])
-			repo.save
-			
-			# this is a little hacky, but I need it to work both on my development machine
-			# and my production machine
-			#k = "cd `pwd -P` && " + IO.popen('which git').readlines[0].chomp! + " clone --bare " + params[:url] + " resources/repositories/r" + repo.id.to_s + ".git"
-			k = "git clone --bare " + params[:url] + " resources/repositories/" + repo.id.to_s + "_git"
-			
-			logger.info "{{" + k + "}}"
-			
-			Open3.popen3(k) do |stdin, stdout, stderr|
-				logger.info "STDOUT[" + stdout.readlines.join + "]"
-				logger.info "STDERR[" + stderr.readlines.join + "]"
+			sha1 = Digest::SHA1.hexdigest(url)
+			dir = sha1[0,2] + "/" + sha1[2, 38] + ".git"
+
+			# clone git repository, and if we succeed, then store that into our database
+			logger.info "Cloning repository '#{url}' to '#{dir}'"
+			Open3.popen3("git clone --bare #{url} resources/repositories/#{dir}") do |stdin, stdout, stderr, thread|
+				logger.info stderr.readlines.join
+
+				if thread.value == 0
+					repo = Repository.new(:url => url)
+					repo.save
+				end
 			end
 			
 		else
@@ -41,14 +39,17 @@ class RepositoriesController < ApplicationController
 		
 		repo = Repository.find_by_url(params[:url])
 		return if not repo
-			
-		k = "rm -rf resources/repositories/r" + repo.id.to_s + "_git"
-		#logger.debug k
-		IO.popen(k)
 		
+		sha1 = Digest::SHA1.hexdigest(url)
+		dir = sha1[0,2] + "/" + sha1[2, 38] + ".git"
+
+		k = "rm -rf resources/repositories/#{dir}"
+		logger.info k
+		IO.popen(k)
 		repo.delete
 	end
 	
 	def main
+		@repositories = Repository.all
 	end
 end
