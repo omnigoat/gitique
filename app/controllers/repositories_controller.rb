@@ -20,7 +20,7 @@ class RepositoriesController < ApplicationController
 				logger.info stderr.readlines.join
 
 				if thread.value == 0
-					repo = Repository.new(:url => url)
+					repo = Repository.new(:sha1 => sha1, :url => url)
 					repo.save
 				end
 			end
@@ -37,18 +37,19 @@ class RepositoriesController < ApplicationController
 	def remove
 		render :nothing => true
 		
-		repo = Repository.find_by_url(params[:url])
+		sha1 = Digest::SHA1.hexdigest(params[:url])
+		repo = Repository.find_by_sha1(sha1)
 		return if not repo
 		
-		sha1 = Digest::SHA1.hexdigest(url)
-		dir = sha1[0,2] + "/" + sha1[2, 38] + ".git"
+		dir = sha1[0,2] + "/" + sha1[2, 38]
 
-		k = "rm -rf resources/repositories/#{dir}"
-		logger.info k
-		IO.popen(k)
+		logger.info "Removing repository #{dir}"
+		IO.popen("rm -rf resources/repositories/#{dir}")
 		repo.delete
 	end
 	
+
+
 	def main
 		@repositories = Repository.all
 	end

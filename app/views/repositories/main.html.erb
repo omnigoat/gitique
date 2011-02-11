@@ -8,7 +8,7 @@
 <div>
   Existing Repositories:<br />
   <% @repositories.each do |repo| %>
-    &nbsp;&nbsp;<%= repo.url %><br />
+    &nbsp;&nbsp;<%= repo.sha1 %> .:. <%= repo.url %><br />
   <% end %>
 </div>
 
