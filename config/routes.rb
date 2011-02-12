@@ -17,5 +17,12 @@ Gitique::Application.routes.draw do
   
   
   match "ajax/load", :to => 'ajax#load'
-  match "users", :to => "users#main"
+  
+  #
+  # users
+  #
+  get  "new_user",  :to => "users#new"
+  post "new_user",  :to => "users#create"
+  get  ":username", :to => "users#show"
+  
 end
