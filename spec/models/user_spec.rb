@@ -11,7 +11,7 @@ describe User do
   it "should create a new instance given valid attributes" do
     User.create!(@attr)
   end
-  
+
 
   #
   # :username
@@ -64,20 +64,6 @@ describe User do
       invalid_email_user = User.new(@attr.merge(:email => address))
       invalid_email_user.should_not be_valid
     end
-  end
-
-  it "should reject duplicate email addresses" do
-    # Put a user with given email address into the database.
-    User.create!(@attr)
-    user_with_duplicate_email = User.new(@attr)
-    user_with_duplicate_email.should_not be_valid
-  end
-
-  it "should reject email addresses identical up to case" do
-    upcased_email = @attr[:email].upcase
-    User.create!(@attr.merge(:email => upcased_email))
-    user_with_duplicate_email = User.new(@attr)
-    user_with_duplicate_email.should_not be_valid
   end
 
 end
