@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110211041414) do
+ActiveRecord::Schema.define(:version => 20110212163049) do
 
   create_table "critiques", :force => true do |t|
     t.string   "comments"
@@ -23,6 +23,14 @@ ActiveRecord::Schema.define(:version => 20110211041414) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "sha1",       :default => "tba", :null => false
+  end
+
+  create_table "users", :force => true do |t|
+    t.string   "username"
+    t.string   "email"
+    t.string   "encrypted_password"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
 end
