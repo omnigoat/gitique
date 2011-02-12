@@ -453,7 +453,7 @@
 						current_top = parseInt(self.$sh.css('top'));
 					}
 
-					var new_top = current_top + (target - current_top) * 0.1;
+					var new_top = current_top + (target - current_top) * 0.3;
 					self.$sh.css('top', new_top);
 					self.$vsb.data('scroll.current-top', new_top);
 				}

@@ -1,5 +1,4 @@
 require 'grit'
-include Grit
 
 
 class Array
@@ -18,7 +17,7 @@ end
 
 def git(repo_dir, string)
 	#dir = "resources/repositories/#{dir_from_sha1(repo.sha1)}"
-	command = "git --git-dir=resources/repositories/#{repo_dir} #{string}"
+	command = "git --git-dir=#{repo_dir} #{string}"
 
 	#logger.info "command: #{command}"
 	begin
@@ -64,13 +63,20 @@ def file_lines(repo_dir, branch, filename, from, to)
 	end
 end
 
+
+
+
+
+
+
 class PagesController < ApplicationController
 	def random
 		
     @repo = Repository.random()
-		repo_dir = dir_from_sha1(@repo.sha1)
+		repo_dir = "resources/repositories/" + dir_from_sha1(@repo.sha1)
 		
-
+		fs_repo = Grit::Repo.new(repo_dir)
+		
 		@branch = random_branch(repo_dir)
 		logger.info "BRANCH: #{@branch.to_s}"
 	

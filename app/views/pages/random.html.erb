@@ -261,7 +261,7 @@ visible layout
     <div id="new_critique" class="tool-pane">
       <span class="heading">New Critique</span><br />
       <div style="padding-left: 10px;">
-        <span class="minor-heading">Lines: <span class="line-display"><span>n/a</span></span></span><br />
+        <span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
         <textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
       </div>
       <div><a href="#">Submit</a></div>
@@ -325,23 +325,22 @@ script
     
     
     main_esh = jaja.ui.esh($m, {
-      selection_changed: function(ni, oi) {
+      selection_changed: function(new_indices) {
         //console.log(ni, oi);
         var display = $("#new_critique .line-display");
-        console.log(display.length);
         display.children().remove();
 
-        $.each(ni, function(i) {
+        $.each(new_indices, function(i) {
           display.append(
               (i > 0 ? "<span>, </span>" : "")
-            + "<a href='javascript:to_line(" + this[0] + (this.length == 2 ? "," + this[1] : "") + ")'>"
-            + (this[0] + 1) + (this.length == 2 ? "-" + (this[1] + 1) : "")
+            + "<a href='javascript:to_line(" + (this.length == 2 ? this[0] + "," + this[1] : this[0]) + ")'>"
+            + (this.length == 2 ? (this[0] + 1) + "-" + (this[1] + 1) : (this[0] + 1))
             + "</a>"
           );
         });
 
-        if (ni.length == 0) {
-          display.append( $("<span>n/a</span>") );
+        if (new_indices.length == 0) {
+          display.append("<span>none</span>");
         }
       }
     });
