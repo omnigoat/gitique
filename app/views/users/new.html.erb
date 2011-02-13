@@ -1,0 +1,5 @@
+<%= form_tag("/new_user", :method => "post") %>
+	<%= text_field_tag(:username) %>
+	<%= text_field_tag(:email) %>
+	<%= submit_tag("create") %>
+<% $end %>
