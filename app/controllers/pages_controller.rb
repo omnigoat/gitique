@@ -72,7 +72,12 @@ end
 class PagesController < ApplicationController
 	def random
 		
-    @repo = Repository.random()
+    @repo = Repository.find()
+    if @repo == nil
+    	logger.error "BAD REPO"
+    	return false
+    end
+
 		repo_dir = "resources/repositories/" + dir_from_sha1(@repo.sha1)
 		
 		fs_repo = Grit::Repo.new(repo_dir)

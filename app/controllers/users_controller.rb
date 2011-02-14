@@ -4,12 +4,16 @@ class UsersController < ApplicationController
 	end
 
 	def new
+		@user = User.new
 	end
 
 	def create
-		logger.info "params: #{params.to_s}"
-		@user = User.create! :username => params[:username], :email => params[:email]
-		#@user.save
+    @user = User.new(params[:user])
+    if @user.save
+      # Handle a successful save.
+    else
+      render 'new'
+    end
 	end
 
 	def show
