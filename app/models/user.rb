@@ -3,7 +3,7 @@
 class User
 	include MongoMapper::Document
 
-	attr_accessor :new_password, :new_password_confirmation
+	attr_accessor :password, :password_confirmation
 	# attr_accessor :password
 	# attr_accessible :username, :email, :password, :password_confirmation
 
@@ -43,15 +43,6 @@ class User
 	
 
 public
-	"""
-	def password= (value)
-		if value.present?
-			@password = value
-			self.encrypted_password = Digest::SHA1.hexdigest(value)
-		end
-	end
-	"""
-
 	def has_password?(submitted_password)
 		encrypted_password == Digest::SHA2.hexdigest(@salt + submitted_password)
 	end
