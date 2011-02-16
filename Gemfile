@@ -25,8 +25,7 @@ gem "autotest"
 #
 # Application stuff!
 #
-gem 'grit', '2.4.1'
-
+gem 'grit', '2.3.0'
 
 
 
