@@ -23,17 +23,17 @@
 
 
 
-		load_file: function(filename, line)
+		load_file: function(repo_sha1, branch, filename, line)
 		{
 			if (line === undefined) {
 				line = 0;
 			}
 			
-			var self = this;
-			
+			var self = this;						
+
 			$.ajax({
 				url: 'ajax/load',
-				data: {"repo_id": repo_id, "branch": branch, "filename": filename, from: line, to: line + 1200},
+				data: {"repo_sha1": repo_sha1, "branch": branch, "filename": filename, from: line, to: line + 1200},
 				
 				success: function(msg)
 				{
@@ -71,7 +71,7 @@
 					
 					
 					if ((line + 1200) < window.total_lines) {
-						self.load_file(filename, line + 1200);
+						self.load_file(repo_sha1, branch, filename, line + 1200);
 					}
 					
 				}

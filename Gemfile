@@ -10,7 +10,9 @@ gem 'rails', '3.0.0'
 #
 # Database!
 #
-gem 'sqlite3-ruby', '1.3.3', :require => 'sqlite3'
+gem 'bson_ext'
+gem "mongo_mapper"
+#gem 'sqlite3-ruby', '1.3.3', :require => 'sqlite3'
 
 
 #
@@ -23,8 +25,7 @@ gem "autotest"
 #
 # Application stuff!
 #
-gem 'grit', '2.4.1'
-
+gem 'grit', '2.3.0'
 
 
 

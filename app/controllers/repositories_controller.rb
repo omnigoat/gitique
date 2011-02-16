@@ -1,38 +1,47 @@
 require 'grit'
 require 'digest/sha1'
 
-include Grit
+#include Grit
 
 
 class RepositoriesController < ApplicationController
 	def add
+		render :nothing => true
+
 		url = params[:url]
 
 		repo = Repository.find_by_url(url)
-		if repo == nil
-			
-			sha1 = Digest::SHA1.hexdigest(url)
-			dir = sha1[0,2] + "/" + sha1[2, 38] + ".git"
-
-			# clone git repository, and if we succeed, then store that into our database
-			logger.info "Cloning repository '#{url}' to '#{dir}'"
-			Open3.popen3("git clone --bare #{url} resources/repositories/#{dir}") do |stdin, stdout, stderr, thread|
-				logger.info stderr.readlines.join
-
-				if thread.value == 0
-					repo = Repository.new(:sha1 => sha1, :url => url)
-					repo.save
-				end
-			end
-			
-		else
-			logger.info "can't add repo" + repo.id.to_s + " - it already exists!"
-			
-		end
+		#if !repo.nil?
+		#	logger.info "can't add repo " + repo.sha1 + " - it already exists!"
+		#	return
+		#end
 		
-		render :nothing => true
+		sha1 = Digest::SHA1.hexdigest(url)
+		git_dir = sha1[0,2] + "/" + sha1[2, 38]
+		full_git_dir = "resources/repositories/" + git_dir
+		#fs_repo = Grit::Repo.new git_dir, :is_base => true
+
+		
+
+		# clone git repository, and if we succeed, then store that into our database
+		logger.info "cloning repository '#{url}' to '#{git_dir}'"
+		gritty = Grit::Git.new git_dir
+		
+		Open3.popen3("git clone --bare #{url} resources/repositories/#{dir}") do |stdin, stdout, stderr, thread|
+			logger.info stderr.readlines.join
+
+			if thread.value == 0
+				repo = Repository.new(:sha1 => sha1, :url => url)
+				repo.save
+			end
+		end
 	end
 	
+
+
+
+
+
 	
 	def remove
 		render :nothing => true

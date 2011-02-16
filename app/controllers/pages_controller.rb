@@ -1,4 +1,4 @@
-require 'grit'
+#require 'grit'
 
 
 class Array
@@ -16,10 +16,10 @@ def dir_from_sha1(sha1)
 end
 
 def git(repo_dir, string)
-	#dir = "resources/repositories/#{dir_from_sha1(repo.sha1)}"
-	command = "git --git-dir=#{repo_dir} #{string}"
+	dir = "resources/repositories/#{repo_dir}"
+	command = "git --git-dir=#{dir} #{string}"
 
-	#logger.info "command: #{command}"
+	logger.info "command: #{command}"
 	begin
     result = ""
     Open3.popen3(command) do |stdin, stdout, stderr|
@@ -72,10 +72,16 @@ end
 class PagesController < ApplicationController
 	def random
 		
-    @repo = Repository.random()
-		repo_dir = "resources/repositories/" + dir_from_sha1(@repo.sha1)
+		# SERIOUSLY, terribly inefficient with lots of repositories
+    @repo = Repository.all[0]
+    if @repo == nil
+    	logger.error "BAD REPO"
+    	return false
+    end
+
+		repo_dir = dir_from_sha1(@repo.sha1)
 		
-		fs_repo = Grit::Repo.new(repo_dir)
+		#fs_repo = Grit::Repo.new(repo_dir)
 		
 		@branch = random_branch(repo_dir)
 		logger.info "BRANCH: #{@branch.to_s}"
@@ -89,8 +95,8 @@ class PagesController < ApplicationController
 	
 	
 	def load
-		# logger.debug "loading: '" + params[:filename] + "': " + params[:from] + " -> " + params[:to]
-		repo = Repository.find_by_id(params[:repo_id])
+		repo = Repository.find_by_sha1(params[:repo_sha1])
+
 		@repo = repo
 		@branch = params[:branch]
 		@filename = params[:filename]

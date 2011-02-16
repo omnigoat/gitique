@@ -18,8 +18,9 @@ Gitique::Application.routes.draw do
   #
   # users
   #
-  get  "new_user",  :to => "users#new"
-  post "new_user",  :to => "users#create"
+  get  "signup",    :to => "users#new"
+  post "signup",    :to => "users#create"
+  get  "users",     :to => "users#index"
   get  ":username", :to => "users#show"
   
 end

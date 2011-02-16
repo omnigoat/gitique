@@ -1,18 +1,22 @@
 require File.expand_path('../boot', __FILE__)
 
-
-require 'rails/all'
+require "action_controller/railtie"
+require "action_mailer/railtie"
+require "active_resource/railtie"
+require "rails/test_unit/railtie"
 
 # If you have a Gemfile, require the gems listed there, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 
-
+require "grit"
+Grit.debug = true
 
 #======================================================================
 # modify active-record so we can get a random record
 #======================================================================
+"""
 module ActiveRecord
   class Base
     def self.random
@@ -22,13 +26,13 @@ module ActiveRecord
     end
   end
 end
-
+"""
 
 
 #======================================================================
 # not needed!
 #======================================================================
-ActiveRecord::Base.include_root_in_json = false
+#ActiveRecord::Base.include_root_in_json = false
 
 module Gitique
   class Application < Rails::Application

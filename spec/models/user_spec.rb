@@ -18,24 +18,24 @@ describe User do
 	end
 
 
-	describe "username validation" do
+	describe "username" do
 			
-		it "should require a username" do
+		it "should be present" do
 			User.new(@attr.merge(:username => "")).should_not be_valid
 		end
 		
-		it "should reject usernames that are too long" do
+		it "should not be too long" do
 			long_username = "a" * 51
 			User.new(@attr.merge(:username => long_username)).should_not be_valid
 		end
 
-		it "should reject duplicate usernames" do
+		it "should be unique" do
 			# Put a user with given username address into the database.
 			User.create!(@attr)
 			User.new(@attr).should_not be_valid
 		end
 
-		it "should reject usernames identical up to case" do
+		it "should be case insensitive in its uniqueness" do
 			upcased_username = @attr[:username].upcase
 			User.create!(@attr.merge(:username => upcased_username))
 			User.new(@attr).should_not be_valid
@@ -68,25 +68,25 @@ describe User do
 
 
 
-	describe "password validations" do
+	describe "password" do
 
-		it "should require a password" do
+		it "should be present" do
 			User.new(@attr.merge(:password => "", :password_confirmation => "")).
 				should_not be_valid
 		end
 
-		it "should require a matching password confirmation" do
+		it "should have a matching confirmation" do
 			User.new(@attr.merge(:password_confirmation => "invalid")).
 				should_not be_valid
 		end
 
-		it "should reject short passwords" do
+		it "should not be too short" do
 			short = "a" * 5
 			hash = @attr.merge(:password => short, :password_confirmation => short)
 			User.new(hash).should_not be_valid
 		end
 
-		it "should reject long passwords" do
+		it "should not be too long" do
 			long = "a" * 41
 			hash = @attr.merge(:password => long, :password_confirmation => long)
 			User.new(hash).should_not be_valid
@@ -94,7 +94,7 @@ describe User do
 	end
 
 
-	describe "password encryption" do
+	describe "password" do
 
 		before(:each) do
 			@user = User.create!(@attr)
@@ -108,28 +108,17 @@ describe User do
       @user.encrypted_password.should_not be_blank
     end
 
-    describe "has_password? method" do
+   	describe "authentication" do
 
-      it "should be true if the passwords match" do
-        @user.has_password?(@attr[:password]).should be_true
-      end    
-
-      it "should be false if the passwords don't match" do
-        @user.has_password?("invalid").should be_false
-      end 
-    end
-   	
-   	describe "authenticate method" do
-
-      it "should return nil on email/password mismatch" do
-        User.authenticate(@attr[:username], "wrong password").should be_nil
+      it "should return nil on username/password mismatch" do
+        User.authenticate(@attr[:password], "wrong password").should be_nil
       end
 
       it "should return nil for an username with no user" do
-        User.authenticate("hopefully not an actual user", @attr[:password]).should be_nil
+        User.authenticate("nonexistant user", @attr[:password]).should be_nil
       end
 
-      it "should return the user on email/password match" do
+      it "should return the user on username/password match" do
         User.authenticate(@attr[:username], @attr[:password]).should == @user
       end
     end

@@ -1,2 +1,2 @@
-class Critique < ActiveRecord::Base
+class Critique
 end

@@ -295,9 +295,6 @@ visible layout
 script
 ------------------------------------------------------ -->
 <script type="text/javascript">
-  window.repo_id = <%= @repo.id.to_s %>;
-  window.branch = "<%= @branch %>";
-  window.filename = "<%= @filename %>";
   window.total_lines = <%= @total_lines %>;
   
   var $m = $("#mainpre");
@@ -346,11 +343,12 @@ script
     });
     
     setTimeout(function(){
-      main_esh.load_file(filename);
+      main_esh.load_file("<%= @repo.sha1 %>", "<%= @branch %>", "<%= @filename %>");
     }, 1);
     
     // get html
-    $.getJSON('/critiques/get_all', {"repo_id": repo_id, "branch": branch, "filename": filename}, function(data) { 
+    /*
+    $.getJSON('/critiques/get_all', {repo_url: repo_url, "branch": branch, "filename": filename}, function(data) { 
       var directive = {
         'div.critique':{
           'critique <- critiques':{
@@ -360,7 +358,7 @@ script
       };
       
       $('#critiques').render({critiques: data}, directive);
-    });
+    });*/
   });
   
   function jkkj()
