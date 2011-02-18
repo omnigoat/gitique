@@ -1,8 +1,13 @@
 require 'grit'
 require 'digest/sha1'
+load 'gitnative.rb'
 
-#include Grit
 
+module Here
+	def self.method_missing(name, *args)
+		puts "responding to #{name}"
+	end
+end
 
 class RepositoriesController < ApplicationController
 	def add
@@ -24,10 +29,19 @@ class RepositoriesController < ApplicationController
 		
 
 		# clone git repository, and if we succeed, then store that into our database
-		logger.info "cloning repository '#{url}' to '#{git_dir}'"
-		gritty = Grit::Git.new git_dir
-		
-		Open3.popen3("git clone --bare #{url} resources/repositories/#{dir}") do |stdin, stdout, stderr, thread|
+	
+  	logger.info "cloning repository '#{url}' to '#{git_dir}'"
+		GitNative.clone({:bare => true}, url, full_git_dir) do |thread, stdout, stderr, stdin|
+			logger.info stderr.readlines.join
+			if thread.value == 0
+				Repository.new(:sha1 => sha1, :url => url).save
+			end
+		end
+
+
+		#({:bare => true}, url, full_git_dir)
+		"""
+		do |stdin, stdout, stderr, thread|
 			logger.info stderr.readlines.join
 
 			if thread.value == 0
@@ -35,6 +49,17 @@ class RepositoriesController < ApplicationController
 				repo.save
 			end
 		end
+		"""
+
+		#Here.fly_like_an_eagle
+
+		#Open3.popen3("git clone --bare #{url} #{full_git_dir}") do |stdin, stdout, stderr, thread|
+		#	logger.info stderr.readlines.join
+#
+#			if thread.value == 0
+#				repo = 
+#			end
+#		end
 	end
 	
 

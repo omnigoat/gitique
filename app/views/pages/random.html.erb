@@ -1,14 +1,14 @@
 
-  <!-- resize plugin for jquery -->
-  <script type="text/javascript" src="/javascripts/jquery.ba-resize.min.js"></script>
-   
-  <!-- jj -->
-  <script type="text/javascript" src="/javascripts/jj.js"></script>
-  <script type="text/javascript" src="/javascripts/jaja.js"></script>
-  <script type="text/javascript" src="/javascripts/jaja.core.js"></script>
-  <script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
-  <script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
-  <script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
+	<!-- resize plugin for jquery -->
+	<script type="text/javascript" src="/javascripts/jquery.ba-resize.min.js"></script>
+	 
+	<!-- jj -->
+	<script type="text/javascript" src="/javascripts/jj.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.core.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
 
 
 
@@ -17,218 +17,222 @@
 style
 ------------------------------------------------------ -->
 <style>
-  html, body {
-    position: absolute;
-    bottom: 0px;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    margin: 0px;
-    padding: 0px;
-    border: none;
-    overflow: hidden;
-  }
-  /*
-  td.gutter div.line.active {
-    border-top: 1px dashed white !important;
-    border-bottom: 1px dashed white !important;
-    border-left: 1px dashed white !important;
-    margin-top: -1px !important;
-    margin-bottom: -1px !important;
-    margin-left: -1px !important;
-  }
-  
-  div.container div.line.active {
-    border-top: 1px dashed white !important;
-    border-right: 1px dashed white !important;
-    border-bottom: 1px dashed white !important;
-    margin: -1px !important;
-  }
-  */
-  
-  #simplemodal-container {
-    background: white;
-    -moz-box-shadow: 0px 0px 10px black;
-    -webkit-box-shadow: 0px 0px 10px black;
-    box-shadow: 0px 0px 10px black;
-    padding: 10px;
-  }
-  
-  .floatingbox {
-    -moz-box-shadow: 0px 0px 10px black;
-    -webkit-box-shadow: 0px 0px 10px black;
-    box-shadow: 0px 0px 10px black;
-  }
-  
-  #title {
-    padding: 2px;
-    margin: 10px;
-  }
-  
-  #title span.title {
-    font-size: 3em;
-  }
-  
-  #title span.info {
-    font-size: 1em;
-    color: #aaaaaa;
-    font-style: italic;
-  }
-  
-  #lhs {
-    float: left;
-    width: 40%;
-    height: 800px;
-    position: relative;
-  }
-  
+	html, body {
+		position: absolute;
+		bottom: 0px;
+		top: 0px;
+		left: 0px;
+		right: 0px;
+		margin: 0px;
+		padding: 0px;
+		border: none;
+		overflow: hidden;
+	}
+	/*
+	td.gutter div.line.active {
+		border-top: 1px dashed white !important;
+		border-bottom: 1px dashed white !important;
+		border-left: 1px dashed white !important;
+		margin-top: -1px !important;
+		margin-bottom: -1px !important;
+		margin-left: -1px !important;
+	}
+	
+	div.container div.line.active {
+		border-top: 1px dashed white !important;
+		border-right: 1px dashed white !important;
+		border-bottom: 1px dashed white !important;
+		margin: -1px !important;
+	}
+	*/
+	
+	#simplemodal-container {
+		background: white;
+		-moz-box-shadow: 0px 0px 10px black;
+		-webkit-box-shadow: 0px 0px 10px black;
+		box-shadow: 0px 0px 10px black;
+		padding: 10px;
+	}
+	
+	.floatingbox {
+		-moz-box-shadow: 0px 0px 10px black;
+		-webkit-box-shadow: 0px 0px 10px black;
+		box-shadow: 0px 0px 10px black;
+	}
+	
+	#title {
+		padding: 2px;
+		margin: 10px;
+	}
+	
+	#title span.title {
+		font-size: 3em;
+	}
+	
+	#title span.info {
+		font-size: 1em;
+		color: #aaaaaa;
+		font-style: italic;
+	}
+	
+	#lhs {
+		float: left;
+		width: 40%;
+		position: relative;
+	}
+	
+	#rhs {
+		float: right;
+		width: 60%;
+		position: relative;
+	}
+
   div.tool-pane {
     position: absolute;
     top: 2.5%;
-    left: 2.5%;
-    width: 95%;
-    height: 97.5%;
-    margin: auto;
+    left: 2.5%;    
   }
 
-  div.tool-pane span.heading {
-    font-size: 2em;
-    font-family: Georgia, serif;
-    font-style: italic;
-    //font-weight: normal;
-    color: #aaaaaa;
+	#lhs div.tool-pane {
+		width: 95%;
+	}
+
+  #rhs div.tool-pane {
+    width: 97.5%;
   }
 
-  td.gutter div.line.highlighted2 {
-    background-color: #ffffaa !important;
-    border: 1px solid black;
-  }
+	div.tool-pane span.heading {
+		font-size: 2em;
+		font-family: Georgia, serif;
+		font-style: italic;
+		//font-weight: normal;
+		color: #aaaaaa;
+	}
 
-  div.tool-pane span.minor-heading {
-    font-size: 0.9em;
-    font-family: Courier New;
-    color: #aaaaaa;
-  }
+	td.gutter div.line.highlighted2 {
+		background-color: #ffffaa !important;
+		border: 1px solid black;
+	}
 
-  div.tool-pane span.minor-heading a {
-    font-size: 0.9em;
-    font-family: Courier New;
-    color: #aaaaaa;
-  }
+	div.tool-pane span.minor-heading {
+		font-size: 0.9em;
+		font-family: Courier New;
+		color: #aaaaaa;
+	}
 
-  #critiques {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-  }
-  
-    .critique {
-      -moz-box-shadow: 0px 0px 10px black;
-      -webkit-box-shadow: 0px 0px 10px black;
-      box-shadow: 0px 0px 10px black;
-      margin: 10px;
-      padding: 50px;
-      width: 100%px;
-    }
-    
-    .critique:hover {
-      -moz-box-shadow: 0px 0px 10px blue;
-      -webkit-box-shadow: 0px 0px 10px blue;
-      box-shadow: 0px 0px 10px blue;
-    }
-  
-  #viewer-wrapper {
-    float: right;
-    width: 60%;
-    height: 100%;
-    overflow: hidden;
-  }
-  
-  #viewer {
-//    margin: 10px 0px 10px 10px;
-  //  -moz-box-shadow: 0px -0px 10px black;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: relative;
-  }
+	div.tool-pane span.minor-heading a {
+		font-size: 0.9em;
+		font-family: Courier New;
+		color: #aaaaaa;
+	}
 
-  #mainpre {
-    overflow: hidden;
-  }
+	#critiques {
+		overflow: hidden;
+		width: 100%;
+		height: 100%;
+	}
+	
+		.critique {
+			-moz-box-shadow: 0px 0px 10px black;
+			-webkit-box-shadow: 0px 0px 10px black;
+			box-shadow: 0px 0px 10px black;
+			margin: 10px;
+			padding: 50px;
+			width: 100%px;
+		}
+		
+		.critique:hover {
+			-moz-box-shadow: 0px 0px 10px blue;
+			-webkit-box-shadow: 0px 0px 10px blue;
+			box-shadow: 0px 0px 10px blue;
+		}
+	
+ 
+	#viewer {
+//		margin: 10px 0px 10px 10px;
+	//	-moz-box-shadow: 0px -0px 10px black;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		position: relative;
+	}
 
-  
-  .tool-pane {
-    visibility: hidden;
-  }
+	#mainpre {
+		overflow: hidden;
+	}
 
-  .tool-pane.active {
-    visibility: visible;
-  }
+	
+	.tool-pane {
+		visibility: hidden;
+	}
 
-  .jaja-ui-button {
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    background: #efefef;
-    text-align: center;
-    vertical-align: text-bottom;
-    font-size: 12px !important;
-    border: 1px solid #efefef;
-  }
-  
-  .jaja-ui-scrollbar-bar {
-    background: #f2f2f2;
-  }
-  
-  .jaja-ui-scrollbar-nub {
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    background: #dfdfdf;
-    border: 1px solid #dfdfdf;
-  }
-  
-  .jaja-ui-scrollbar-nub.jaja-ui-poised {
-    border: 1px solid #999999;
-  }
-  
-  .jaja-ui-scrollbar-nub.jaja-ui-active {
-    background: #ddddff;
-    border: 1px solid #aaaaff;
-  }
-  
-  .jaja-ui-button.jaja-ui-poised {
-    background: #e5e5e5;
-    border: 1px solid #aaaaaa;
-  }
-  
-  .jaja-ui-button:hover {
-    background: #eeeeff;
-  }
-  
-  .jaja-ui-scrollbar.jaja-ui-vertical .jaja-ui-button {
-    -moz-transform: rotate(90deg);  /* FF3.5+ */
-    -o-transform: rotate(90deg);  /* Opera 10.5 */
-    -webkit-transform: rotate(90deg);  /* Saf3.1+, Chrome */
-  }
-  
-  div.container {
-    position: relative !important;
-    overflow: hidden !important;
-    top: 0px !important;
-  }
-  
-  div.container-wrapper {
-    overflow: hidden !important;
-  }
-  
-  div.syntaxhighlighter {
-    top: 0px;
-  }
-  
-  div.toolbar {
-    display: none !important;
-  }
-  
+	.tool-pane.active {
+		visibility: visible;
+	}
+
+	.jaja-ui-button {
+		-moz-border-radius: 2px;
+		border-radius: 2px;
+		background: #efefef;
+		text-align: center;
+		vertical-align: text-bottom;
+		font-size: 12px !important;
+		border: 1px solid #efefef;
+	}
+	
+	.jaja-ui-scrollbar-bar {
+		background: #f2f2f2;
+	}
+	
+	.jaja-ui-scrollbar-nub {
+		-moz-border-radius: 2px;
+		border-radius: 2px;
+		background: #dfdfdf;
+		border: 1px solid #dfdfdf;
+	}
+	
+	.jaja-ui-scrollbar-nub.jaja-ui-poised {
+		border: 1px solid #999999;
+	}
+	
+	.jaja-ui-scrollbar-nub.jaja-ui-active {
+		background: #ddddff;
+		border: 1px solid #aaaaff;
+	}
+	
+	.jaja-ui-button.jaja-ui-poised {
+		background: #e5e5e5;
+		border: 1px solid #aaaaaa;
+	}
+	
+	.jaja-ui-button:hover {
+		background: #eeeeff;
+	}
+	
+	.jaja-ui-scrollbar.jaja-ui-vertical .jaja-ui-button {
+		-moz-transform: rotate(90deg);	/* FF3.5+ */
+		-o-transform: rotate(90deg);	/* Opera 10.5 */
+		-webkit-transform: rotate(90deg);	/* Saf3.1+, Chrome */
+	}
+	
+	div.container {
+		position: relative !important;
+		overflow: hidden !important;
+		top: 0px !important;
+	}
+	
+	div.container-wrapper {
+		overflow: hidden !important;
+	}
+	
+	div.syntaxhighlighter {
+		top: 0px;
+	}
+	
+	div.toolbar {
+		display: none !important;
+	}
+	
 </style>
 
 
@@ -239,52 +243,61 @@ style
 visible layout
 ------------------------------------------------------ -->
 
-  <!-- title -->
-  <div id="title">
-    <span class='title'>Gitique</span><span class='info'>logged in as blah blah blah</span>
-  </div>
+	<!-- title -->
+	<div id="title">
+		<span class='title'>Gitique</span><span class='info'>logged in as blah blah blah</span>
+	</div>
 
 
 
-  <!-- LHS -->
-  <div id="lhs">
+	<!-- LHS -->
+	<div id="lhs">
 
-    <!-- critiques (default) -->
-    <div id="critiques" class="tool-pane active">
-      Critiques <a href="javascript:new_critique()">new critique</a>  
-      <div class="critique">
-        <span class="name"></span>
-      </div>
-    </div>
-    
-    <!-- new critique -->
-    <div id="new_critique" class="tool-pane">
-      <span class="heading">New Critique</span><br />
-      <div style="padding-left: 10px;">
-        <span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
-        <textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
-      </div>
-      <div><a href="#">Submit</a></div>
+		<!-- critiques (default) -->
+		<div id="critiques" class="tool-pane active">
+      <span class="heading">Critiques</span><br />
+			<a href="javascript:new_critique()">new critique</a>	
+			<div class="critique">
+				<span class="name"></span>
+			</div>
+		</div>
+		
+		<!-- new critique -->
+		<div id="new_critique" class="tool-pane">
+			<span class="heading">New Critique</span><br />
+			<div style="padding-left: 10px;">
+				<span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
+				<textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
+			</div>
+			<div><a href="#">Submit</a></div>
 
-    </div>
+		</div>
 
-  </div>
+	</div>
   
 
-  
+	
+	<div id="rhs">
+		<!-- "viewer" -->
+		<div id="viewer-wrapper" class="tool-pane active">
+      <span class="heading"><%= @filename.split("/")[-1] %></span>
+      <div style="display: inline-block; text-align: bottom">
+      <span class="minor-heading" style="font-size: 0.7em; color: #bebebe">
+        <p style="line-height: 0.9em">
+  			 <%= @repo.url %>
+          <br />
+          <%= @branch + ":" + @filename %>
+        </p>
+      </span>
+      </div>
+			<div id="viewer">
+					<!-- actual editor -->
+					<pre id="mainpre" class="brush: js;">
+					</pre>
 
-  <!-- "viewer" -->
-  <div id="viewer-wrapper">
-    <div id="viewer">
-        <%= @repo.url %><br />
-        <%= @branch + ":" + @filename %>
-    
-        <!-- actual editor -->
-        <pre id="mainpre" class="brush: js;">
-        </pre>
-
-    </div>
-  </div>
+			</div>
+		</div>
+	</div>
 
 
 
@@ -295,149 +308,149 @@ visible layout
 script
 ------------------------------------------------------ -->
 <script type="text/javascript">
-  window.total_lines = <%= @total_lines %>;
-  
-  var $m = $("#mainpre");
-  var main_esh = {};
+	window.total_lines = <%= @total_lines %>;
+	
+	var $m = $("#mainpre");
+	var main_esh = {};
 
-  function to_line(n, m) {
-    console.log( main_esh.displayable_lines() );
-    main_esh.set_line( Math.max(0, n - (main_esh.displayable_lines() / 4)) /*,  m ? [n, m + 1] : [n] */ );
-  }
+	function to_line(n, m) {
+		console.log( main_esh.displayable_lines() );
+		main_esh.set_line( Math.max(0, n - (main_esh.displayable_lines() / 4)) /*,	m ? [n, m + 1] : [n] */ );
+	}
 
-  $(function() {
+	$(function() {
 
-    // calculate heights and widths for certain things
-    $(window).resize(function() {
-      //$('#critiques').height($('body').height() - $('#title').height());
-      //$('#viewer').height($('body').height() - $('#title').height());
-      $('#critiques').height($(window).height() - $('#critiques').position().top);
-      $('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').offset().top);
-      $('#viewer').height($('#viewer-wrapper').height());
-    });
-    $(window).trigger('resize');
-    
-    // if this is uncommented, then we've been testing layout stuff
-    //$(window).unbind('resize');
-    
-    
-    main_esh = jaja.ui.esh($m, {
-      selection_changed: function(new_indices) {
-        //console.log(ni, oi);
-        var display = $("#new_critique .line-display");
-        display.children().remove();
+		// calculate heights and widths for certain things
+		$(window).resize(function() {
+			//$('#critiques').height($('body').height() - $('#title').height());
+			//$('#viewer').height($('body').height() - $('#title').height());
+			$('#critiques').height($(window).height() - $('#critiques').position().top);
+			$('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').offset().top);
+			$('#viewer').height($('#viewer-wrapper').height());
+		});
+		$(window).trigger('resize');
+		
+		// if this is uncommented, then we've been testing layout stuff
+		//$(window).unbind('resize');
+		
+		
+		main_esh = jaja.ui.esh($m, {
+			selection_changed: function(new_indices) {
+				//console.log(ni, oi);
+				var display = $("#new_critique .line-display");
+				display.children().remove();
 
-        $.each(new_indices, function(i) {
-          display.append(
-              (i > 0 ? "<span>, </span>" : "")
-            + "<a href='javascript:to_line(" + (this.length == 2 ? this[0] + "," + this[1] : this[0]) + ")'>"
-            + (this.length == 2 ? (this[0] + 1) + "-" + (this[1] + 1) : (this[0] + 1))
-            + "</a>"
-          );
-        });
+				$.each(new_indices, function(i) {
+					display.append(
+							(i > 0 ? "<span>, </span>" : "")
+						+ "<a href='javascript:to_line(" + (this.length == 2 ? this[0] + "," + this[1] : this[0]) + ")'>"
+						+ (this.length == 2 ? (this[0] + 1) + "-" + (this[1] + 1) : (this[0] + 1))
+						+ "</a>"
+					);
+				});
 
-        if (new_indices.length == 0) {
-          display.append("<span>none</span>");
-        }
-      }
-    });
-    
-    setTimeout(function(){
-      main_esh.load_file("<%= @repo.sha1 %>", "<%= @branch %>", "<%= @filename %>");
-    }, 1);
-    
-    // get html
-    /*
-    $.getJSON('/critiques/get_all', {repo_url: repo_url, "branch": branch, "filename": filename}, function(data) { 
-      var directive = {
-        'div.critique':{
-          'critique <- critiques':{
-            'span.name': 'critique.comments'
-          }
-        }
-      };
-      
-      $('#critiques').render({critiques: data}, directive);
-    });*/
-  });
-  
-  function jkkj()
-  {
-    var $lines = main_esh.selected_lines();
-    if ($lines.length == 0) {
-      alert("you haven't written anything!");
-      return;
-    }
-    
-    $.post(
-      "/critiques/add",
-      {lines: [parseInt($lines.first().index()), parseInt($lines.last().index())], comments: $('#t')[0].value},
-      function(msg) {
-        alert(msg);
-      }
-    );
-  }
-  
-  function new_critique()
-  {
-    $("#critiques").removeClass("active");
-    $("#new_critique").addClass("active");
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+				if (new_indices.length == 0) {
+					display.append("<span>none</span>");
+				}
+			}
+		});
+		
+		setTimeout(function(){
+			main_esh.load_file("<%= @repo.sha1 %>", "<%= @branch %>", "<%= @filename %>");
+		}, 1);
+		
+		// get html
+		/*
+		$.getJSON('/critiques/get_all', {repo_url: repo_url, "branch": branch, "filename": filename}, function(data) { 
+			var directive = {
+				'div.critique':{
+					'critique <- critiques':{
+						'span.name': 'critique.comments'
+					}
+				}
+			};
+			
+			$('#critiques').render({critiques: data}, directive);
+		});*/
+	});
+	
+	function jkkj()
+	{
+		var $lines = main_esh.selected_lines();
+		if ($lines.length == 0) {
+			alert("you haven't written anything!");
+			return;
+		}
+		
+		$.post(
+			"/critiques/add",
+			{lines: [parseInt($lines.first().index()), parseInt($lines.last().index())], comments: $('#t')[0].value},
+			function(msg) {
+				alert(msg);
+			}
+		);
+	}
+	
+	function new_critique()
+	{
+		$("#critiques").removeClass("active");
+		$("#new_critique").addClass("active");
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-  
-  //=====================================================================
-  // clear selected text
-  //=====================================================================
-  function clear_selection() {
-    if (window.getSelection) {
-      window.getSelection().removeAllRanges();
-    }
-    else {
-      document.selection.clear();
-    }
-  }
-  
-  
-  
-  
-  
-  
-  
+	
+	//=====================================================================
+	// clear selected text
+	//=====================================================================
+	function clear_selection() {
+		if (window.getSelection) {
+			window.getSelection().removeAllRanges();
+		}
+		else {
+			document.selection.clear();
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
 </script>
 
 

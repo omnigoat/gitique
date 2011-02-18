@@ -1,65 +1,42 @@
 #require 'grit'
-
+load 'gitnative.rb'
 
 class Array
-	def shuffle
-		sort_by { rand }
-	end
-
-	def shuffle!
-		self.replace shuffle
+	def random_element
+		self[rand(length)]
 	end
 end
+
+
+
 
 def dir_from_sha1(sha1)
-	return sha1[0, 2] + "/" + sha1[2, 38]
+	return "resources/repositories/" + sha1[0, 2] + "/" + sha1[2, 38]
 end
 
-def git(repo_dir, string)
-	dir = "resources/repositories/#{repo_dir}"
-	command = "git --git-dir=#{dir} #{string}"
-
-	logger.info "command: #{command}"
-	begin
-    result = ""
-    Open3.popen3(command) do |stdin, stdout, stderr|
-  		result = stdout.readlines
-      logger.error stderr.readlines.join
-		end
-    
-    return result
-
-	rescue IOError
-		logger.debug "ERROR WHILST: " + command
+def random_branch
+	GitNative.branch do |thread, stdout|
+		branches = stdout.readlines.map{|x| x[2..-2]}
+		logger.info "BRANCHES: #{branches.to_s}"
+		return branches.random_element
 	end
 end
 
-def random_branch(repo_dir)
-	branches = git(repo_dir, "branch").map {|x| x[2..-2]}
-	logger.info "BRANCHES: #{branches.to_s}"
-	chosen_branch = branches[rand(branches.size)]
-	
 
-	return chosen_branch
-end
-
-
-def random_file(repo_dir, chosen_branch)
+def random_file(chosen_branch)
+	# simply because it is a large file, we can test things better
 	return "public/javascripts/notused/prototype.js"
 	
-	files = git(repo_dir, "ls-tree -r --name-only " + chosen_branch).map {|x| x.chomp!}
-	chosen_file = files[rand(files.size)]
-	#logger.debug "TREE: " + files.to_s
+	GitNative.ls_tree({:r => true}, "--name-only", chosen_branch) do |thread, stdout|
+		return stdout.readlines.map{|x| x.chomp!}.random_element
+	end
 end
 
 
-def file_lines(repo_dir, branch, filename, from, to)
-	begin
-		lines = git(repo_dir, "cat-file -p " + branch + ":" + filename).map {|x| x.chomp!}
+def file_lines(branch, filename, from, to)
+	GitNative.cat_file({:p => true}, branch + ":" + filename) do |thread, stdout, stderr, stdin|			
+		lines = stdout.readlines.map{|x| x.chomp!}
 		return [lines.length, lines.slice(from, to - from)]
-		
-	rescue IOError
-		logger.debug "there was an error reading this stuff!"
 	end
 end
 
@@ -70,6 +47,11 @@ end
 
 
 class PagesController < ApplicationController
+	#=======================================================================
+	#
+	# RANDOM
+	#
+	#=======================================================================
 	def random
 		
 		# SERIOUSLY, terribly inefficient with lots of repositories
@@ -79,21 +61,24 @@ class PagesController < ApplicationController
     	return false
     end
 
-		repo_dir = dir_from_sha1(@repo.sha1)
 		
-		#fs_repo = Grit::Repo.new(repo_dir)
+		GitNative.in_git_dir(dir_from_sha1(@repo.sha1)) do			
+			@branch = random_branch()
+			logger.info "BRANCH: #{@branch.to_s}"
 		
-		@branch = random_branch(repo_dir)
-		logger.info "BRANCH: #{@branch.to_s}"
-	
-  	@filename = random_file(repo_dir, @branch)
-		logger.info "FILENAME: #{@filename}"
+	  	@filename = random_file(@branch)
+			logger.info "FILENAME: #{@filename}"
 
-		@total_lines = file_lines(repo_dir, @branch, @filename, 0, 1)[0]
+			@total_lines = file_lines(@branch, @filename, 0, 1)[0]
+		end
 	end
 	
 	
-	
+	#=======================================================================
+	#
+	# LOAD
+	#
+	#=======================================================================
 	def load
 		repo = Repository.find_by_sha1(params[:repo_sha1])
 
@@ -102,13 +87,23 @@ class PagesController < ApplicationController
 		@filename = params[:filename]
 		@from = Integer(params[:from])
 		@to = Integer(params[:to])
-		@lines = file_lines(dir_from_sha1(repo.sha1), @branch, @filename, @from, @to)[1]
+
+		GitNative.in_git_dir(dir_from_sha1(repo.sha1)) do
+			@lines = file_lines(@branch, @filename, @from, @to)[1]
+		end
 		
 		respond_to do |format|
 			format.html { render "load", :layout => false }
 		end
 	end
 	
+
+
+	#=======================================================================
+	#
+	# POST
+	#
+	#=======================================================================
 	def post
 		# logger.debug "WHOOOO!: " + params[:comments]
 		
