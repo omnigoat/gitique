@@ -92,8 +92,8 @@ style
 	*****************************************************************/
 	div.tabs {
 		position: relative;
-		top: 2.5%;
 		left: 2.5%;
+		width: 95%;
 	}
 
 	div.tabs a {
@@ -123,12 +123,16 @@ style
 	}
 	
 
-	#lhs div.toolpane {
-		position: absolute;
+	#lhs div.toolpane-container {
 		width: 95%;
 	}
 
-	#rhs div.toolpane {
+	#lhs div.toolpane {
+		position: absolute;
+		width: 100%;
+	}
+
+	#rhs div.toolpane-container {
 		width: 97.5%;
 	}
 
@@ -298,7 +302,6 @@ visible layout
 		<div class="tabs">			
 			<a class="toolpane-critiques" href="javascript:switch_lhs_toolpane('.toolpane-critiques')">Critiques</a>&nbsp;
 			<a class="toolpane-new-critique" href="javascript:switch_lhs_toolpane('.toolpane-new-critique')">New Critique</a>
-			<a class="toolpane-filter-critiques" href="javascript:switch_lhs_toolpane('.toolpane-filter-critiques')">Filiques</a>
 		</div>
 
 		<div class="toolpane-container" style="position: relative">
@@ -329,14 +332,12 @@ visible layout
 		<!-- "viewer" -->
 		<div id="viewer-wrapper" class="toolpane active">
 			<span class="heading"><%= @filename.split("/")[-1] %></span>
-			<div style="display: inline-block; text-align: bottom">
-			<span class="minor-heading" style="font-size: 0.7em; color: #bebebe">
-				<p style="line-height: 0.9em">
-				 <%= @repo.url %>
-					<br />
-					<%= @branch + ":" + @filename %>
-				</p>
-			</span>
+			<div style="position: absolute; display: inline-block; right: 0; text-align: right">
+				<span class="minor-heading" style="font-size: 0.8em; color: #bebebe">
+					<p style="line-height: 0.9em">
+					<%= @repo.url %><br /><%= @branch + ":" + @filename %>
+					</p>
+				</span>
 			</div>
 			<div id="viewer">
 					<!-- actual editor -->
