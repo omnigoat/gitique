@@ -87,21 +87,56 @@ style
 		position: relative;
 	}
 
-  div.tool-pane {
-    position: absolute;
-    top: 2.5%;
-    left: 2.5%;    
-  }
+	/*****************************************************************
+	* TABS
+	*****************************************************************/
+	div.tabs {
+		position: relative;
+		top: 2.5%;
+		left: 2.5%;
+	}
 
-	#lhs div.tool-pane {
+	div.tabs a {
+		position: absolute;
+		text-decoration: none;
+		color: #eeeeee;
+		font-size: 2em;
+		font-family: Georgia, serif;
+		font-style: italic;
+		padding-right: 20px;
+	}
+
+	div.tabs a.active {
+		color: #999999;
+	}
+
+	div.tabs a:hover {
+		color: #bbbbff;
+	}
+
+	/*****************************************************************
+	* TOOLPANES
+	*****************************************************************/
+	div.toolpane-container {
+		position: relative;
+		left: 2.5%;
+	}
+	
+
+	#lhs div.toolpane {
+		position: absolute;
 		width: 95%;
 	}
 
-  #rhs div.tool-pane {
-    width: 97.5%;
-  }
+	#rhs div.toolpane {
+		width: 97.5%;
+	}
 
-	div.tool-pane span.heading {
+
+
+
+
+	div.toolpane span.heading {
 		font-size: 2em;
 		font-family: Georgia, serif;
 		font-style: italic;
@@ -114,17 +149,23 @@ style
 		border: 1px solid black;
 	}
 
-	div.tool-pane span.minor-heading {
+	div.toolpane span.minor-heading {
 		font-size: 0.9em;
 		font-family: Courier New;
 		color: #aaaaaa;
 	}
 
-	div.tool-pane span.minor-heading a {
+	div.toolpane span.minor-heading a {
 		font-size: 0.9em;
 		font-family: Courier New;
 		color: #aaaaaa;
 	}
+
+
+
+
+
+
 
 	#critiques {
 		overflow: hidden;
@@ -162,11 +203,11 @@ style
 	}
 
 	
-	.tool-pane {
+	.toolpane {
 		visibility: hidden;
 	}
 
-	.tool-pane.active {
+	.toolpane.active {
 		visibility: visible;
 	}
 
@@ -253,43 +294,50 @@ visible layout
 	<!-- LHS -->
 	<div id="lhs">
 
-		<!-- critiques (default) -->
-		<div id="critiques" class="tool-pane active">
-      <span class="heading">Critiques</span><br />
-			<a href="javascript:new_critique()">new critique</a>	
-			<div class="critique">
-				<span class="name"></span>
-			</div>
+		<!-- tabs -->
+		<div class="tabs">			
+			<a class="toolpane-critiques" href="javascript:switch_lhs_toolpane('.toolpane-critiques')">Critiques</a>&nbsp;
+			<a class="toolpane-new-critique" href="javascript:switch_lhs_toolpane('.toolpane-new-critique')">New Critique</a>
+			<a class="toolpane-filter-critiques" href="javascript:switch_lhs_toolpane('.toolpane-filter-critiques')">Filiques</a>
 		</div>
-		
-		<!-- new critique -->
-		<div id="new_critique" class="tool-pane">
-			<span class="heading">New Critique</span><br />
-			<div style="padding-left: 10px;">
-				<span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
-				<textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
+
+		<div class="toolpane-container" style="position: relative">
+
+			<!-- critiques (default) -->
+			<div class="toolpane toolpane-critiques active">				
+				<div class="critique">
+					<span class="name"></span>
+				</div>
 			</div>
-			<div><a href="#">Submit</a></div>
+			
+			<!-- new critique -->
+			<div class="toolpane toolpane-new-critique">
+				<div style="padding-left: 10px;">
+					<span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
+					<textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
+				</div>
+				<div><a href="#">Submit</a></div>
+			</div>
 
 		</div>
 
 	</div>
-  
+	
 
 	
 	<div id="rhs">
 		<!-- "viewer" -->
-		<div id="viewer-wrapper" class="tool-pane active">
-      <span class="heading"><%= @filename.split("/")[-1] %></span>
-      <div style="display: inline-block; text-align: bottom">
-      <span class="minor-heading" style="font-size: 0.7em; color: #bebebe">
-        <p style="line-height: 0.9em">
-  			 <%= @repo.url %>
-          <br />
-          <%= @branch + ":" + @filename %>
-        </p>
-      </span>
-      </div>
+		<div id="viewer-wrapper" class="toolpane active">
+			<span class="heading"><%= @filename.split("/")[-1] %></span>
+			<div style="display: inline-block; text-align: bottom">
+			<span class="minor-heading" style="font-size: 0.7em; color: #bebebe">
+				<p style="line-height: 0.9em">
+				 <%= @repo.url %>
+					<br />
+					<%= @branch + ":" + @filename %>
+				</p>
+			</span>
+			</div>
 			<div id="viewer">
 					<!-- actual editor -->
 					<pre id="mainpre" class="brush: js;">
@@ -324,7 +372,7 @@ script
 		$(window).resize(function() {
 			//$('#critiques').height($('body').height() - $('#title').height());
 			//$('#viewer').height($('body').height() - $('#title').height());
-			$('#critiques').height($(window).height() - $('#critiques').position().top);
+			//$('#critiques').height($(window).height() - $('#critiques').position().top);
 			$('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').offset().top);
 			$('#viewer').height($('#viewer-wrapper').height());
 		});
@@ -337,7 +385,7 @@ script
 		main_esh = jaja.ui.esh($m, {
 			selection_changed: function(new_indices) {
 				//console.log(ni, oi);
-				var display = $("#new_critique .line-display");
+				var display = $("div.toolpane-new-critique .line-display");
 				display.children().remove();
 
 				$.each(new_indices, function(i) {
@@ -398,12 +446,48 @@ script
 	}
 	
 	
+	function switch_lhs_toolpane(to, duration)
+	{
+		duration = duration || 200;
+
+		var $tabs = $("#lhs div.tabs a"),
+		    $active_tab = $("#lhs a.active"),
+		    $new_tab = $("#lhs a" + to)
+		    ;
+		
+		// do nothing if they've clicked on the already active tab
+		if ($new_tab.get(0) === $active_tab.get(0)) {
+			return false;
+		}
+
+		$("#lhs .active").removeClass("active").filter("div").animate({
+			visibility: true
+		});
+
+		$(to).addClass("active");
+
+		// get order of tabs
+		var acc_left = $new_tab.outerWidth();
+		$new_tab.animate({left: 0}, duration);
+
+		$.each($tabs.not(to), function() {
+			var $this = $(this);
+			$this.animate({left: acc_left}, duration);
+			acc_left += $this.outerWidth();
+		});
+
+		
+	}
+	
+	jaja.dynamically_size({
+		element: $("#lhs div.toolpane-container"),
+		using: {
+			top: function() { return $("#lhs div.tabs").position().top + $("#lhs div.tabs").outerHeight(); }
+		}
+	});
 	
 	
-	
-	
-	
-	
+	switch_lhs_toolpane(".toolpane-critiques", 0);
 	
 	
 	
