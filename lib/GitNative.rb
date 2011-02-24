@@ -2,20 +2,8 @@
 
 
 module GitNative
-
-	def self.in_git_dir(git_dir)
-		tmp = @git_dir
-		@git_dir = git_dir
-		yield
-		@git_dir = tmp
-	end
-
 	class << self
 		attr_accessor :git_binary, :git_dir
-
-		if respond_to? :clone
-			#remove_method :clone
-		end
 	end
 
 	if RUBY_PLATFORM.downcase =~ /mswin(?!ce)|mingw|bccwin/
@@ -26,17 +14,38 @@ module GitNative
 	
 	self.git_dir = ".git"
 
-	def self.method_missing(command, options = {}, *args)
-		command = command.to_s.split('_').join('-')
-		#puts "METHOD MISSING!: #{command}"
-		#puts "	#{options}"
-		#puts "	#{args}"
+	# yeild to a block where the git directory has changed
+	def self.in_git_dir(git_dir)
+		tmp = @git_dir
+		@git_dir = git_dir
+		yield
+		@git_dir = tmp
+	end
 
+
+
+	# because the clone method is present in Object, method_missing
+	# wouldn't work out-of-the-box
+	def self.clone(options = {}, *args, &block)
+		return self.method_missing("clone", options, *args, &block)
+	end
+
+
+
+	# where all the magic happens
+	def self.method_missing(command, options = {}, *args)
+		command = command.to_s.gsub(/_/, '-')
+		
 		opt_args = transform_options(options)
 		extra_args = args.reject{|a| a.empty?}.map{ |a| (a == '--' || a[0].chr == '|') ? a : "\"#{a}\"" }
 
 		command_string = "#{@git_binary} --git-dir=#{@git_dir} #{command} #{(opt_args + extra_args).join(' ')}"
 		
+		#puts "METHOD MISSING!: #{command}"
+		#puts "	#{options}"
+		#puts "	#{args}"
+		#puts "COMMAND STRING #{command_string}"
+
 		Open3.popen3(command_string) do |stdin, stdout, stderr, thread|
 			if block_given?
 				yield thread, stdout, stderr, stdin
@@ -65,7 +74,7 @@ private
 					# ignore
 				else
 					val = options.delete(opt)
-					args << "--#{opt.to_s.gsub(/_/, '-')}='#{e(val)}'"
+					args << "--#{opt.to_s.gsub(/_/, '-')}=#{val}"
 				end
 			end
 		end

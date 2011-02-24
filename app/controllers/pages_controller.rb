@@ -1,4 +1,3 @@
-#require 'grit'
 load 'gitnative.rb'
 
 class Array

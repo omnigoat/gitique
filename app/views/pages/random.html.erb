@@ -319,7 +319,7 @@ visible layout
 					<span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
 					<textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
 				</div>
-				<div><a href="#">Submit</a></div>
+				<div><a href="javascript:send_critique()">Submit</a></div>
 			</div>
 
 		</div>
@@ -369,15 +369,28 @@ script
 
 	$(function() {
 
-		// calculate heights and widths for certain things
-		$(window).resize(function() {
-			//$('#critiques').height($('body').height() - $('#title').height());
-			//$('#viewer').height($('body').height() - $('#title').height());
-			//$('#critiques').height($(window).height() - $('#critiques').position().top);
-			$('#viewer-wrapper').height($(window).height() - $('#viewer-wrapper').offset().top);
-			$('#viewer').height($('#viewer-wrapper').height());
+		var $viewer_wrapper = $('#viewer-wrapper'),
+		    $viewer = $('#viewer')
+		    ;
+		
+
+		
+		jaja.dynamically_size({
+			element: $viewer_wrapper,
+			using: {
+				height: function($w) {return $w.height() - this.offset().top;}
+			}
 		});
-		$(window).trigger('resize');
+
+		jaja.dynamically_size({
+			element: $viewer,
+			in_response_to: [$viewer_wrapper],
+			using: {
+				height: function($vw) {return $vw.innerHeight() - this.position().top;}
+			}
+		});
+
+		
 		
 		// if this is uncommented, then we've been testing layout stuff
 		//$(window).unbind('resize');
@@ -423,22 +436,7 @@ script
 		});*/
 	});
 	
-	function jkkj()
-	{
-		var $lines = main_esh.selected_lines();
-		if ($lines.length == 0) {
-			alert("you haven't written anything!");
-			return;
-		}
-		
-		$.post(
-			"/critiques/add",
-			{lines: [parseInt($lines.first().index()), parseInt($lines.last().index())], comments: $('#t')[0].value},
-			function(msg) {
-				alert(msg);
-			}
-		);
-	}
+	
 	
 	function new_critique()
 	{
@@ -499,8 +497,31 @@ script
 	
 	
 	
-	
-	
+	//=====================================================================
+	// send newly-written critique to server
+	//=====================================================================
+	function send_critique()
+	{
+		var $textarea = $(".toolpane-new-critique textarea"),
+		    lines = main_esh.selected_lines()
+		    ;
+
+		console.log(lines);
+		
+		if (lines.length == 0 || $textarea.value === "") {
+			alert("you haven't written anything!");
+			return;
+		}
+		
+		$.post(
+			"/critique",
+			{
+				'lines': lines.indices,
+				'comments': $textarea.value
+			},
+			"json"
+		);
+	}
 	
 	
 	

@@ -11,7 +11,7 @@ Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 
 require "grit"
-Grit.debug = true
+Grit.debug = false
 
 #======================================================================
 # modify active-record so we can get a random record

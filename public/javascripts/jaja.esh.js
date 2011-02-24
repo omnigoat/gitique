@@ -224,7 +224,12 @@
 		
 		selected_lines: function()
 		{
-			return this._settings.selected_lines;
+			if (this._settings.selected_lines === undefined) {
+				return [];
+			}
+			else {
+				return this._settings.selected_lines;
+			}
 		},
 		
 		// return the number of lines we can display at once
@@ -298,7 +303,10 @@
 				in_response_to: [this.$parent],
 				using: {
 					width: function($parent) {return $parent.outerWidth() - this.position().left;},
-					height: function($parent) {return $parent.outerHeight() - this.position().top;},
+					height: function($parent) {
+						console.log(this[0], $parent.outerHeight(), this.position().top);
+						return $parent.outerHeight() - this.position().top;
+					},
 				}
 			});
 
@@ -321,7 +329,7 @@
 				in_response_to: [this.$workspace],
 				using: {
 					top: function($w) {return $w.position().top;},
-					height: function($w) {console.log("yep", $w.height()); return $w.height();},
+					height: function($w) {return $w.height();},
 				}
 			});
 

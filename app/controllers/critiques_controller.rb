@@ -2,7 +2,7 @@
 
 
 class CritiquesController < ApplicationController
-  def get_all
+  def index
     @critiques = Critique.find(:all)
     respond_to do |format|
       format.html { render :nothing => true }
@@ -10,10 +10,7 @@ class CritiquesController < ApplicationController
     end
   end
   
-  def add
-    #render :nothing => true
-    
-    
+  def new
     lines = params[:lines]
     logger.debug "WHOO: " + lines.class.to_s
     
