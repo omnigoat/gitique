@@ -4,6 +4,7 @@ Gitique::Application.routes.draw do
   match "repositories", :to => 'repositories#main'
   match "repositories/add", :to => 'repositories#add'
   match "repositories/remove", :to => 'repositories#remove'
+  match "repositories/remove_db", :to => 'repositories#remove_db'
   
   #match "critiques/add", :to => 'critiques#add'
   #match "critiques/get_all", :to => 'critiques#get_all'

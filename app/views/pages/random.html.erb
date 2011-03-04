@@ -523,11 +523,12 @@ script
 			type: "post",
 			url: "/critique",
 			data:	{
-				"username": "henry",
-				"commit_id": "<%= @commit_id %>",
-				"filepath": "<%= @filename %>",
+				repo_genesis: "<%= @repo.genesis %>",
+				username: "henry",
+				commit_id: "<%= @commit_id %>",
+				filepath: "<%= @filename %>",
 				"lines[]": lines.indices,
-				"remarks": $textarea.val()
+				remarks: $textarea.val()
 			},
 			dataType: "json"
 		});

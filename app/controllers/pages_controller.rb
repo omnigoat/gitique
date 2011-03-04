@@ -1,5 +1,5 @@
 load 'gitnative.rb'
-load "CommitNode.rb"
+load 'repotree.rb'
 
 class Array
 	def random_element

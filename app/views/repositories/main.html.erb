@@ -3,13 +3,26 @@
   <input id="repository" name="repository" class="text_input" type=text></input>
   <a href="javascript:add_repository()">Add Repository</a>
   <a href="javascript:remove_repository()">Remove Repository</a>
+  <a href="javascript:remove_all_db_data()">Remove All DB Data</a>
+  <a href="javascript:add_the_two()">Gitique+Fork</a>
 </div>
 <br />
 <div>
-  Existing Repositories:<br />
+  Existing Backends: <%= @repo_backends.length %><br />
+  Existing Repositories (<%= @repositories.length %>):<br />
   <% @repositories.each do |repo| %>
-    &nbsp;&nbsp;<%= repo.sha1 %> .:. <%= repo.url %><br />
+  <% begin %>
+    <%= repo.backend.commits.length %>
+    &nbsp;&nbsp;<%= repo.sha1 %> .:. <%= repo.url %> .:. <%= repo.backend.commits.length %><br />
+    
+    <% repo.backend.commits.each do |commit| %>
+      &nbsp;&nbsp;&nbsp;&nbsp;<%= commit.sha1 %><br />
+    <% end %>
+  <% rescue %>
+    <br />
   <% end %>
+  <% end %>
+  
 </div>
 
 <script type="text/javascript">
@@ -34,6 +47,22 @@ function remove_repository()
 
     function(msg) {
     }
+  );
+}
+
+function remove_all_db_data() {
+  $.post(
+    "repositories/remove_db"
+  );
+}
+
+function add_the_two() {
+  $.post(
+    "repositories/add?url=git://github.com/omnigoat/gitique.git"
+  );
+
+  $.post(
+    "repositories/add?url=git://github.com/omnigoat/gitique-fork.git"
   );
 }
 </script>

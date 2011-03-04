@@ -1,4 +1,4 @@
-
+require "critique"
 
 #======================================================================
 #======================================================================
@@ -15,7 +15,7 @@ class CommitID
 	end
 
 	def self.from_mongo value
-		/(xdigit:+)--(:xdigit:+)/.match(value) do |m|
+		/(:xdigit:+)--(:xdigit:+)/.match(value) do |m|
 			@genesis = m[1]
 			@sha1 = m[2]
 		end
@@ -30,6 +30,8 @@ end
 class Commit
 	include MongoMapper::Document
 
+	belongs_to :repository_backend
+
 	key :sha1, String, :index => true
 	key :genesis, String, :index => true
 	
@@ -40,7 +42,7 @@ class Commit
 	# cached totalled votes for critiques. if a critique doesn't
 	# appear in here, but it appears in its parents, it means it
 	# is no longer valid
-	many :cached_critiques, :class => CachedCritique
+	many :cached_critiques, :class_name => "CachedCritique"
 end
 
 
