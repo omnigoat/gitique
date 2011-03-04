@@ -1,4 +1,5 @@
 load 'gitnative.rb'
+load "CommitNode.rb"
 
 class Array
 	def random_element
@@ -13,13 +14,6 @@ def dir_from_sha1(sha1)
 	return "resources/repositories/" + sha1[0, 2] + "/" + sha1[2, 38]
 end
 
-def random_branch
-	GitNative.branch do |thread, stdout|
-		branches = stdout.readlines.map{|x| x[2..-2]}
-		logger.info "BRANCHES: #{branches.to_s}"
-		return branches.random_element
-	end
-end
 
 
 def random_file(chosen_branch)
@@ -31,11 +25,10 @@ def random_file(chosen_branch)
 	end
 end
 
-
-def file_lines(branch, filename, from, to)
+def file_lines(branch, filename)
 	GitNative.cat_file({:p => true}, branch + ":" + filename) do |thread, stdout, stderr, stdin|			
 		lines = stdout.readlines.map{|x| x.chomp!}
-		return [lines.length, lines.slice(from, to - from)]
+		return [lines.length, lines]
 	end
 end
 
@@ -60,15 +53,22 @@ class PagesController < ApplicationController
     	return false
     end
 
+		dir = dir_from_sha1(@repo.sha1)
+
+		repo = Grit::Repo.new dir, :is_bare => true
 		
-		GitNative.in_git_dir(dir_from_sha1(@repo.sha1)) do			
-			@branch = random_branch()
-			logger.info "BRANCH: #{@branch.to_s}"
-		
+		chosen_branch = repo.branches.random_element
+		#logger.info .commit.id
+		@commit_id = chosen_branch.commit.id
+
+		GitNative.in_git_dir(dir) do			
+			@branch = chosen_branch.name
+			logger.info "BRANCH: #{@branch}"
+			#logger.info "TREE: " + chosen_branch.commit.tree
+			logger.info "TREE.CONTENTS: #{chosen_branch.commit.tree.contents}"
+
 	  	@filename = random_file(@branch)
 			logger.info "FILENAME: #{@filename}"
-
-			@total_lines = file_lines(@branch, @filename, 0, 1)[0]
 		end
 	end
 	
@@ -84,11 +84,9 @@ class PagesController < ApplicationController
 		@repo = repo
 		@branch = params[:branch]
 		@filename = params[:filename]
-		@from = Integer(params[:from])
-		@to = Integer(params[:to])
 
 		GitNative.in_git_dir(dir_from_sha1(repo.sha1)) do
-			@lines = file_lines(@branch, @filename, @from, @to)[1]
+			@lines = file_lines(@branch, @filename)[1]
 		end
 		
 		respond_to do |format|

@@ -20,8 +20,7 @@
 			selection_changed: function() {},
 		},
 
-
-
+		
 
 		load_file: function(repo_sha1, branch, filename, line)
 		{
@@ -33,7 +32,7 @@
 
 			$.ajax({
 				url: 'ajax/load',
-				data: {"repo_sha1": repo_sha1, "branch": branch, "filename": filename, from: line, to: line + 1200},
+				data: {"repo_sha1": repo_sha1, "branch": branch, "filename": filename},
 				
 				success: function(msg)
 				{
@@ -65,15 +64,6 @@
 					
 					// update scrollbar
 					self._recalculate_vsb_range();
-					//var vsb = self.$vsb.data('jaja.ui.scrollbar');
-					//vsb.setting('max', self.$container.children().length - 1);
-					
-					
-					
-					if ((line + 1200) < window.total_lines) {
-						self.load_file(repo_sha1, branch, filename, line + 1200);
-					}
-					
 				}
 			});
 		},

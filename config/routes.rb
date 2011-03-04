@@ -16,7 +16,7 @@ Gitique::Application.routes.draw do
   # critiques
   #
   post "critique",  :to => "critiques#new"
-  get  "critiques",  :to => "critiques#show"
+  get  "critiques",  :to => "critiques#index"
 
   #
   # users

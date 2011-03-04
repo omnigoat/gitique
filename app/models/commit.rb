@@ -27,33 +27,6 @@ end
 
 #======================================================================
 #======================================================================
-class CritiqueVote
-	include MongoMapper::EmbeddedDocument
-	belongs_to :commit
-
-	key :username, String
-	key :direction, Integer
-
-	one :critique
-end
-
-
-#======================================================================
-# this has all historical information precalculated so we do not need
-# to traverse its ancestry every pageview
-#======================================================================
-class CachedCritique
-	include MongoMapper::EmbeddedDocument
-	belongs_to :commit
-
-	key :votes_up, Integer
-	key :votes_down, Integer
-
-	one :critique, :class => Critique
-end
-
-#======================================================================
-#======================================================================
 class Commit
 	include MongoMapper::Document
 
@@ -79,18 +52,3 @@ end
 
 
 
-class Critique
-	include MongoMapper::Document
-
-	key :username, String, :index => true
-	key :commit_id, ObjectId, :index => true
-	key :path, String, :index => true
-
-	# an array of arrays of integers, signifying the lines in question
-	key :lines, Array
-	# what was actually said
-	key :remarks, String
-
-	many :cached_critiques, :class => CachedCritique
-	many :critique_votes, :class => CritiqueVote
-end

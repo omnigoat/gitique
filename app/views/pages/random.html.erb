@@ -309,7 +309,8 @@ visible layout
 			<!-- critiques (default) -->
 			<div class="toolpane toolpane-critiques active">				
 				<div class="critique">
-					<span class="name"></span>
+					<span class="name"></span><span class="date"></span>
+					<div class="remarks"></div>
 				</div>
 			</div>
 			
@@ -352,12 +353,11 @@ visible layout
 
 
 
-
 <!-- -----------------------------------------------------
 script
 ------------------------------------------------------ -->
 <script type="text/javascript">
-	window.total_lines = <%= @total_lines %>;
+	// window.total_lines = <%= @total_lines %>;
 	
 	var $m = $("#mainpre");
 	var main_esh = {};
@@ -414,26 +414,31 @@ script
 				if (new_indices.length == 0) {
 					display.append("<span>none</span>");
 				}
-			}
+			},
 		});
-		
+
+
 		setTimeout(function(){
 			main_esh.load_file("<%= @repo.sha1 %>", "<%= @branch %>", "<%= @filename %>");
 		}, 1);
 		
-		// get html
-		/*
-		$.getJSON('/critiques/get_all', {repo_url: repo_url, "branch": branch, "filename": filename}, function(data) { 
+
+		$.getJSON('/critiques', {}, function(data) { 
+			console.log("success");
+			console.dir(data);
+
 			var directive = {
 				'div.critique':{
 					'critique <- critiques':{
-						'span.name': 'critique.comments'
+						'span.name': 'critique.username',
+						'div.remarks': 'critique.remarks',
 					}
 				}
 			};
 			
-			$('#critiques').render({critiques: data}, directive);
-		});*/
+			$('.toolpane.toolpane-critiques').render({critiques: data}, directive);
+		});
+
 	});
 	
 	
@@ -506,21 +511,26 @@ script
 		    lines = main_esh.selected_lines()
 		    ;
 
-		console.log(lines);
-		
-		if (lines.length == 0 || $textarea.value === "") {
+		if (lines.length == 0 || $textarea.val() === "") {
 			alert("you haven't written anything!");
 			return;
 		}
 		
-		$.post(
-			"/critique",
-			{
-				'lines': lines.indices,
-				'comments': $textarea.value
+		//alert(typeof lines.indices[0][0]);
+		console.dir(lines.indices);
+
+		$.ajax({
+			type: "post",
+			url: "/critique",
+			data:	{
+				"username": "henry",
+				"commit_id": "<%= @commit_id %>",
+				"filepath": "<%= @filename %>",
+				"lines[]": lines.indices,
+				"remarks": $textarea.val()
 			},
-			"json"
-		);
+			dataType: "json"
+		});
 	}
 	
 	

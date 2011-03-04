@@ -3,7 +3,7 @@
 
 class CritiquesController < ApplicationController
   def index
-    @critiques = Critique.find(:all)
+    @critiques = Critique.all
     respond_to do |format|
       format.html { render :nothing => true }
       format.js { render :nothing => true, :js => @critiques.to_json }
@@ -11,20 +11,11 @@ class CritiquesController < ApplicationController
   end
   
   def new
-    lines = params[:lines]
-    logger.debug "WHOO: " + lines.class.to_s
-    
-    json = ActiveSupport::JSON.encode(lines)
-    logger.debug json
-    
-    critique = Critique.new(:comments => lines.to_json)
-    critique.save
-    
-    @critiques = Critique.find(:all).map {|x| x.to_json}
+    critique = Critique.create!(params) #:username => "NYI", :commit_id => params[:commit_id], :path => params[, :lines => lines)
     
     respond_to do |format|
       format.html { render :nothing => true }
-      format.js { render :js => @critiques.to_json }
+      format.js { render :nothing => true }
     end
   end
 end
