@@ -10,6 +10,11 @@ class RepositoriesController < ApplicationController
 	def add
 		render :nothing => true
 
+		user = User.find_by_username(params[:username])
+		return false if user.nil?
+
+
+
 		url = params[:url]
 		db_repo = Repository.find_or_create_by_url(url)
 
@@ -42,29 +47,33 @@ class RepositoriesController < ApplicationController
 		#
 		# find/create backend-repo and link it
 		#
-		db_repo_backend = RepositoryBackend.find_or_create_by_genesis(genesis)
-		#puts "FOUND A BROTHER!" unless db_repo_backend.new?
-		throw "bad repo" if db_repo.nil? or db_repo_backend.nil?
+		db_repo_backend = RepositoryBackend.find_by_genesis(genesis)
+		if db_repo_backend.nil?
+			puts "BACKEND WAS NIL"
+			db_repo_backend = RepositoryBackend.create(:genesis => genesis)
+		end
+
+		throw "bad repo/backend" if db_repo.nil? or db_repo_backend.nil?
 		db_repo.backend = db_repo_backend
-		
+		db_repo.save!
 
 		#=======================================================================
 		# build node graph
 		#=======================================================================
-		commit_nodes = {}
-		fs_repo.branches.each do |branch|
-			RepoTree::build_commit_tree commit_nodes, branch.commit
-		end
+		#commit_nodes = {}
+		#fs_repo.branches.each do |branch|
+		#	RepoTree::build_commit_tree commit_nodes, branch.commit
+		#end
+		db_repo.build_tree
 		
 		#=======================================================================
 		# propagate critiques
 		#=======================================================================
-		root = commit_nodes[genesis]
+		db_repo.for_each_ref do |node|
 
-		RepoTree::for_each root, do |node|
 			db_commit = Commit.find_or_create_by_genesis_and_sha1(genesis, node.id)
 			db_commit.repository_backend = db_repo_backend
-			#db_repo_backend.commits << db_commit
+			db_repo_backend.commits << db_commit
 			merged_critiques = {}
 			
 			node.parents.each do |parent|
@@ -72,6 +81,9 @@ class RepositoriesController < ApplicationController
 				throw if db_parent.nil?
 
 				db_parent.cached_critiques.each do |cc|
+					
+					next if db_commit.cached_critiques.find{|x| x.critique == cc.critique}
+
 					mc = merged_critiques[cc.critique._id] ||= {
 						:critique => cc.critique,
 						:votes_up => 0,
@@ -90,8 +102,15 @@ class RepositoriesController < ApplicationController
 			end
 		end
 
+		puts "AFTERWARDS?"
+		puts db_repo.commit_proxies.length
+		puts db_repo.heads.length
+
 		db_repo.save!
 		db_repo_backend.save!
+
+		user.repositories << db_repo
+		user.save!
 
 	end
 
@@ -120,12 +139,28 @@ class RepositoriesController < ApplicationController
 	def remove_db
 		Repository.delete_all
 		RepositoryBackend.delete_all
-		
+		CommitProxy.delete_all
+
 		render :nothing => true
 	end
 
 	def main
 		@repositories = Repository.all
 		@repo_backends = RepositoryBackend.all
+"""
+		@repos = Repository.all.map do |x|
+			return OpenStruct.new({
+				:sha1 => x.sha1,
+				:url => x.url,
+				:proxies => x.for_each_ref({:spaces => 0, :siblings => 0, :flattened_nodes => []}) do |node, data|
+					data[:flattened_nodes] << (" " * data[:spaces] + node.id)
+					if 
+				end
+			})
+		end
+"""
+
+
+
 	end
 end

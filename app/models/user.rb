@@ -10,6 +10,8 @@ class User
 	key :encrypted_password, String
 	key :salt, String
 	
+	many :repositories
+
 	before_save :encrypt_password, :if => :password_changed?
 
 
@@ -29,9 +31,9 @@ class User
 	#
 	# password
 	#
-	validates_presence_of :password
-	validates_confirmation_of :password
-	validates_length_of :password, :within => 6..32
+	validates_presence_of :password, :if => :validate_password?
+	validates_length_of :password, :within => 6..32, :if => :validate_password?
+	validates_confirmation_of :password, :if => :validate_password?
 	
 
 public
@@ -54,5 +56,9 @@ private
 	def encrypt_password
 		@salt = ActiveSupport::SecureRandom.base64(32)
 		@encrypted_password = Digest::SHA2.hexdigest(@salt + @password)
+	end
+
+	def validate_password?
+		return self.new? || !self.password.blank?
 	end
 end

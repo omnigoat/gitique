@@ -11,16 +11,15 @@
   Existing Backends: <%= @repo_backends.length %><br />
   Existing Repositories (<%= @repositories.length %>):<br />
   <% @repositories.each do |repo| %>
-  <% begin %>
-    <%= repo.backend.commits.length %>
-    &nbsp;&nbsp;<%= repo.sha1 %> .:. <%= repo.url %> .:. <%= repo.backend.commits.length %><br />
-    
-    <% repo.backend.commits.each do |commit| %>
-      &nbsp;&nbsp;&nbsp;&nbsp;<%= commit.sha1 %><br />
+    <% begin %>
+      &nbsp;&nbsp;<%= repo.sha1 %> .:. <%= repo.url %> .:. <%= repo.commit_proxies.length %><br />
+      
+      <% repo.commit_proxies.each do |commit| %>
+        &nbsp;&nbsp;&nbsp;&nbsp;<%= commit.sha1 %><br />
+      <% end %>
+    <% rescue %>
+      <br />
     <% end %>
-  <% rescue %>
-    <br />
-  <% end %>
   <% end %>
   
 </div>
@@ -31,7 +30,10 @@ function add_repository()
   $.post(
     "repositories/add",
 
-    {url: $('#repository')[0].value},
+    {
+      url: $('#repository')[0].value,
+      username: 'jona'
+    },
 
     function(msg) {
     }
@@ -43,7 +45,11 @@ function remove_repository()
   $.post(
     "repositories/remove",
 
-    {url: $('#repository')[0].value},
+    {
+      url: $('#repository')[0].value,
+      username: 'jona'
+    },
+
 
     function(msg) {
     }
@@ -58,11 +64,12 @@ function remove_all_db_data() {
 
 function add_the_two() {
   $.post(
-    "repositories/add?url=git://github.com/omnigoat/gitique.git"
-  );
-
-  $.post(
-    "repositories/add?url=git://github.com/omnigoat/gitique-fork.git"
+    "repositories/add?url=git://github.com/omnigoat/gitique.git&username=jona",
+    function () {
+      $.post(
+        "repositories/add?url=git://github.com/omnigoat/gitique-fork.git&username=jona"
+      );
+    }
   );
 }
 </script>

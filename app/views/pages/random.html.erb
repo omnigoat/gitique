@@ -523,7 +523,7 @@ script
 			type: "post",
 			url: "/critique",
 			data:	{
-				repo_genesis: "<%= @repo.genesis %>",
+				repo_genesis: "<%= @repo.backend.genesis %>",
 				username: "henry",
 				commit_id: "<%= @commit_id %>",
 				filepath: "<%= @filename %>",

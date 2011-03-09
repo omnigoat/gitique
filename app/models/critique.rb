@@ -18,7 +18,7 @@ end
 #======================================================================
 class CachedCritique
 	include MongoMapper::EmbeddedDocument
-	belongs_to :commit
+	embedded_in :commit
 
 	key :votes_up, Integer
 	key :votes_down, Integer

@@ -1,1 +1,10 @@
-<%= @user.username %>
+<% if @user.nil? %>
+	no user by that name!
+<% else %>
+	<%= @user.username %>
+	<ul>
+	<% @user.repositories.each do |repo| %>
+		<li><a href="#"><%= repo.url %></a></li>
+	<% end %>
+	</ul>
+<% end %>

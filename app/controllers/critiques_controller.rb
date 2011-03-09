@@ -5,11 +5,12 @@ class CritiquesController < ApplicationController
 	def index
 		@critiques = Critique.all
 		respond_to do |format|
-			format.html { render :nothing => true }
+			format.html {}
 			format.js { render :nothing => true, :js => @critiques.to_json }
 		end
 	end
 	
+
 	def new
 		genesis = params[:repo_genesis]
 

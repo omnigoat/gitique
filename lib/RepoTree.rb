@@ -4,14 +4,15 @@ class CommitNode
 	@children = []
 
 	attr :id
-	attr_accessor :children, :parents, :visited_parents
-	
+	attr_accessor :children, :parents, :visited_parents, :remaining_parents
 
+	
 	def initialize id
 		@id = id
 		@children = Set.new
 		@parents = Set.new
 		@visited_parents = Set.new
+		@remaining_parents = Set.new
 	end
 end
 
