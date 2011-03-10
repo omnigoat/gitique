@@ -7,8 +7,20 @@ load "repotree.rb"
 
 
 class RepositoriesController < ApplicationController
+	def disambiguate
+		case params[:name]
+		when :add
+			self.add()
+		when :remove
+			self.remove()
+		else
+			self.main()
+			render :main
+		end
+	end
+
 	def add
-		render :nothing => true
+		render :main
 
 		user = User.find_by_username(params[:username])
 		return false if user.nil?
@@ -123,8 +135,9 @@ class RepositoriesController < ApplicationController
 
 	
 	def remove
-		render :nothing => true
-		
+		render "main"
+		logger.info "KKKKK #{params}"
+
 		sha1 = Digest::SHA1.hexdigest(params[:url])
 		repo = Repository.find_by_sha1(sha1)
 		return if not repo

@@ -18,7 +18,8 @@ end
 
 def random_file(chosen_branch)
 	# simply because it is a large file, we can test things better
-	return "public/javascripts/notused/prototype.js"
+	#return "public/javascripts/notused/prototype.js"
+	return "Gemfile"
 	
 	GitNative.ls_tree({:r => true}, "--name-only", chosen_branch) do |thread, stdout|
 		return stdout.readlines.map{|x| x.chomp!}.random_element

@@ -4,7 +4,10 @@
   <title>Gitique</title>
   
   <%= csrf_meta_tag %>
+  <%= javascript_include_tag "application.js" %>
+  <%= javascript_include_tag "rails.js" %>
   
+
   <!-- jquery -->
     <!-- core -->
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
@@ -20,7 +23,7 @@
     <script type="text/javascript" src="/javascripts/jquery.simplemodal.1.4.1.min.js"></script>
   
   <!-- end -->
-  
+  <%= javascript_include_tag "rails.js" %>
   <script type="text/javascript" src="/javascripts/pure.min.js"></script>
   
   <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
@@ -58,3 +61,4 @@
 
 </body>
 </html>
+

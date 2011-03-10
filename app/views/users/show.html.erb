@@ -4,7 +4,92 @@
 	<%= @user.username %>
 	<ul>
 	<% @user.repositories.each do |repo| %>
-		<li><a href="#"><%= repo.url %></a></li>
+		<li>
+		<%= form_tag("/repositories/remove") do %>
+			<a href="#"><%= repo.url %></a>
+			<%= link_to("Remove", repositories_path(:name => repo.name, :url => repo.url), :method => :delete) %>
+		<% end %>
+		</li>
+
 	<% end %>
 	</ul>
+
+
+
+<%= form_tag("/repositories/disambiguate") do %>
+  <div class="field">
+    <%= label_tag :name %><br />
+    <%= text_field_tag :name %>
+  </div>
+  <div class="field">
+    <%= label_tag :url %><br />
+    <%= text_field_tag :url %>
+  </div>
+  <div class="actions">
+    <%= submit_tag "Add Repository", :name => "add" %>
+    <%= submit_tag "Remove Repository", :remove => "remove" %>
+  </div>
+<% end %>
+
+
+<div>
+  <input id="repository" name="repository" class="text_input" type=text></input>
+  <a href="javascript:add_repository()">Add Repository</a>
+  <a href="javascript:remove_repository()">Remove Repository</a>
+  <a href="javascript:remove_all_db_data()">Remove All DB Data</a>
+  <a href="javascript:add_the_two()">Gitique+Fork</a>
+</div>
+<br />
+
+
+<script type="text/javascript">
+function add_repository()
+{
+  $.post(
+    "repositories/add",
+
+    {
+      url: $('#repository')[0].value,
+      username: 'jona'
+    },
+
+    function(msg) {
+    }
+  );
+}
+
+function remove_repository()
+{
+  $.post(
+    "repositories/remove",
+
+    {
+      url: $('#repository')[0].value,
+      username: 'jona'
+    },
+
+
+    function(msg) {
+    }
+  );
+}
+
+function remove_all_db_data() {
+  $.post(
+    "repositories/remove_db"
+  );
+}
+
+function add_the_two() {
+  $.post(
+    "repositories/add?url=git://github.com/omnigoat/gitique.git&username=jona",
+    function () {
+      $.post(
+        "repositories/add?url=git://github.com/omnigoat/gitique-fork.git&username=jona"
+      );
+    }
+  );
+}
+</script>
+
 <% end %>

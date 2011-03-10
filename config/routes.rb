@@ -1,10 +1,7 @@
 Gitique::Application.routes.draw do
   get "pages/random"
   
-  match "repositories", :to => 'repositories#main'
-  match "repositories/add", :to => 'repositories#add'
-  match "repositories/remove", :to => 'repositories#remove'
-  match "repositories/remove_db", :to => 'repositories#remove_db'
+  
   
   #match "critiques/add", :to => 'critiques#add'
   #match "critiques/get_all", :to => 'critiques#get_all'
@@ -20,11 +17,23 @@ Gitique::Application.routes.draw do
   get  "critiques",  :to => "critiques#index"
 
   #
+  # repositories
+  #
+  
+  get "repositories", :to => 'repositories#main'
+  post "repositories/disambiguate", :to => 'repositories#disambiguate'
+  post "repositories/add", :to => 'repositories#add'
+  delete "repositories", :to => 'repositories#remove'
+
+  #
   # users
   #
   get  "signup",    :to => "users#new"
   post "signup",    :to => "users#create"
   get  "users",     :to => "users#index"
-  get  ":username", :to => "users#show"
+  get ":username", :to => "users#show"
+  get ":username/:repo_name", :to => "repositories#show"
+  
+  
   
 end

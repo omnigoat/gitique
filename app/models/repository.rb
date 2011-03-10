@@ -27,13 +27,13 @@ end
 class Repository
 	include MongoMapper::Document
 
+	key :name, String
 	key :url, String, :required => true, :index => true
 	key :sha1, String
 		
 	many :heads, :class_name => "CommitProxy"
 	#one  :root, :class_name => "CommitProxy"
 	many :commit_proxies, :class_name => "CommitProxy"
-
 
 	# path on disk
 	def path
