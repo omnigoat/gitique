@@ -8,28 +8,35 @@ load "repotree.rb"
 
 class RepositoriesController < ApplicationController
 	def disambiguate
-		case params[:name]
-		when :add
+		if params[:add]
 			self.add()
-		when :remove
+		elsif params[:remove]
 			self.remove()
 		else
 			self.main()
-			render :main
 		end
 	end
 
 	def add
-		render :main
-
+		logger.info "GOOD-DAY!"
+		render :nothing => true
 		user = User.find_by_username(params[:username])
 		return false if user.nil?
 
+		logger.info "HELLO!"
 
-
+		#
+		# get name of repository
+		#
 		url = params[:url]
-		db_repo = Repository.find_or_create_by_url(url)
+		repository_name = url.split("/")[-1].gsub(".git", "")
 
+
+		db_repo = Repository.find_by_url(url)
+		if db_repo.nil?
+			logger.info "INFO: Repository was nil!"
+			db_repo = Repository.create(:name => repository_name, :url => url)
+		end
 
 		#
 		# clone git repository
@@ -67,17 +74,15 @@ class RepositoriesController < ApplicationController
 
 		throw "bad repo/backend" if db_repo.nil? or db_repo_backend.nil?
 		db_repo.backend = db_repo_backend
-		db_repo.save!
+		db_repo_backend.repositories << db_repo
+
 
 		#=======================================================================
 		# build node graph
 		#=======================================================================
-		#commit_nodes = {}
-		#fs_repo.branches.each do |branch|
-		#	RepoTree::build_commit_tree commit_nodes, branch.commit
-		#end
 		db_repo.build_tree
 		
+
 		#=======================================================================
 		# propagate critiques
 		#=======================================================================
@@ -114,9 +119,12 @@ class RepositoriesController < ApplicationController
 			end
 		end
 
-		puts "AFTERWARDS?"
-		puts db_repo.commit_proxies.length
-		puts db_repo.heads.length
+		#puts "AFTERWARDS?"
+		#=======================================================================
+		# debug information
+		#=======================================================================
+		logger.info db_repo.commit_proxies.length
+		#logger.info db_repo.heads.length
 
 		db_repo.save!
 		db_repo_backend.save!
@@ -127,7 +135,10 @@ class RepositoriesController < ApplicationController
 	end
 
 
-
+	def show
+		@user = User.find_by_username(params[:username])
+		@repository = @user.repositories.find_by_name(params[:repo_name])
+	end
 
 
 

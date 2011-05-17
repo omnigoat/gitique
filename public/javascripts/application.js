@@ -5,4 +5,4 @@
 
 
 // allow jQuery to play nice with Rails via ajax
-jQuery.ajaxSetup({'beforeSend': function(xhr) {xhr.setRequestHeader("Accept", "text/javascript")} })
+//$.ajaxSetup({'beforeSend': function(xhr) {xhr.setRequestHeader("Accept", "text/javascript")} })

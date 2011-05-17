@@ -103,7 +103,7 @@
 						pos = $line.offset()
 						;
 				
-				if (pos.top < point) {
+				if (pos !== null && pos.top < point) {
 					if (point < pos.top + $line.outerHeight()) {
 						return 0;
 					}
@@ -304,14 +304,14 @@
 				element: this.$workspace,
 				in_response_to: [this.$whole],
 				using: {
-					height: function($whole) {return $whole.outerHeight() - this.position().top - jj.page.scrollbar_width;},
-					width: function($whole) {return $whole.outerWidth() - this.position().left - jj.page.scrollbar_width;},
+					height: function($whole) {return $whole.outerHeight() - this.position().top - jaja.page.scrollbar_width;},
+					width: function($whole) {return $whole.outerWidth() - this.position().left - jaja.page.scrollbar_width;},
 				},
 			});
 
 			this.$vsb.css({
 				right: 0,
-				width: jj.page.scrollbar_width,
+				width: jaja.page.scrollbar_width,
 			});
 			
 			jaja.dynamically_size({
@@ -336,8 +336,8 @@
 			
 
 			this.$hsb.css({
-				right: jj.page.scrollbar_width,
-				height: jj.page.scrollbar_width,
+				right: jaja.page.scrollbar_width,
+				height: jaja.page.scrollbar_width,
 			});
 		},
 		

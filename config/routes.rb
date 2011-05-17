@@ -24,7 +24,8 @@ Gitique::Application.routes.draw do
   post "repositories/disambiguate", :to => 'repositories#disambiguate'
   post "repositories/add", :to => 'repositories#add'
   delete "repositories", :to => 'repositories#remove'
-
+  post "repositories/remove_db"
+  
   #
   # users
   #
@@ -32,6 +33,10 @@ Gitique::Application.routes.draw do
   post "signup",    :to => "users#create"
   get  "users",     :to => "users#index"
   get ":username", :to => "users#show"
+
+
+
+
   get ":username/:repo_name", :to => "repositories#show"
   
   

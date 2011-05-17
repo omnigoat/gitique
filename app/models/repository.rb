@@ -1,6 +1,9 @@
 require "Grit"
 require "RepoTree"
 
+#======================================================================
+# 
+#======================================================================
 class RepositoryBackend
 	include MongoMapper::Document
 
@@ -24,29 +27,31 @@ class CommitProxy
 	one :commit, :class_name => "Commit"
 end
 
+
 class Repository
 	include MongoMapper::Document
 
 	key :name, String
+	key :user, String
 	key :url, String, :required => true, :index => true
 	key :sha1, String
-		
-	many :heads, :class_name => "CommitProxy"
-	#one  :root, :class_name => "CommitProxy"
+	key :head_ids, Array, :typecast => "ObjectId"
+	
 	many :commit_proxies, :class_name => "CommitProxy"
+	many :heads, :class_name => "CommitProxy", :in => :head_ids
+	
 
 	# path on disk
 	def path
-		#puts "url: #{@url}"
-		#puts "sha1: #{@sha1}"
 		return "resources/repositories/" + @sha1[0, 2] + "/" + @sha1[2, 38]
 	end
 
-	#has_one :backend, :class_name => "RepositoryBackend"
-	belongs_to :backend, :class_name => "RepositoryBackend"
+	one :backend, :class_name => "RepositoryBackend"
 
 	after_create :hash_url
 
+
+public
 	#======================================================================
 	# builds the tree, creating commit entries in our database if needed
 	#======================================================================
@@ -72,7 +77,7 @@ class Repository
 		end
 
 		fs_repo.heads.each do |head|
-			heads << built_proxies[head.commit.id]
+			head_ids << built_proxies[head.commit.id].id
 		end
 
 		built_proxies.each_value do |v|
@@ -81,6 +86,9 @@ class Repository
 		
 	end
 
+	#def heads
+	#	return head_ids.map {|x| commit_proxies.find_by_sha1(x)}
+	#end
 
 	#======================================================================
 	# does something for each commit

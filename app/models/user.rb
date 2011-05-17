@@ -10,7 +10,7 @@ class User
 	key :encrypted_password, String
 	key :salt, String
 	
-	many :repositories
+	many :repositories, :class_name => "Repository"
 
 	before_save :encrypt_password, :if => :password_changed?
 
@@ -35,6 +35,8 @@ class User
 	validates_length_of :password, :within => 6..32, :if => :validate_password?
 	validates_confirmation_of :password, :if => :validate_password?
 	
+
+
 
 public
 	def has_password?(submitted_password)
