@@ -1,0 +1,18 @@
+
+<%= @user.username %>
+<br />
+Heads:
+<ul>
+<% @repository.heads.each do |head| %>
+	<li>
+		<%= head.sha1 %>
+	</li>
+<% end %>
+</ul>
+<% @dirlist.each do |dir| %>
+	<div style="background: #ffffee"><%= dir %></div>
+<% end %>
+<% @filelist.each do |file| %>
+	<div><%= file %></div>
+<% end %>
+	

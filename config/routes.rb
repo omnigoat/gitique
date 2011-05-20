@@ -25,7 +25,7 @@ Gitique::Application.routes.draw do
   post "repositories/add", :to => 'repositories#add'
   delete "repositories", :to => 'repositories#remove'
   post "repositories/remove_db"
-  
+
   #
   # users
   #
@@ -38,7 +38,7 @@ Gitique::Application.routes.draw do
 
 
   get ":username/:repo_name", :to => "repositories#show"
+  get ":username/:repo_name/tree/:branch(/*path)", :to => "repositories#structure"
   
-  
-  
+  #map.connect "*path", :controller => :repositories, :action => :show
 end

@@ -138,6 +138,20 @@ class RepositoriesController < ApplicationController
 	def show
 		@user = User.find_by_username(params[:username])
 		@repository = @user.repositories.find_by_name(params[:repo_name])
+
+		fs_repo = Grit::Repo.new @repository.path, :is_bare => true
+		
+		fs_branch = fs_repo.branches[0]
+		
+		# @commit_id = chosen_branch.commit.id
+
+		GitNative.in_git_dir(@repository.path) do
+			GitNative.ls_tree({}, fs_branch.name) do |thread, stdout|
+				output_list = stdout.readlines.map{|x| x.chomp!.split(/[ \t]/)}
+				@dirlist = output_list.select{|x| x[1] == "tree"}.map{|x| x[-1] + "/"}
+				@filelist = output_list.select{|x| x[1] == "blob"}.map{|x| x[-1]}
+			end
+		end
 	end
 
 

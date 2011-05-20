@@ -1,71 +1,192 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Gitique</title>
-  
-  <!-- jquery -->
-    <!-- core -->
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
-    
-    <!-- ui -->
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<title>Gitique</title>
+	
+	<!-- jquery -->
+		<!-- core -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+		
+		<!-- ui -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>
+		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 
-    <!-- mousewheel -->
-    <script type="text/javascript" src="/javascripts/jquery.mousewheel.min.js"></script>
-    
-    <!-- modal -->
-    <script type="text/javascript" src="/javascripts/jquery.simplemodal.1.4.1.min.js"></script>
-  
-  <!-- end -->
-  
-
-
-  <%= csrf_meta_tag %>
-  <%= javascript_include_tag "application.js" %>
-  <%= javascript_include_tag "rails.js" %>
-  
-
-
-  <script type="text/javascript" src="/javascripts/pure.min.js"></script>
-  
-  <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
-  
+		<!-- mousewheel -->
+		<script type="text/javascript" src="/javascripts/jquery.mousewheel.min.js"></script>
+		
+		<!-- modal -->
+		<script type="text/javascript" src="/javascripts/jquery.simplemodal.1.4.1.min.js"></script>
+	
+		<!-- jaja -->
+	<script type="text/javascript" src="/javascripts/jaja.core.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.ui.tabs.js" />
+	<!-- end -->
+	
 
 
+	<%= csrf_meta_tag %>
+	<%= javascript_include_tag "application.js" %>
+	<%= javascript_include_tag "rails.js" %>
+	
 
 
-  <script type="text/javascript">
-    // Always send the authenticity_token with ajax
-    $(document).ajaxSend(function(event, request, settings) {
-        if ( settings.type == 'post' ) {
-            settings.data = (settings.data ? settings.data + "&" : "") + "authenticity_token=" + encodeURIComponent( AUTH_TOKEN );
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        }
-    });
-
-    // When I say html I really mean script for rails
-    $.ajaxSettings.accepts.html = $.ajaxSettings.accepts.script;
-  </script>
+	<script type="text/javascript" src="/javascripts/pure.min.js"></script>
+	
+	<%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
+	
 
 
-  
-  
-  <!-- syntaxhighlighter -->
-  <script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
-  <script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
-  <link   type="text/css" rel="stylesheet" href="/javascripts/SH/styles/shCoreDefault.css" />
-  
-  
-  <!-- application -->
-  <%= javascript_include_tag "application.js" %>
-  <%= stylesheet_link_tag :all %>
-  
+
+
+	<script type="text/javascript">
+		// Always send the authenticity_token with ajax
+		$(document).ajaxSend(function(event, request, settings) {
+				if ( settings.type == 'post' ) {
+						settings.data = (settings.data ? settings.data + "&" : "") + "authenticity_token=" + encodeURIComponent( AUTH_TOKEN );
+						request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				}
+		});
+
+		// When I say html I really mean script for rails
+		$.ajaxSettings.accepts.html = $.ajaxSettings.accepts.script;
+	</script>
+
+
+	
+	
+	<!-- syntaxhighlighter -->
+	<script type="text/javascript" src="/javascripts/SH/scripts/shCore.js"></script>
+	<script type="text/javascript" src="/javascripts/SH/scripts/shBrushJScript.js"></script>
+	<link	 type="text/css" rel="stylesheet" href="/javascripts/SH/styles/shCoreDefault.css" />
+	
+	
+	<!-- application -->
+	<%= javascript_include_tag "application.js" %>
+	<%= stylesheet_link_tag :all %>
+	
 </head>
 <body>
+	<!-- title -->
+	<div id="title">
+		<span class='title'>CODEJUTSU</span><span class='info'>logged in as blah blah blah</span>
+	</div>
+
+
+
+
+	<!-- LHS -->
+	<div id="lhs">
+		
+		<div id="the-tabs">
+			<ul>
+				<li>Tree</li>
+				<li>Critiques</li>
+			</ul>
+
+			<div></div>
+			<div></div>
+		</div>
+
+		<!-- tabs -->
+		<div class="tabs">
+			<a class="toolpane-tree" href="javascript:switch_lhs_toolpane('.toolpane-tree')">Tree</a> 
+			<a class="toolpane-critiques" href="javascript:switch_lhs_toolpane('.toolpane-critiques')">Critiques</a>&nbsp;
+			<a class="toolpane-new-critique" href="javascript:switch_lhs_toolpane('.toolpane-new-critique')">New Critique</a>
+		</div>
+
+		<div class="toolpane-container" style="position: relative">
+			
+			<!-- tree (default) -->
+			<div class="toolpane toolpane-tree active">				
+			</div>
+
+			<!-- critiques -->
+			<div class="toolpane toolpane-critiques">
+				<div class="critique">
+					<span class="name"></span><span class="date"></span>
+					<div class="remarks"></div>
+				</div>
+			</div>
+			
+			<!-- new critique -->
+			<div class="toolpane toolpane-new-critique">
+				<div style="padding-left: 10px;">
+					<span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
+					<textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
+				</div>
+				<div><a href="javascript:send_critique()">Submit</a></div>
+			</div>
+
+		</div>
+
+	</div>
+	
+
+	
+	<div id="rhs">
+		<!-- "viewer" -->
+		<div id="viewer-wrapper" class="toolpane active">
+			<span class="heading">FILENAME ZOMG</span>
+			<div style="position: absolute; display: inline-block; right: 0; text-align: right">
+				<span class="minor-heading" style="font-size: 0.8em; color: #bebebe">
+					<p style="line-height: 0.9em">
+					</p>
+				</span>
+			</div>
+			<div id="viewer">
+					<!-- actual editor -->
+					<pre id="mainpre" class="brush: js;">
+					</pre>
+
+			</div>
+		</div>
+	</div>
+
+
+
+
 
 <%= yield %>
 
 </body>
+<script>
+	function switch_lhs_toolpane(to, duration)
+	{
+		duration = duration || 200;
+
+		var $tabs = $("#lhs div.tabs a"),
+				$active_tab = $("#lhs a.active"),
+				$new_tab = $("#lhs a" + to)
+				;
+		
+		// do nothing if they've clicked on the already active tab
+		if ($new_tab.get(0) === $active_tab.get(0)) {
+			return false;
+		}
+
+		$("#lhs .active").removeClass("active").filter("div").animate({
+			visibility: true
+		});
+
+		$(to).addClass("active");
+
+		// get order of tabs
+		var acc_left = $new_tab.outerWidth();
+		$new_tab.animate({left: 0}, duration);
+
+		$.each($tabs.not(to), function() {
+			var $this = $(this);
+			$this.animate({left: acc_left}, duration);
+			acc_left += $this.outerWidth();
+		});
+
+		
+	}
+	jaja.ui.tabs( $("#the-tabs") );
+	switch_lhs_toolpane(".toolpane-tree", 0);
+</script>
 </html>
 

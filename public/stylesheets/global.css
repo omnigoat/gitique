@@ -1,0 +1,144 @@
+
+/*=========================
+  global reset
+=========================*/
+html, body {
+	position: absolute;
+	bottom: 0px;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	margin: 0px;
+	padding: 0px;
+	border: none;
+	overflow: hidden;
+}
+
+
+/*=========================
+  general styles
+=========================*/
+.floatingbox {
+	-moz-box-shadow: 0px 0px 10px black;
+	-webkit-box-shadow: 0px 0px 10px black;
+	box-shadow: 0px 0px 10px black;
+}
+
+
+
+/*****************************************************************
+* title
+*****************************************************************/
+#title {
+	padding: 2px;
+	margin: 10px;
+}
+
+#title span.title {
+	font-size: 3em;
+}
+
+#title span.info {
+	font-size: 1em;
+	color: #aaaaaa;
+	font-style: italic;
+}
+
+
+/*****************************************************************
+* lhs and rhs panes
+*****************************************************************/
+#lhs {
+	float: left;
+	width: 40%;
+	position: relative;
+}
+
+#rhs {
+	float: right;
+	width: 60%;
+	position: relative;
+}
+
+
+/*****************************************************************
+* tabs
+*****************************************************************/
+div.tabs {
+	position: relative;
+	left: 2.5%;
+	width: 95%;
+}
+
+div.tabs a {
+	position: absolute;
+	text-decoration: none;
+	color: #dddddd;
+	font-size: 2em;
+	font-family: Georgia, serif;
+	font-style: italic;
+	padding-right: 20px;
+}
+
+div.tabs a.active {
+	color: #999999;
+}
+
+div.tabs a:hover {
+	color: #bbbbff;
+}
+
+/*****************************************************************
+* toolpanes
+*****************************************************************/
+div.toolpane-container {
+	position: relative;
+	left: 2.5%;
+}
+
+
+#lhs div.toolpane-container {
+	width: 95%;
+}
+
+#lhs div.toolpane {
+	position: absolute;
+	width: 100%;
+}
+
+#rhs div.toolpane-container {
+	width: 97.5%;
+}
+
+div.toolpane span.heading {
+	font-size: 2em;
+	font-family: Georgia, serif;
+	font-style: italic;
+	//font-weight: normal;
+	color: #aaaaaa;
+}
+
+td.gutter div.line.highlighted2 {
+	background-color: #ffffaa !important;
+	border: 1px solid black;
+}
+
+div.toolpane span.minor-heading {
+	font-size: 0.9em;
+	font-family: Courier New;
+	color: #aaaaaa;
+}
+
+div.toolpane span.minor-heading a {
+	font-size: 0.9em;
+	font-family: Courier New;
+	color: #aaaaaa;
+}
+
+.toolpane {
+	visibility: hidden;
+}
+
+.toolpane.active {
+	visibility: visible;
+}

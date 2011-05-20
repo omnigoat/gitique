@@ -7,7 +7,7 @@ var jaja = (function($, undefined) {
 
 
   // get scrollbar width
-  (function() {
+  $(function() {
 		var scr = null;
 		var inn = null;
 		var wNoScroll = 0;
@@ -45,7 +45,7 @@ var jaja = (function($, undefined) {
 
 		// Pixel width of the scroller
 		jaja.page = {scrollbar_width: wNoScroll - wScroll};
-	})();
+	});
 
 
   
