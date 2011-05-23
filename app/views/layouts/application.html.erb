@@ -19,6 +19,7 @@
 	
 		<!-- jaja -->
 	<script type="text/javascript" src="/javascripts/jaja.core.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.set.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
@@ -82,47 +83,26 @@
 		
 		<div id="the-tabs">
 			<ul>
-				<li>Tree</li>
+				<li class="default">Tree</li>
 				<li>Critiques</li>
+				<li>ZOMG</li>
 			</ul>
-
-			<div></div>
-			<div></div>
-		</div>
-
-		<!-- tabs -->
-		<div class="tabs">
-			<a class="toolpane-tree" href="javascript:switch_lhs_toolpane('.toolpane-tree')">Tree</a> 
-			<a class="toolpane-critiques" href="javascript:switch_lhs_toolpane('.toolpane-critiques')">Critiques</a>&nbsp;
-			<a class="toolpane-new-critique" href="javascript:switch_lhs_toolpane('.toolpane-new-critique')">New Critique</a>
-		</div>
-
-		<div class="toolpane-container" style="position: relative">
-			
-			<!-- tree (default) -->
-			<div class="toolpane toolpane-tree active">				
-			</div>
-
-			<!-- critiques -->
-			<div class="toolpane toolpane-critiques">
-				<div class="critique">
-					<span class="name"></span><span class="date"></span>
-					<div class="remarks"></div>
+			<div style="overflow: auto">
+				<div class="ui-pane">
+					<div style="position: relative">
+					THERE WOULD BE A ----TREE----- HERE
+					</div>
 				</div>
-			</div>
-			
-			<!-- new critique -->
-			<div class="toolpane toolpane-new-critique">
-				<div style="padding-left: 10px;">
-					<span class="minor-heading">Lines: <span class="line-display"><span>none</span></span></span><br />
-					<textarea style="width: 100%; height: 200px; border: 1px solid grey; resize: none"></textarea>
-				</div>
-				<div><a href="javascript:send_critique()">Submit</a></div>
+				<div class="ui-pane">
+					this would be for ####critiques#####
+				</div>		
 			</div>
 
 		</div>
+
 
 	</div>
+
 	
 
 	
@@ -184,8 +164,19 @@
 		});
 
 		
-	}
-	jaja.ui.tabs( $("#the-tabs") );
+	}	
+
+	var tabs = jaja.ui.tabs("#the-tabs");
+	/*tabs.to_panes("#the-tabs > div > div");
+	tabs.tab("Tree").bind("close", function() {
+		var $this = tabs.tab("Tree").iq;
+		$this.parent().swap($this.parent().next());
+	});
+	tabs.tab("Critiques").bind("close", function() {
+		var $this = tabs.tab("Critiques").iq;
+		$this.parent().swap($this.parent().next());
+	});*/
+
 	switch_lhs_toolpane(".toolpane-tree", 0);
 </script>
 </html>

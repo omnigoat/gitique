@@ -1,6 +1,97 @@
 
 .jaja-ui-tabs .ui-bar {
-	
+	display: block;
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+	height: 24px;
 }
 
+.jaja-ui-tabs .ui-tab {
+	float: left;
+	list-style: none;
+	width: 50%;
+	max-width: 160px;
+	height: 100%;
+}
 
+.jaja-ui-tabs .ui-tab-inner {
+	margin-right: -3px;
+	background: #eaeaea;
+	height: 100%;
+	border-top-left-radius: 5px 100%;
+	border-bottom-left-radius: 5px 0;
+	border-top-right-radius: 5px 100%;
+	border-right: 1px solid #cccccc;
+	border-left: 1px solid #cccccc;
+	border-top: 1px solid #cccccc;
+}
+
+.ui-tab-content {
+	position: relative;
+	float: left;
+	margin-left: 8px;
+	cursor: default;
+	height: 100%;
+}
+
+.ui-tab-content-inner {
+	position: absolute;
+	bottom: 4px;
+	font-family: Helvetica;
+	font-size: 0.9em;
+	color: #555555;
+}
+
+.jaja-ui-tabs .ui-tab-close {
+	float: right;
+	display: table;
+	overflow: hidden;
+	vertical-align: middle;
+	position: relative;
+	margin-right: 10px;
+	height: 100%;
+}
+
+.ui-tab-close-circle {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.ui-tab-close-circle-inner {
+	border-radius: 50%;
+	text-align: center;
+	width: 12px;
+	height: 12px;
+	color: #888888;
+}
+
+.ui-tab-close-circle-inner.ui-active {
+	background: red;
+}
+
+.ui-tab-close-circle-inner span {
+	position: relative;
+	display: inline-block;
+	bottom: 6px;
+	cursor: default;
+	font-family: Verdana, sans-serif;
+	font-size: 0.7em;
+}
+
+.ui-tab-close-circle-inner span.ui-active {
+	color: white;
+}
+
+.jaja-ui-tabs .ui-tab-inner:hover {
+	background: #efefef;
+}
+
+.ui-pane {
+	display: none;
+	position: relative;
+}
+
+.ui-pane.ui-pane-active {
+	display: block;
+}

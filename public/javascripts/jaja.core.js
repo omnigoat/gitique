@@ -2,12 +2,27 @@
 
 
 var jaja = (function($, undefined) {
-  
-  var jaja = {};
+	
+	//=====================================================================
+	// add funcitonality to jQuery
+	//=====================================================================
+	$.fn.swap = function(b) {
+		b = jQuery(b)[0];
+		var a = this[0];
+
+		var t = a.parentNode.insertBefore(document.createTextNode(''), a);
+		b.parentNode.insertBefore(a, b);
+		t.parentNode.insertBefore(b, t);
+		t.parentNode.removeChild(t);
+
+		return this;
+	};
+
+	var jaja = {};
 
 
-  // get scrollbar width
-  $(function() {
+	// get scrollbar width
+	$(function() {
 		var scr = null;
 		var inn = null;
 		var wNoScroll = 0;
@@ -48,7 +63,7 @@ var jaja = (function($, undefined) {
 	});
 
 
-  
+	
 
 	Array.prototype.remove = function(from, to) {
 		var rest = this.slice((to || from) + 1 || this.length);
@@ -58,7 +73,18 @@ var jaja = (function($, undefined) {
 
 	
 
-  $.extend(jaja, {
+	$.extend(jaja, {
+		zip: function(lhs, rhs) {
+			var result = [];
+			
+			$.each(lhs, function(i, x) {
+				if (rhs[i] === undefined) { return false; }
+				result.push([x, rhs[i]]);
+			});
+
+			return result;
+		},
+
 		fold: function(xs, f, init) {
 			for (var i = 0, z = xs.length; i != z; ++i) {
 				init = f(init, xs[i]);
@@ -127,14 +153,22 @@ var jaja = (function($, undefined) {
 			return jaja.map($.makeArray($o), function(x) {return $(x);});
 		},
 
+
+		default_predicate: function(lhs, rhs) {
+			return (lhs < rhs) ? -1 : (rhs < lhs) ? 1 : 0;
+		},
+
+		//=====================================================================
 		// binary search! :D
+		//=====================================================================
 		binary_search: function(range, pred, opt_bounds)
 		{
+			pred = pred || jaja.default_predicate;
 			var lbound = opt_bounds ? opt_bounds[0] : 0;
 			var ubound = opt_bounds ? opt_bounds[1] : range.length;
 			var r = null;
 
-			while (ubound - lbound > 1)
+			while (ubound - lbound > 0)
 			{
 				var middle = (ubound + lbound) >> 1;
 				
@@ -153,47 +187,81 @@ var jaja = (function($, undefined) {
 
 			return {found: r == 0, value: middle};
 		},
+
+		binary_search_for: function(range, element, pred, opt_bounds) {
+			return jaja.binary_search(range, function(x) {
+				return pred(x, element);
+			}, opt_bounds);
+		},
+
+
+		has_duplicates: function(sorted_array)
+		{
+			for (var i = 0, ie = sorted_array.length; i != ie; ++i) {
+				if (sorted_array[i+1] === undefined) break;
+				if (sorted_array[i] === sorted_array[i+1]) {
+					return true;
+				}
+			}
+			return false;
+		},
+
+
+
+
 	});
+
+	if (Array.prototype.unique === undefined) {
+		Array.prototype.unique = function() {
+		    var o = {}, i, l = this.length, r = [];
+		    for(i = 0; i < l; i += 1) o[this[i]] = this[i];
+		    for(i in o) r.push(o[i]);
+		    return r;
+		};
+	}
+	else {
+		console.error("Array.prototype.unique is alrady defined");
+	}
 	
-  if (Function.prototype.partial === undefined)
-  {
-    Function.prototype.partial = function()
-    {
-    	var fn = this, args = Array.prototype.slice.call(arguments);
-    	//console.log(fn + ": " + fn.length);
-    	return function()
-    	{
-        var arg = 0;
-        for ( var i = 0, il = fn.length, j = 0, jl = arguments.length; i != il && j != jl; ++i) {
-          if ( args[i] === undefined )
-            args[i] = arguments[j++];
-        }
-        return fn.apply(this, args);
-      };
-    };
-  }
-  
-  jaja.ui = {};
-  jaja.page = {
-  	mousedown_position: {x: 0, y: 0},
-  	mouseup_position: {x: 0, y: 0}
-  };
-  
-  $(window)
-	  .mousedown(function(event){
-	  	jaja.page.mousedown_position = {x: event.pageX, y: event.pageY};
-	  })
-	  .mouseup(function(event){
-	  	jaja.page.mouseup_position = {x: event.pageX, y: event.pageY};
-	  })
-	  ;
-  
+	if (Function.prototype.partial === undefined)
+	{
+		Function.prototype.partial = function()
+		{
+			var fn = this, args = Array.prototype.slice.call(arguments);
+			//console.log(fn + ": " + fn.length);
+			return function()
+			{
+				var arg = 0;
+				for ( var i = 0, il = fn.length, j = 0, jl = arguments.length; i != il && j != jl; ++i) {
+					if ( args[i] === undefined )
+						args[i] = arguments[j++];
+				}
+				return fn.apply(this, args);
+			};
+		};
+	}
+	
+	jaja.ui = {};
+	jaja.page = {
+		mousedown_position: {x: 0, y: 0},
+		mouseup_position: {x: 0, y: 0}
+	};
+	
+	$(window)
+		.mousedown(function(event){
+			jaja.page.mousedown_position = {x: event.pageX, y: event.pageY};
+		})
+		.mouseup(function(event){
+			jaja.page.mouseup_position = {x: event.pageX, y: event.pageY};
+		})
+		;
+	
 
 
 
-  
-  return jaja;
-  
+	
+	return jaja;
+	
 })(jQuery);
 
 

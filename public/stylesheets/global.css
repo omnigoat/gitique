@@ -52,6 +52,7 @@ html, body {
 	float: left;
 	width: 40%;
 	position: relative;
+	padding-left: 40px;
 }
 
 #rhs {
