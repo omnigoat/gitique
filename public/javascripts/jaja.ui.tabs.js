@@ -102,8 +102,11 @@
 			this.$tabs.each(function(i) {
 				widget.tabs_topology.push({
 					node: this,
-					sliding: false,
+					animating: false,
+					threshold: 0.33,
 				});
+
+				$(this).css("z-index", (widget.$tabs.length - i - 1));
 			});
 			
 
@@ -119,7 +122,13 @@
 			this.$tabs.wrapInner("<div class='ui-tab-inner'><div class='ui-tab-content'><div class='ui-tab-content-inner'></div></div></div>");
 			this.$tabs.draggable({axis:'x', containment:'parent', distance: 10});
 
-			this.$tabs.bind("drag", function()
+			this.$tabs.bind("dragstart", function()
+			{
+				widget.tabs_topology[widget.tabs_set.index(this)].animating = true;
+				//this.style.zIndex = 10000;
+				$(this).css("z-index", 10000);
+			})
+			.bind("drag", function()
 			{
 				widget.tabs_set.sort();
 
@@ -127,53 +136,26 @@
 				    this_index = widget.tabs_set.index(this)
 				    ;
 				
-				console.log("dragging");
 				if (this_index === undefined) { console.error("bad index!"); return false; }
 
 				if (this_index > 0) {
-					var prev = widget.tabs_set.get(this_index - 1),
-					    $prev = $(prev),
-					    prev_topo = widget.tabs_topology[this_index - 1]
-					    ;
-					
-					if (!prev_topo.sliding && $this.position().left < $prev.position().left + ($prev.outerWidth() * 0.33))
-					{
-						console.log("animating prev");
-						$prev.animate({
-							left: (this_index - $prev.index()) * $prev.outerWidth()
-						}, 300, function() {
-							prev_topo.sliding = false;
-						});
-
-						prev_topo.sliding = true;
-						var t = widget.tabs_topology[this_index];
-						widget.tabs_topology[this_index] = prev_topo;
-						widget.tabs_topology[this_index - 1] = t;
-					}
+					widget._swap_prev_tab($this);
 				}
-
+				
 				if (this_index < widget.tabs_set.length - 1) {
-					var next = widget.tabs_set.get(this_index + 1),
-					    $next = $(next),
-					    next_topo = widget.tabs_topology[this_index + 1]
-					    ;
-					
-					if (!next_topo.sliding && ($this.position().left + $this.outerWidth()) > $next.position().left + ($next.outerWidth() * 0.66)) {
-						console.log("animating next");
-						$next.animate({
-							left: (this_index - $next.index()) * $next.outerWidth()
-						}, 300, function() {
-							next_topo.sliding = false;
-						});;
-
-						next_topo.sliding = true;
-						var t = widget.tabs_topology[this_index];
-						widget.tabs_topology[this_index] = widget.tabs_topology[this_index + 1];
-						widget.tabs_topology[this_index + 1] = t;
-					}
+					widget._swap_next_tab($this);
 				}
 
+			})
+			.bind("dragstop", function() {
+				widget.tabs_set.sort();
+				var $this = $(this);
+
+				$this.animate({
+					left: (widget.tabs_set.index(this) - $this.index()) * $(this).outerWidth()
+				}, 100);
 			});
+
 
 			//
 			// close button
@@ -208,6 +190,68 @@
 
 			// return the widget
 			return this;
+		},
+
+
+
+		//=====================================================================
+		// PREV
+		//=====================================================================
+		_swap_prev_tab: function($current, $prev, threshold)
+		{
+			var current = $current.get(0),
+			    current_index = this.tabs_set.index(current),
+			    prev = this.tabs_set.get(current_index - 1),
+			    prev_topo = this.tabs_topology[current_index - 1]
+			    ;
+			
+
+			if (prev_topo.node != current &&
+				$current.position().left <
+					(current_index - 1) * $prev.outerWidth() + $prev.outerWidth() * 0.33 + $current.parent().position().left)
+			{
+				$prev.stop().animate({
+					left: (current_index - $prev.index()) * $prev.outerWidth()
+				}, 300);
+
+				// swap z-indices around
+				var pzi = $prev.css("z-index"), tzi = $current.css("z-index");
+				$prev.css("z-index", tzi);
+				$current.css("z-index", pzi);
+
+				// swap topology around
+				this.tabs_topology.swap(current_index, current_index - 1);
+			}
+		},
+
+		//=====================================================================
+		// NEXT
+		//=====================================================================
+		_swap_next_tab: function($current, $next, threshold)
+		{
+			var current = $current.get(0),
+			    current_index = this.tabs_set.index(current),
+			    next = this.tabs_set.get(current_index + 1),
+			    $next = $(next),
+			    next_topo = this.tabs_topology[current_index + 1]
+			    ;
+			
+			if (next_topo.node != current &&
+				($current.position().left + $current.outerWidth()) > 
+					(current_index + 1) * $next.outerWidth() + $next.outerWidth() * 0.66 + $current.parent().position().left)
+			{
+				$next.stop().animate({
+					left: (current_index - $next.index()) * $next.outerWidth()
+				}, 300);
+
+				// swap z-indices around
+				var nzi = $next.css("z-index"), tzi = $current.css("z-index");
+				$next.css("z-index", tzi);
+				$current.css("z-index", nzi);
+
+				// swap topology
+				this.tabs_topology.swap(current_index, current_index + 1);
+			}
 		}
 	});
 

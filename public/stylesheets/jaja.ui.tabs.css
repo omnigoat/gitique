@@ -3,22 +3,25 @@
 	display: block;
 	margin: 0;
 	padding: 0;
-	overflow: auto;
+	overflow: hidden;
 	height: 24px;
+	letter-spacing: -4px;
 }
 
 .jaja-ui-tabs .ui-tab {
-	float: left;
+	position: relative;
+	display: inline-block;
 	list-style: none;
 	width: 50%;
 	max-width: 160px;
 	height: 100%;
+	letter-spacing: normal;
 }
 
 .jaja-ui-tabs .ui-tab-inner {
-	margin-right: -3px;
 	background: #eaeaea;
 	height: 100%;
+	margin-right: -3px;
 	border-top-left-radius: 5px 100%;
 	border-bottom-left-radius: 5px 0;
 	border-top-right-radius: 5px 100%;

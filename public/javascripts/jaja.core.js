@@ -211,6 +211,18 @@ var jaja = (function($, undefined) {
 
 	});
 
+	if (Array.prototype.swap === undefined) {
+		Array.prototype.swap = function(lhs, rhs) {
+		    var t = this[lhs];
+		    this[lhs] = this[rhs];
+		    this[rhs] = t;
+		    return this;
+		};
+	}
+	else {
+		console.error("Array.prototype.swap is alrady defined");
+	}
+
 	if (Array.prototype.unique === undefined) {
 		Array.prototype.unique = function() {
 		    var o = {}, i, l = this.length, r = [];
