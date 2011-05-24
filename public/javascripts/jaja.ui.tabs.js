@@ -102,7 +102,6 @@
 			this.$tabs.each(function(i) {
 				widget.tabs_topology.push({
 					node: this,
-					animating: false,
 					threshold: 0.33,
 				});
 
@@ -122,12 +121,30 @@
 			this.$tabs.wrapInner("<div class='ui-tab-inner'><div class='ui-tab-content'><div class='ui-tab-content-inner'></div></div></div>");
 			this.$tabs.draggable({axis:'x', containment:'parent', distance: 10});
 
-			this.$tabs.bind("dragstart", function()
+			//
+			// MOUSEDOWN
+			//
+			this.$tabs.bind("mousedown", function()
 			{
-				widget.tabs_topology[widget.tabs_set.index(this)].animating = true;
-				//this.style.zIndex = 10000;
-				$(this).css("z-index", 10000);
+				// reset previous active tab
+				widget.$tabs.filter(".ui-active")
+					.removeClass("ui-active")
+					.css("z-index", widget.activetab_old_zindex);
+
+				// activate new tab
+				$(this).addClass("ui-active");
+				widget.activetab_old_zindex = this.style.zIndex;
+				this.style.zIndex = 9001;
 			})
+			//
+			// START DRAGGING
+			//
+			.bind("dragstart", function()
+			{				
+			})
+			//
+			// WHILST DRAGGING
+			//
 			.bind("drag", function()
 			{
 				widget.tabs_set.sort();
@@ -147,14 +164,27 @@
 				}
 
 			})
-			.bind("dragstop", function() {
+			//
+			// STOP DRAGGING
+			//
+			.bind("dragstop", function()
+			{
+				var $this = $(this), active_tab = this;
+				
+				// set z-index by position (except active tab!)
 				widget.tabs_set.sort();
-				var $this = $(this);
-
+				widget.tabs_set.each(function(i) {
+					if (this != active_tab) {
+						this.style.zIndex = widget.$tabs.length - i - 1;
+					}
+				});
+				
+				// snap active tab back into place
 				$this.animate({
 					left: (widget.tabs_set.index(this) - $this.index()) * $(this).outerWidth()
 				}, 100);
 			});
+
 
 
 			//
@@ -197,11 +227,12 @@
 		//=====================================================================
 		// PREV
 		//=====================================================================
-		_swap_prev_tab: function($current, $prev, threshold)
+		_swap_prev_tab: function($current)
 		{
 			var current = $current.get(0),
 			    current_index = this.tabs_set.index(current),
 			    prev = this.tabs_set.get(current_index - 1),
+			    $prev = $(prev),
 			    prev_topo = this.tabs_topology[current_index - 1]
 			    ;
 			
@@ -215,9 +246,8 @@
 				}, 300);
 
 				// swap z-indices around
-				var pzi = $prev.css("z-index"), tzi = $current.css("z-index");
-				$prev.css("z-index", tzi);
-				$current.css("z-index", pzi);
+				this.activetab_old_zindex = $prev.css("z-index");
+				$prev.css("z-index", this.activetab_old_zindex);
 
 				// swap topology around
 				this.tabs_topology.swap(current_index, current_index - 1);
@@ -245,9 +275,8 @@
 				}, 300);
 
 				// swap z-indices around
-				var nzi = $next.css("z-index"), tzi = $current.css("z-index");
-				$next.css("z-index", tzi);
-				$current.css("z-index", nzi);
+				this.activetab_old_zindex = $next.css("z-index");
+				$next.css("z-index", this.activetab_old_zindex);
 
 				// swap topology
 				this.tabs_topology.swap(current_index, current_index + 1);

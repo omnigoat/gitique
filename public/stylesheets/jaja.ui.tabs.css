@@ -30,6 +30,12 @@
 	border-top: 1px solid #cccccc;
 }
 
+.ui-tab.ui-active {
+	z-index: 10000;
+}
+
+
+
 .ui-tab-content {
 	position: relative;
 	float: left;
@@ -88,6 +94,10 @@
 
 .jaja-ui-tabs .ui-tab-inner:hover {
 	background: #efefef;
+}
+
+.ui-tab.ui-active .ui-tab-inner {
+	background: #fafafa;
 }
 
 .ui-pane {
