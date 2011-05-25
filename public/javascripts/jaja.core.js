@@ -63,16 +63,6 @@ var jaja = (function($, undefined) {
 	});
 
 
-	
-
-	Array.prototype.remove = function(from, to) {
-		var rest = this.slice((to || from) + 1 || this.length);
-		this.length = from < 0 ? this.length + from : from;
-		return this.push.apply(this, rest);
-	};
-
-	
-
 	$.extend(jaja, {
 		zip: function(lhs, rhs) {
 			var result = [];
@@ -221,6 +211,17 @@ var jaja = (function($, undefined) {
 	}
 	else {
 		console.error("Array.prototype.swap is alrady defined");
+	}
+
+	if (Array.prototype.remove === undefined) {
+		Array.prototype.remove = function(from, to) {
+		  var rest = this.slice((to || from) + 1 || this.length);
+		  this.length = from < 0 ? this.length + from : from;
+		  return this.push.apply(this, rest);
+		};
+	}
+	else {
+		console.error("Array.prototype.remove is already defined");
 	}
 
 	if (Array.prototype.unique === undefined) {

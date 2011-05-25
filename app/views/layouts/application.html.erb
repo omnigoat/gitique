@@ -86,6 +86,8 @@
 				<li class="default">Tree</li>
 				<li>Critiques</li>
 				<li>ZOMG</li>
+				<li>oh dear</li>
+				<li>giraffe</li>
 			</ul>
 			<div style="overflow: auto">
 				<div class="ui-pane">
@@ -166,7 +168,11 @@
 		
 	}	
 
-	var tabs = jaja.ui.tabs("#the-tabs");
+	var tabs = jaja.ui.tabs("#the-tabs", {close_button: true});
+	tabs.tab(0).bind("deselect", function() {
+		console.log("tree selected!");
+	});
+
 	/*tabs.to_panes("#the-tabs > div > div");
 	tabs.tab("Tree").bind("close", function() {
 		var $this = tabs.tab("Tree").iq;

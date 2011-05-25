@@ -59,6 +59,11 @@
 			}
 		},
 
+		remove: function(index) {
+			this._data.remove(index);
+			--this.length;
+		},
+
 		sort: function() {
 			this._data.sort(this._predicate);
 		},

@@ -14,17 +14,7 @@
 			close_button: true,
 		},
 
-		tab: function(id) {
-			var tab = undefined;
-			if (typeof id === "string") {
-				tab = this.tabs.find("div.ui-tab-inner").filter(":has(div.ui-tab-content-inner:contains(" + id + "))");
-			}
-			else {
-				tab = this.tabs.get(id);
-			}
-
-			return $.extend({iq: tab}, tab_prototype);
-		},
+		
 
 		to_panes: function($panes) {
 			$panes = ($panes instanceof $) ? $panes : $($panes);
@@ -62,11 +52,25 @@
 	var tab_prototype = {
 		bind: function(eventname, f)
 		{
-			if (eventname === "close") {
-				$(this.iq).find(".ui-tab-close-circle-inner").bind("mousedown", f);
+			var $dom = $(this.iq),
+			    event_parts = eventname.split("."),
+			    name = event_parts[0],
+			    namespace = event_parts[1]
+			    ;
+			
+			if (namespace !== undefined)
+				namespace = "." + namespace;
+			else
+				namespace = "";
+
+			if (name === "select") {
+				$dom.bind("mousedown" + namespace, f);
+			}
+			else if (name === "close") {
+				$dom.find(".ui-tab-close-circle-inner").bind("mousedown" + namespace, f);
 			}
 			else {
-				this.iq.bind(eventname, f);
+				$dom.bind("tab_" + eventname, f);
 			}
 		}
 	};
@@ -88,23 +92,24 @@
 		{
 			// initialise instance
 			$.extend(this, jaja.ui.tabs, tabs_widget_prototype);
+
+			// settings
 			this._settings = $.extend({}, tabs_widget_prototype.defaults, options);
 			this.$elem = (elem instanceof $) ? elem : $(elem);
+			// the bar the the tabs exist upon
 			this.$bar = this.$elem.children("ul");
+			// the group of tabs themselves
 			this.$tabs = this.$bar.children();
+			// the tabs as a set, sorted by spatial position
 			this.tabs_set = jaja.set(this.$tabs.get(), function(lhs, rhs) {
 				return $(lhs).offset().left < $(rhs).offset().left;
 			});
-
+			// the tabs as topology
 			this.tabs_topology = [];
 			var widget = this;
 
 			this.$tabs.each(function(i) {
-				widget.tabs_topology.push({
-					node: this,
-					threshold: 0.33,
-				});
-
+				widget.tabs_topology.push(this);
 				$(this).css("z-index", (widget.$tabs.length - i - 1));
 			});
 			
@@ -118,8 +123,11 @@
 			this.$tabs.filter(".default").removeClass("default").addClass("ui-tab-active");
 			
 			// add elements
-			this.$tabs.wrapInner("<div class='ui-tab-inner'><div class='ui-tab-content'><div class='ui-tab-content-inner'></div></div></div>");
+			this.$tabs.wrapInner("<div class='ui-tab-inner-outer'><div class='ui-tab-inner'><div class='ui-tab-content'><div class='ui-tab-content-inner'></div></div></div></div>");
 			this.$tabs.draggable({axis:'x', containment:'parent', distance: 10});
+
+			// resize
+			this.$tabs.css("width", "" + (100 / this.$tabs.length) + "%");
 
 			//
 			// MOUSEDOWN
@@ -129,7 +137,9 @@
 				// reset previous active tab
 				widget.$tabs.filter(".ui-active")
 					.removeClass("ui-active")
-					.css("z-index", widget.activetab_old_zindex);
+					.css("z-index", widget.activetab_old_zindex)
+					.trigger("tab_deselect")
+					;
 
 				// activate new tab
 				$(this).addClass("ui-active");
@@ -193,10 +203,15 @@
 			if (this._settings.close_button)
 			{
 				this.$tabs.find(".ui-tab-inner").append(
-					"<div class='ui-tab-close'>" +
-						"<div class='ui-tab-close-circle'>" +
-							"<div class='ui-tab-close-circle-inner'><span>x</span></div>" +
-						"</div></div><div style='clear: both' />"
+					"<div class='ui-tab-close-outer'>" +
+						"<div class='ui-tab-close'>" +
+							"<div class='ui-tab-close-circle'>" +
+								"<div class='ui-tab-close-circle-inner'>" +
+									"x" +
+								"</div>" +
+							"</div>" +
+						"</div>" +
+					"</div>"
 				);
 
 				this.$tabs.find("div.ui-tab-close-circle-inner")
@@ -210,16 +225,54 @@
 					})
 					.bind("mousedown", function(event) {
 						event.stopPropagation();
+						event.preventDefault();
+
+						// remove tab
+						var $dom = $(this).parents(".ui-tab"),
+						    dom = $dom[0]
+						    index = widget.tabs_set.index(dom)
+						    ;
+						
+						for (var i = index + 1, ie = widget.tabs_topology.length; i != ie; ++i) {
+							var $tab = $(widget.tabs_topology[i]);
+							$tab.animate({left: Math.max(0, $tab.position().left - $tab.outerWidth()) });
+						}
+						
+						$dom.animate({width: "toggle"}, 200, function() {
+							$dom.remove();
+							widget.tabs_set.remove(index);
+							widget.tabs_topology.remove(index);
+						});
 					})
 					;
 			}
 		
+			
+			//
+			// menu bar
+			//
 
 
 
 
 			// return the widget
 			return this;
+		},
+
+
+		//=====================================================================
+		// TAB
+		//=====================================================================
+		tab: function(id) {
+			var tab = undefined;
+			if (typeof id === "string") {
+				tab = this.$tabs.find("div.ui-tab-inner").filter(":has(div.ui-tab-content-inner:contains(" + id + "))");
+			}
+			else {
+				tab = this.$tabs.get(id);
+			}
+
+			return $.extend({iq: tab}, tab_prototype);
 		},
 
 
@@ -237,7 +290,7 @@
 			    ;
 			
 
-			if (prev_topo.node != current &&
+			if (prev_topo != current &&
 				$current.position().left <
 					(current_index - 1) * $prev.outerWidth() + $prev.outerWidth() * 0.33 + $current.parent().position().left)
 			{
@@ -266,7 +319,7 @@
 			    next_topo = this.tabs_topology[current_index + 1]
 			    ;
 			
-			if (next_topo.node != current &&
+			if (next_topo != current &&
 				($current.position().left + $current.outerWidth()) > 
 					(current_index + 1) * $next.outerWidth() + $next.outerWidth() * 0.66 + $current.parent().position().left)
 			{
