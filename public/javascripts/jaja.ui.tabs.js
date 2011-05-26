@@ -228,16 +228,25 @@
 						event.preventDefault();
 
 						// remove tab
+						widget.tabs_set.sort();
 						var $dom = $(this).parents(".ui-tab"),
 						    dom = $dom[0]
-						    index = widget.tabs_set.index(dom)
+						    index = widget.tabs_set.index(dom),
+						    $dom_followers = $dom.nextAll()
 						    ;
 						
-						for (var i = index + 1, ie = widget.tabs_topology.length; i != ie; ++i) {
-							var $tab = $(widget.tabs_topology[i]);
-							$tab.animate({left: Math.max(0, $tab.position().left - $tab.outerWidth()) });
+						$dom_followers.each(function() {
+							var $tab = $dom_follower = $(this);
+							console.log("jimmying up follower: " + $tab.text(), $tab.position().left, $tab.outerWidth());
+							$dom_follower.css("left", parseInt($dom_follower.css("left")) + $dom_follower.outerWidth());
+						});
+
+						for (var i = index + 1, ie = widget.tabs_set.length; i != ie; ++i) {
+							var $tab = $(widget.tabs_set.get(i));
+							console.log("tab " + i + ":" + $tab.text(), $tab.position().left, $tab.outerWidth());
+							$tab.animate({left: parseInt($tab.css("left")) - $tab.outerWidth() });
 						}
-						
+
 						$dom.animate({width: "toggle"}, 200, function() {
 							$dom.remove();
 							widget.tabs_set.remove(index);

@@ -54,9 +54,13 @@
 }
 
 .ui-tab-close-outer {
+	position: relative;
 	display: table-cell;
 	position: relative;
 	height: 100%;
+
+	/* tell table to take up as little space as possible */
+	width: 1px;
 }
 
 .ui-tab-close {
@@ -64,10 +68,12 @@
 	overflow: hidden;
 	position: relative;
 	height: 100%;
+	margin-right: 6px;
+	border-spacing: 0px;
 }
 
 .ui-tab-close-circle {
-	display: table-cell;
+	display: table-cell;	
 	vertical-align: middle;
 }
 
@@ -81,7 +87,7 @@
 	text-align: center;
 	font-family: Verdana, sans-serif;
 	font-size: 0.7em;
-	line-height: 0.8em;
+	line-height: 8.4px;
 }
 
 .ui-tab-close-circle-inner.ui-active {
@@ -93,11 +99,11 @@
 	color: white;
 }
 
-.jaja-ui-tabs .ui-tab-inner:hover {
+.ui-tab-inner-outer:hover {
 	background: #efefef;
 }
 
-.ui-tab.ui-active .ui-tab-inner {
+.ui-tab.ui-active .ui-tab-inner-outer {
 	background: #fafafa;
 }
 
