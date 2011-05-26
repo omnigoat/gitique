@@ -14,6 +14,7 @@
 	list-style: none;
 	height: 100%;
 	letter-spacing: normal;
+	max-width: 160px;
 }
 
 .ui-tab.ui-active {
@@ -109,7 +110,7 @@
 
 .ui-pane {
 	display: none;
-	position: relative;
+	border: 1px solid gray;
 }
 
 .ui-pane.ui-pane-active {

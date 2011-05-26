@@ -25,7 +25,7 @@
 			// add classes
 			$panes.addClass("ui-pane");
 
-			this.links = jaja.zip(this.tabs, $panes);
+			this.links = jaja.zip(this.$tabs, $panes);
 			var $tabs = this.$tabs;
 
 			$.each(this.links, function()
@@ -257,9 +257,7 @@
 			}
 		
 			
-			//
-			// menu bar
-			//
+			this.$tabs.filter(".ui-tab-active").trigger("mousedown");
 
 
 

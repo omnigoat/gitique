@@ -23,7 +23,8 @@
 	<script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
-	<script type="text/javascript" src="/javascripts/jaja.ui.tabs.js" />
+	<script type="text/javascript" src="/javascripts/jaja.ui.tabs.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.ui.tree.js"></script>
 	<!-- end -->
 	
 
@@ -85,14 +86,21 @@
 			<ul>
 				<li class="default">Tree</li>
 				<li>Critiques</li>
-				<li>ZOMG</li>
-				<li>oh dear</li>
-				<li>giraffe</li>
 			</ul>
 			<div style="overflow: auto">
 				<div class="ui-pane">
 					<div style="position: relative">
-					THERE WOULD BE A ----TREE----- HERE
+						<ul class="ui-tree-root">
+							<li>folder
+								<ul>
+									<li>folder2
+										<ul><li>file1</li></ul>
+									</li>
+									<li>file2</li>
+								</ul>
+							</li>
+							<li>file3</li>
+						</ul>
 					</div>
 				</div>
 				<div class="ui-pane">
@@ -128,7 +136,7 @@
 	</div>
 
 
-
+	<div class="clear-both" />
 
 
 <%= yield %>
@@ -169,11 +177,9 @@
 	}	
 
 	var tabs = jaja.ui.tabs("#the-tabs", {close_button: true});
-	tabs.tab(0).bind("deselect", function() {
-		console.log("tree selected!");
-	});
-
-	/*tabs.to_panes("#the-tabs > div > div");
+	
+	tabs.to_panes("#the-tabs > div > div");
+	/*
 	tabs.tab("Tree").bind("close", function() {
 		var $this = tabs.tab("Tree").iq;
 		$this.parent().swap($this.parent().next());
@@ -182,6 +188,8 @@
 		var $this = tabs.tab("Critiques").iq;
 		$this.parent().swap($this.parent().next());
 	});*/
+
+	var tree = jaja.ui.tree(".ui-tree-root");
 
 	switch_lhs_toolpane(".toolpane-tree", 0);
 </script>
