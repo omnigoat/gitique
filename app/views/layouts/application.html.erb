@@ -87,20 +87,27 @@
 				<li class="default">Tree</li>
 				<li>Critiques</li>
 			</ul>
-			<div style="overflow: auto">
+			<div>
 				<div class="ui-pane">
-					<div style="position: relative">
-						<ul class="ui-tree-root">
-							<li>folder
-								<ul>
-									<li>folder2
-										<ul><li>file1</li></ul>
-									</li>
-									<li>file2</li>
-								</ul>
-							</li>
-							<li>file3</li>
-						</ul>
+				  <div class="ui-filetree-pane">
+					<div class="ui-filetree-table">
+						<div class="ui-filetree-entry">
+							<div class="ui-filetree-name">
+								folder1
+							</div>
+							<div class="ui-filetree-lastmodified">
+								2 minutes ago
+							</div>
+						</div>
+						<div class='ui-filetree-entry'>
+							<div class="ui-filetree-name">
+								file3
+							</div>
+							<div class="ui-filetree-lastmodified">
+								5 hours ago
+							</div>
+						</div>
+					</div>
 					</div>
 				</div>
 				<div class="ui-pane">
@@ -189,7 +196,12 @@
 		$this.parent().swap($this.parent().next());
 	});*/
 
-	var tree = jaja.ui.tree(".ui-tree-root");
+	var tree = jaja.ui.filetree(".ui-filetree-pane", function(path) {
+		console.log("fetching:", path);
+		return {"dummy-folder": {type: 0, loaded: false, children: {}},
+	          "dummy-file": {type: 1}
+	         };
+	});
 
 	switch_lhs_toolpane(".toolpane-tree", 0);
 </script>

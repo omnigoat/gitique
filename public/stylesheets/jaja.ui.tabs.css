@@ -109,8 +109,10 @@
 }
 
 .ui-pane {
+	position: relative;
 	display: none;
 	border: 1px solid gray;
+	overflow: hidden;
 }
 
 .ui-pane.ui-pane-active {

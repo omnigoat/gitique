@@ -55,6 +55,7 @@ html, body {
 	width: 40%;
 	position: relative;
 	padding-left: 40px;
+	overflow: hidden;
 }
 
 #rhs {

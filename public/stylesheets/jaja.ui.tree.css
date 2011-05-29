@@ -1,6 +1,50 @@
 
-div.ui-tree-folder > div {
-	margin-left: 20px;
+div.ui-filetree-pane {
+	position: relative;
+	width: 100%;
 }
 
 
+div.ui-filetree-table {
+	display: table;
+	width: 100%;
+	height: 100%;
+}
+
+div.ui-filetree-entry {
+	display: table-row;
+}
+
+div.ui-filetree-name, div.ui-filetree-lastmodified {
+	display: table-cell;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+div.ui-tree-folder:not(.ui-tree-root) > div {
+	margin-left: 20px;
+}
+
+div.ui-tree-folder-icon {
+	width: 12px;
+	height: 12px;
+	background-color: yellow;
+	display: inline-block;
+}

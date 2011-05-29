@@ -244,7 +244,6 @@ var jaja = (function($, undefined) {
 			//console.log(fn + ": " + fn.length);
 			return function()
 			{
-				var arg = 0;
 				for ( var i = 0, il = fn.length, j = 0, jl = arguments.length; i != il && j != jl; ++i) {
 					if ( args[i] === undefined )
 						args[i] = arguments[j++];
