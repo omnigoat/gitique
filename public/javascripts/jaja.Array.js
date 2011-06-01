@@ -2,51 +2,82 @@
 
 
 
-(function(undefined){
+(function(undefined) {
+	function jaja_Array() {
+		return this;
+	}
+
 	$.extend(jaja, {
-		Array: function(init_list) {
-			return new jaja.Array.init(init_list);
+		Array: function() {
+			return jaja.Array.init.apply(new jaja_Array(), arguments);
 		}
 	});
 
-	function relegate_raw_functions(instance, functions)
-	{
-		console.dir(instance);
-		for (x in instance) {
-			console.log("relegating", x);
-			instance["_" + x] = instance[x];
-			instance[x] = undefined;
-		}
-	}
 
 	$.extend(jaja.Array, {
-		init: function(init_list) {
+		init: function(init_list)
+		{
 			$.extend(this, jaja.Array);
+
+			this.length = 0;
 			if (init_list !== undefined) {
-				for (var i = 0, ie = init_list.length; i != ie; ++i)
-					this[i] = init_list[i];
-				this.length = init_list.length;
+				if (Array.isArray(init_list))
+					this.insert(0, init_list);
+				else
+					this.insert(0, arguments);
 			}
 
 			return this;
 		},
 
-		push_back: function(elem) {
-			Array.prototype.push.apply(this, [elem]);
+		//=====================================================================
+		// fall-throughs
+		//=====================================================================
+		push_back: function(e) {
+			Array.prototype.push.apply(this, [e]);
+			return this;
 		},
 
 		pop_back: function() {
-			return Array.prototype.pop.apply(this);
+			return Array.prototype.pop.apply(this, arguments);
 		},
 
-		push_front: function(elem) {
-			Array.prototype.unshift.apply(this, [elem]);
+		push_front: function() {
+			Array.prototype.unshift.apply(this, arguments);
+			return this;
 		},
 
 		pop_front: function() {
-			return Array.prototype.shift.apply(this);
+			return Array.prototype.shift.apply(this, arguments);
 		},
 
+		slice: function(begin, end) {
+			begin = this._reindex(begin);
+			end = this._reindex(end);
+			return Array.prototype.slice.apply(this, arguments);
+		},
+
+		splice: function() {
+			console.error("jaja.Array.splice is only defined for introspection");
+		},
+
+
+		//=====================================================================
+		// swap
+		//=====================================================================
+		swap: function(lhs, rhs) {
+			lhs = this._reindex(lhs);
+			rhs = this._reindex(rhs);
+			var t = this[lhs];
+			this[lhs] = this[rhs];
+			this[rhs] = t;
+			return this;
+		},
+
+		
+		//=====================================================================
+		// append/prepend/insert
+		//=====================================================================
 		append: function(array) {
 			return this.insert(0, array);
 		},
@@ -57,6 +88,7 @@
 
 		insert: function(index, elements)
 		{
+			index = this._reindex(index);
 			var elements_length = elements.length,
 			    i = this.length - 1,
 			    ie = index - 1,
@@ -76,14 +108,22 @@
 			return this;
 		},
 
-		swap: function(lhs, rhs) {
-			var t = this[lhs];
-			this[lhs] = this[rhs];
-			this[rhs] = t;
-			return this;
+
+		//=====================================================================
+		// remove
+		//=====================================================================
+		remove: function(begin, end) {
+			begin = this._reindex(begin);
+			end = this._reindex(end);
+			return jaja.Array( Array.prototype.splice.apply(this, [begin, end - begin]) );			
 		},
 
-		// requires both us and them to be sorted
+		
+
+
+		//=====================================================================
+		// has_subset (inputs should be sorted)
+		//=====================================================================
 		has_subset: function(rhs, pred)
 		{
 			pred = pred || jaja.default_predicate;
@@ -97,15 +137,146 @@
 			return true;
 		},
 
+		//=====================================================================
+		// each
+		//=====================================================================
+		each: function(fn, this_object) {
+			this_object = this_object || this;
+			if (Array.prototype.forEach)
+				return Array.prototype.forEach.apply(this_object, [fn]);
+			else {
+				var i = 0, ie = this.length, result = true;
+				while (i != ie && (result = fn.call(this_object, this[i])))
+					++i;
+				return result;
+			}
+		},
+
+
+		//=====================================================================
+		// fold
+		//=====================================================================
+		fold: function()
+		{
+			var initial, fn;
+			if (arguments.length === 1) {
+				fn = arguments[1];
+
+				return fold
+			}
+			else if (argument.length === 2) {
+				initial = arguments[0];
+				fn = arguments[1];
+			}
+
+
+		},
+
+
+		//=====================================================================
+		// map (mutative), and mapped (pure)
+		//=====================================================================
+		map: function(fn)
+		{
+			for (var i = 0, ie = this.length; i != ie; ++i)
+				this[i] = fn(this[i]);
+			return this;
+		},
+
+		mapped: function(fn, callback_object)
+		{
+			callback_object = callback_object || this;
+			if (Array.prototype.map !== undefined) {
+				return Array.prototype.map.apply(callback_object, [fn]);
+			}
+
+			var result = jaja.Array();
+			for (var i = 0, ie = this.length; i != ie; ++i)
+				result.push_back( fn.apply(callback_object, [this[i]]) );
+			return result;
+		},
+
+
+
+		//=====================================================================
+		// filter (mutative), and filtered(pure)
+		//=====================================================================
+		filter: function(pred, callback_object)
+		{
+			if (this.length == 0)
+				return this;
+			
+			// filter elements, moving them "up" in the array steadily.
+			// this algorithm maintiains .length correctly between calls.
+			var offset = 0;
+			for (var i = 0, ie = this.length; i != ie; ++i) {
+				if (pred.apply(callback_object, [this[i]])) {
+					if (offset > 0) {
+						this[i - offset] = this[i];
+					}
+				}
+				else {
+					++offset;
+					--this.length;
+				}
+			}
+
+			// delete unused elements at the end
+			for (var i = this.length, ie = this.length + offset; i != ie; ++i) {
+				delete this[i];
+			}
+
+			return this;
+		},
+
+
+		filtered: function(pred, callback_object)
+		{
+			callback_object = callback_object || this;
+			if (Array.prototype.filter !== undefined) {
+				return Array.prototype.filter.apply(callback_object, [pred]);
+			}
+
+			var result = jaja.Array();
+			this.each(function(x) {
+				if (pred.apply(callback_object, [x]))
+					result.push_back(x);
+			});
+
+			return result;
+		},
+
+
+		//=====================================================================
+		// reverses
+		//=====================================================================
+		reverse: function(from, to)
+		{
+			if (arguments.length !== 0 && arguments.length !== 2) {
+				console.error("incorrect arguments to jaja.Array.reverse");
+			}
+
+			from = from || 0;
+			to = to || this.length;
+			while (from < to) {
+				this.swap(from++, --to);
+			}
+		},
+
+
+
+		//=====================================================================
+		// sort
+		//=====================================================================
 		sort: function(pred) {
 			Array.prototype.sort.apply(this, [pred || jaja.default_predicate]);
 		},
 
+		//=====================================================================
+		// stable_sort
+		//=====================================================================
 		stable_sort: function()
 		{
-			//=====================================================================
-			// stable_sort actually begins here!
-			//=====================================================================
 			var from, to, pred;
 			if (arguments.length <= 1) {
 				from = 0;
@@ -129,111 +300,6 @@
 			this._merge(from, middle, to, middle - from, to - middle, pred);
 			return this;
 		},
-
-
-		each: function(fn) {
-			if (Array.prototype.forEach)
-				return Array.prototype.forEach.apply(this, [fn]);
-			else {
-				var i = 0, ie = this.length, result = true;
-				while (i != ie && (result = fn(this[i])))
-					++i;
-				return result;
-			}
-		},
-
-		foldr: function()
-		{
-			
-		},
-
-		map: function(fn)
-		{
-			for (var i = 0, ie = this.length; i != ie; ++i)
-				this[i] = fn(this[i]);
-			return this;
-		},
-
-		mapped: function(fn)
-		{
-			var result = jaja.Array();
-			this.each(function(e) {
-				result.push_back( fn(e) );
-			});
-			return result;
-		},
-
-		filter: function(pred, callback_object)
-		{
-			if (this.length == 0)
-				return this;
-			
-			// filter elements, moving them "up" in the array steadily
-			var offset = 0;
-			for (var i = 0, ie = this.length; i != ie; ++i) {
-				if (pred.apply(callback_object, [this[i]])) {
-					if (offset > 0) {
-						this[i - offset] = this[i];
-					}
-				}
-				else {
-					++offset;
-				}
-			}
-
-			// delete unused elements at the end
-			for (var i = this.length - offset, ie = this.length; i != ie; ++i) {
-				delete this[i];
-			}
-
-			// adjust length
-			this.length -= offset;
-
-			// and breathe.
-			return this;
-		},
-
-
-		filtered: function(pred, callback_object)
-		{
-			callback_object = callback_object || this;
-			if (Array.prototype.filter !== undefined) {
-				return Array.prototype.filter.apply(callback_object, [pred]);
-			}
-
-			var result = jaja.Array();
-			for (var i = 0, ie = this.length; i != ie; ++i) {
-				if (pred.apply(callback_object, [this[i]]))
-					result.push_back(this[i]);
-			}
-			return result;
-		},
-
-
-
-		reverse: function() {
-			var from, to;
-			if (arguments.length == 0) {
-				from = 0;
-				to = this.length;
-			}
-			else if (arguments.length == 2) {
-				from = arguments[0];
-				to = arguments[1];
-			}
-			else {
-				console.error("incorrect arguments to jaja.Array.reverse");
-			}
-
-			while (from < to) {
-				this.swap(from++, --to);
-			}
-		},
-
-		splice: function() {
-			console.error("jaja.Array.splice should not be used. it is defined for introspection purposes only");
-		},
-
 
 
 
@@ -363,7 +429,12 @@
 			var new_mid = first_cut + length22;
 			this._merge(from, first_cut, new_mid, length11, length22, pred); 
 			this._merge(new_mid, second_cut, to, length1 - length11, length2 - length22, pred);
-		}
+		},
+
+		_reindex: function(i) {
+			i = i === undefined ? this.length : i;
+			return i >= 0 ? i : i + this.length + 1;
+		},
 
 
 	});
