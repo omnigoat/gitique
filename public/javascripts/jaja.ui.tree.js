@@ -43,12 +43,12 @@
 				    text = $.trim($this.children(".ui-filetree-name").text())
 				    ;
 				
-				self.cd_down(text);
-				self.animate_cd(self.current_node, "rtl");
+				self.cd( self.location.concat([text]) );
+				//self.animate_cd(self.current_node, "rtl");
 			});
 		},
 
-		animate_cd: function(node)
+		_animate_cd: function(node)
 		{
 			var self = this,
 			    $pane = $("<div class='ui-filetree-pane'/>"),
@@ -71,6 +71,72 @@
 			});
 		},
 
+
+		_animate_old_pane: function(direction, fn)
+		{
+			direction = (direction === "rtl") ? "-=" : "+=";
+			var f = direction + this.$dom_node.outerWidth();
+
+			this.$dom_node.animate({left: f}, 600, function() {
+				fn && fn();
+			});
+		},
+
+		_build_new_pane: function()
+		{
+			var node = this.current_node,
+			    $pane = $("<div class='ui-filetree-pane'/>"),
+			    $table = $("<div class='ui-filetree-table' />").appendTo($pane)
+			    ;
+
+			$.each(node.children, function(key, value) {
+				var entry = $("<div class='ui-filetree-entry' />")
+				  .append("<div class='ui-filetree-name'>" + key + "</div>")
+				  ;
+				
+				$.each(value, function(key, value) {
+					if (key == "last_modified" || key == "commit_message") {
+						entry.append("<div class='ui-filetree-" + key + "'><span>" + value + "</span></div>");
+					}
+				});
+
+				$table.append(entry);
+			});
+
+			return $pane;
+		},
+
+		_animate_new_pane: function(direction)
+		{
+			var self = this,
+			    node = this.current_node,
+			    $pane = this._build_new_pane()
+			    ;
+
+			this.$dom_node.parent().append($pane);
+
+			// change to absolute so we don't mess things around
+			$pane.css({
+				position: "absolute",
+				left: (direction === "rtl") ? this.$dom_node.outerWidth() : -$pane.outerWidth(),
+				top: this.$dom_node.position().top
+			});
+			
+			// animate, and afterwards, set back to relative (to take up space again)
+			$pane.animate({left: 0}, 600, function() {
+				$pane.css({position: "relative", left: 0, top: 0});
+				self.$dom_node.replaceWith($pane);
+				self.$dom_node = $pane;
+			});
+		},
+
+
+
+
+
+
+
+
 		bind: function(eventname, fn) {
 			var event_parts = eventname.split("."),
 			    name = event_parts[0],
@@ -79,127 +145,320 @@
 			
 			if (name === "cd") {
 				this.$dom_node.bind("tree_" + eventname, fn);
-			}			
+			}
 		},
 
-		cd_down: function(child_directory)
-		{
-			var child = this.current_node.children[child_directory];
 
+
+
+		surface: function() {
+			this.cd(this.location.slice(0, -1));
+		},
+
+
+
+
+
+		cd: function(location)
+		{
+			// new location is:   0: descendant, 1: ancestor, 2: neither, 3: initialise
+			var relation;
+
+			if ( !(location instanceof Array) ) {
+				console.error("bad format for cd");
+			}
+			
+			// compare locations
+			var i = 0, ie = location.length, j = 0, je = this.location.length;
+			while(i !== ie && j !== je && location[i] === this.location[j]) {
+				++i, ++j;
+			}
+
+			// determine relation
+			if (j === je) { relation = 0; }
+			else if (i === ie) { relation = 1; }
+			else { relation = 2; }
+			
+			// move there
+			var old_node = this.current_node,
+			    old_location = this.location.slice(0)
+			    ;
+			
+			// NEW LOCATION IS: descendant
+			if (relation === 0)
+			{
+				this._animate_old_pane("rtl");
+				var remaining_path = location.splice(i, location.length - i);
+
+				// dive down the nodes, and then animate the new pane in
+				this._dive(remaining_path, old_location, function() {
+					this._animate_new_pane("rtl");
+				});
+			}
+			else {
+				this._animate_old_pane("ltr");
+
+				this.current_node = this.root_node;
+				this.location = [];
+				this._dive(location, old_location, function() {
+					this._animate_new_pane("ltr");
+				});
+			}
+			
+		},
+
+
+
+
+
+
+
+		_dive: function(nodes, fallback_location, callback)
+		{
+			if (nodes.length === 0) {
+				callback.apply(this);
+				return;
+			}
+
+			var child_name = nodes.shift(),
+			    child = this.current_node.children[child_name],
+			    full_path = this.location.concat([child_name])
+			    ;
+			  
 			// verify child exists
 			if (child === undefined) {
-				console.error("node '" + child_directory + "' isn't there.");
+				console.error("node '" + child_name + "' isn't there.");
 				return false;
 			}
 			// verify child is correct
 			else if (child.type !== 0) {
-				console.error("node '" + child_directory + "' isn't a directory");
+				console.error("node '" + child_name + "' isn't a directory");
 				return false;
 			}
 			// verify child is loaded
 			else if (!child.loaded) {
-				if (!this.load_node(child_directory)) {
-					console.error("couldn't load directory", child_directory);
-					return false;
-				}
-			}
+				var self = this;
+				console.log("full path:", "/" + full_path.join("/"));
+				self.fetch_fn(full_path, function(result)
+				{
+					// make sure we can repair a bad dive
+					if (result === undefined) {
+						console.error("bad diving!");
+						if (fallback_location !== undefined) {
+							//self._repair_dive(fallback_location, undefined);
+						}
+					}
+					
+					child.children = result;
+					child.loaded = true;
+					self.current_node = child;
+					self.location.push(child_name);
+					self.location = full_path;
 
-			// cd to child
-			this.current_node = this.current_node.children[child_directory];
-			this.location.push(child_directory);
-			return true;
-		},
-
-		load_node: function(child_node)
-		{
-			var result = this.fetch_fn(this.location.concat([child_node]));
-			if (result !== undefined) {
-				this.current_node.children[child_node].children = result;
-				console.dir(this.root_node);
-				return true;
+					// keep going until we run out of nodes!
+					self._dive(nodes, fallback_location, callback);
+				});
 			}
 			else {
-				return false;
+				this.current_node = child;
+				this.location.push(child_name);
+				this._dive(nodes, fallback_location, callback);
 			}
 		},
+
+
+		initialise: function(location)
+		{
+			var self = this;
+			this.fetch_fn(location, function(result) {
+				if (result !== undefined) {
+					self.root_node = {children: result, loaded: true, type: 0};
+					self.current_node = self.root_node;
+					self.location = [];
+				}
+
+				var $pane = self._build_new_pane();
+				self.$dom_node.replaceWith($pane);
+				self.$dom_node = $pane;
+			});
+		}
 	});
 })();
 
-//=====================================================================
-// 
-//=====================================================================
-(function(undefined){
 
-	$.extend(jaja.ui, {
-		tree: function($root_ul) {
-			$root_ul = ($root_ul instanceof $) ? $root_ul : $($root_ul);
-			if ($root_ul.length === 0) { console.error("no root ul found!"); }
-			return new jaja.ui.tree.init($root_ul);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//=====================================================================
+//
+//=====================================================================
+(function(undefined) {
+	$.extend(jaja, {
+		event_queue: function(options) {
+			return new jaja.event_queue.init(options);
 		}
 	});
 
-	$.extend(jaja.ui.tree, {
-		init: function($root_ul)
-		{
-			$.extend(this, jaja.ui.tree);
-			
-			var $root_div = this._build_div_tree($root_ul).wrapAll("<div class='ui-tree-root ui-tree-folder' />");
+	$.extend(jaja.event_queue, {
+		defaults: {
+			_requires_sentinels: true
 		},
 
+		init: function(options) {
+			this._options = $.extend({}, jaja.event_queue.defaults, options);
 
-		init_old: function($root_ul)
-		{
-			$.extend(this, jaja.ui.tree);
-			
-			var $root_div = this._build_div_tree($root_ul).wrapAll("<div class='ui-tree-root ui-tree-folder' />");
+			$.extend(this, jaja.event_queue);
+			this._queues = {};
+			if (this._options._requires_sentinels) {
+				this._on_finished = jaja.event_queue({_requires_sentinels: false});
+				this._on_starting = jaja.event_queue({_requires_sentinels: false});
+			}
 
-			this._for_each($root_div, undefined, ".ui-tree-folder > div:first", function() {
-				var $this = $(this);
-				$this.prepend("<div class='ui-tree-folder-icon'></div>");
-			});
+			//this._execute = (this._options.async) ? jaja.async : function(fn) {fn();};
 		},
 
-		_build_div_tree: function($node)
+		bind: function(id, fn)
 		{
-			if ($node.length !== 1) { console.error("incorrect ul node"); return; }
-			var self = this;
+			var id_parts = id.split("."),
+			    event_name = id_parts.shift(),
+			    event_namespace = id_parts.sort()
+			    ;
+			
+			this._queues[event_name] = this._queues[event_name] || [];
+			this._queues[event_name].push({namespace: event_namespace, fn: fn});
+			return this;
+		},
 
-			$node.children("li").each(function() {
-				var $li = $(this),
-				    $div = $("<div/>")
-              .html($li.html())
-              .replaceAll($li),
-
-				    $child_ul = $div.children("ul")
-				    ;
-				
-				if ($child_ul.length > 0) {
-					$div.addClass('ui-tree-folder');
+		unbind: function(id)
+		{
+			var id_parts = id.split("."),
+			    event_name = id_parts.shift(),
+			    event_namespace = id_parts.sort(),
+			    queue = this._queues[event_name]
+			    ;
+			
+			for (var i = 0, ie = queue.length; i != ie; ++i) {
+				if (jaja.subset_of(event_namespace, queue[i].namespace)) {
+					queue.splice(i, 1);
+					--i, --ie;
 				}
-				$child_ul.length === 1 && self._build_div_tree($child_ul);
+			}
+
+			return this;
+		},
+
+
+		trigger: function(id, options)
+		{
+			var id_parts = id.split("."),
+			    event_name = id_parts.shift(),
+			    event_namespace = id_parts.sort(),
+			    queue = this._queues[event_name],
+			    options = $.extend({async: false}, options),
+			    executor = options.async ? jaja.async : function(fn) {fn();}
+			    ;
+			
+			if (queue === undefined) {
+				console.error("queue " + event_name + " is undefined");
+				return;
+			} 
+
+			executor(function() {
+				// re-evaluate queue.length each time so we may add events
+				for (var i = 0; i != queue.length; ++i) {
+					var x = queue[i];
+					if (jaja.subset_of(event_namespace, x.namespace)) {
+						x.fn.call(this);
+					}
+				}
 			});
 
-			return $node.children().replaceAll($node);
+			return this;
 		},
-
-		_for_each: function($root, down_fn, filter, up_fn)
-		{
-			var self = this;
-			
-			if ( down_fn !== undefined && ((filter === undefined) || $root.is(filter)) ) {
-				down_fn.apply($root[0], [$root]);
-			}
-
-			$root.children().each(function() {
-				self._for_each($(this), down_fn, filter, up_fn);;
-			}); // this._for_each.partial(undefined, fn, filter) );
-
-			if ( up_fn !== undefined && ((filter === undefined) || $root.is(filter)) ) {
-				up_fn.apply($root[0], [$root]);
-			}
-		},
-
-
 	});
 
 })();
+
+
+
+//=====================================================================
+//
+//=====================================================================
+(function(undefined) {
+	$.extend(jaja, {
+		FunctionQueue: function() {
+			return new jaja.FunctionQueue.init();
+		}
+	});
+
+	$.extend(jaja.FunctionQueue, {
+		defaults: {
+			auto_start: true,
+		},
+
+		init: function(options) {
+			this._options = $.extend({}, jaja.event_queue.defaults, options);
+
+			$.extend(this, jaja.FunctionQueue);
+			this._queue = jaja.event_queue();
+		},
+
+		add: function(fn) {
+			this._queue.bind("", fn);
+			if (this._options.auto_start) {
+				this._queue.trigger("", {async: true});
+			}
+		},
+
+		trigger: function() {
+			this._queue.trigger("");
+		}
+	});
+
+})();
+
+
+
+
+
+
+
+
+
+

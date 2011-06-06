@@ -15,7 +15,16 @@ div.ui-filetree-entry {
 	display: table-row;
 }
 
-div.ui-filetree-name, div.ui-filetree-lastmodified {
+div.ui-filetree-entry:hover {
+	background: #aaffff;
+}
+
+div.ui-filetree-name, div.ui-filetree-last_modified {
+	display: table-cell;
+	padding: 0.2em;
+}
+
+div.ui-filetree-commit_message {
 	display: table-cell;
 }
 

@@ -37,7 +37,7 @@ module GitNative
 		command = command.to_s.gsub(/_/, '-')
 		
 		opt_args = transform_options(options)
-		extra_args = args.reject{|a| a.empty?}.map{ |a| (a == '--' || a[0].chr == '|') ? a : "\"#{a}\"" }
+		extra_args = args.reject{|a| a.nil? or a.empty?}.map{ |a| (a == '--' || a[0].chr == '|' || a[0].chr == '-') ? a : "\"#{a}\"" }
 
 		command_string = "#{@git_binary} --git-dir=#{@git_dir} #{command} #{(opt_args + extra_args).join(' ')}"
 		

@@ -78,12 +78,18 @@
 		//=====================================================================
 		// append/prepend/insert
 		//=====================================================================
-		append: function(array) {
-			return this.insert(0, array);
+		append: function() {
+			for (var i = 0, ie = arguments.length; i != ie; ++i) {
+				this.insert(this.length, arguments[i]);
+			}
+			return this;
 		},
 
-		prepend: function(array) {
-			return this.insert(this.length, array);
+		prepend: function() {
+			for (var i = 0, ie = arguments.length; i != ie; ++i) {
+				this.insert(0, arguments[i]);
+			}
+			return this;
 		},
 
 		insert: function(index, elements)
@@ -118,8 +124,6 @@
 			return jaja.Array( Array.prototype.splice.apply(this, [begin, end - begin]) );			
 		},
 
-		
-
 
 		//=====================================================================
 		// has_subset (inputs should be sorted)
@@ -136,6 +140,7 @@
 			}
 			return true;
 		},
+
 
 		//=====================================================================
 		// each

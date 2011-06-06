@@ -5,7 +5,7 @@
 	
 	<!-- jquery -->
 		<!-- core -->
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
 		
 		<!-- ui -->
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>
@@ -25,6 +25,7 @@
 	<script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.ui.tabs.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.ui.tree.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.Array.js"></script>
 	<!-- end -->
 	
 
@@ -89,25 +90,10 @@
 			</ul>
 			<div>
 				<div class="ui-pane">
+					<a href="#" class="up">Up</a><br />
 				  <div class="ui-filetree-pane">
-					<div class="ui-filetree-table">
-						<div class="ui-filetree-entry">
-							<div class="ui-filetree-name">
-								folder1
-							</div>
-							<div class="ui-filetree-lastmodified">
-								2 minutes ago
-							</div>
+						<div class="ui-filetree-table">
 						</div>
-						<div class='ui-filetree-entry'>
-							<div class="ui-filetree-name">
-								file3
-							</div>
-							<div class="ui-filetree-lastmodified">
-								5 hours ago
-							</div>
-						</div>
-					</div>
 					</div>
 				</div>
 				<div class="ui-pane">
@@ -150,6 +136,7 @@
 
 </body>
 <script>
+
 	function switch_lhs_toolpane(to, duration)
 	{
 		duration = duration || 200;
@@ -179,31 +166,40 @@
 			$this.animate({left: acc_left}, duration);
 			acc_left += $this.outerWidth();
 		});
+	}
 
-		
-	}	
 
 	var tabs = jaja.ui.tabs("#the-tabs", {close_button: true});
 	
 	tabs.to_panes("#the-tabs > div > div");
-	/*
-	tabs.tab("Tree").bind("close", function() {
-		var $this = tabs.tab("Tree").iq;
-		$this.parent().swap($this.parent().next());
-	});
-	tabs.tab("Critiques").bind("close", function() {
-		var $this = tabs.tab("Critiques").iq;
-		$this.parent().swap($this.parent().next());
-	});*/
 
-	var tree = jaja.ui.filetree(".ui-filetree-pane", function(path) {
-		console.log("fetching:", path);
-		return {"dummy-folder": {type: 0, loaded: false, children: {}},
-	          "dummy-file": {type: 1}
-	         };
+
+
+
+	var tree = jaja.ui.filetree(".ui-filetree-pane", function(path, callback)
+	{
+		var url = "/jona/gitique/tree/Master/" + path.join("/");
+		
+		$.ajax({
+	  	type: "GET",
+	  	url: url,
+	  	dataType: "json"
+	  })
+	  .success(function(data) {
+	  	console.log("fetched:", data);
+	  	callback(data);
+	  });
 	});
+
+	$(".up").bind("click", function() {
+		tree.surface();
+	});
+
+
+	tree.initialise([]);
 
 	switch_lhs_toolpane(".toolpane-tree", 0);
+
 </script>
 </html>
 

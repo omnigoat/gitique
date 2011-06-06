@@ -1,6 +1,6 @@
 require 'grit'
 require 'digest/sha1'
-require 'gitnative'
+load 'gitnative.rb'
 load "repotree.rb"
 
 
@@ -200,5 +200,42 @@ class RepositoriesController < ApplicationController
 
 
 
+	end
+
+
+	def structure
+		user = User.find_by_username(params[:username])
+		db_repo = user.repositories.find_by_name(params[:repo_name])
+
+		fs_repo = Grit::Repo.new db_repo.path, :is_bare => true
+
+		fs_branch = fs_repo.branches[0]
+		filelist = {}
+		GitNative.in_git_dir(db_repo.path) do
+			GitNative.ls_tree({}, fs_branch.name, (params[:path] && params[:path] + "/*")) do |thread, stdout|
+				stdout.readlines.map do |x|
+					k = x.chomp!.split("\t")
+					name = k[1]
+					leaf_name = k[1].split("/")[-1]
+					type = (k[0].split(" ")[1] == "tree") ? 0 : 1
+					last_modified = ""
+					commit_message = ""
+
+					GitNative.log({:s => true, :reverse => true, :format => "tformat:%cr%n%s"}, "-1", name) do |thread, stdout|
+						lines = stdout.readlines.map{|x|x.chomp!}
+						last_modified = lines[0]
+						commit_message = lines[1]
+					end
+
+					filelist[leaf_name] = {:type => type, :loaded => false, :children => {}, :last_modified => last_modified, :commit_message => commit_message}
+				end
+			end
+		end
+		
+		#logger.info("#{filelist}")
+		
+		respond_to do |format|
+			format.json { render :json => filelist }
+		end
 	end
 end

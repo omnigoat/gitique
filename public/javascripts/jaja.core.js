@@ -62,7 +62,40 @@ var jaja = (function($, undefined) {
 		jaja.page = {scrollbar_width: wNoScroll - wScroll};
 	});
 
+	//=====================================================================
+	// CORE UTILITIES
+	//=====================================================================
+	$.extend(jaja, {
+		//=====================================================================
+		// turns a normal predicate (lhs < rhs), into a javascript one [-1, 0, 1]
+		//=====================================================================
+		js_pred: function(pred) {
+			return function(lhs, rhs) {
+				return pred(lhs, rhs) ? -1 : pred(rhs, lhs) ? 1 : 0;
+			};
+		},
 
+		//=====================================================================
+		// a default predicate for various things
+		//=====================================================================
+		default_predicate: function(lhs, rhs) {
+			return (lhs < rhs) ? -1 : (rhs < lhs) ? 1 : 0;
+		},
+
+		//=====================================================================
+		// call a function asynchronously
+		//=====================================================================
+		async: function(fn) {
+			setTimeout(fn, 0);
+		},
+	});
+
+
+
+
+	//=====================================================================
+	// ARRAY UTILITIES
+	//=====================================================================
 	$.extend(jaja, {
 		zip: function(lhs, rhs) {
 			var result = [];
@@ -137,15 +170,32 @@ var jaja = (function($, undefined) {
 			return true;
 		},
 
-		// splits a jquery object consisting of multiple objects into an array of jquery objects,
-		// each object containing a single object. if that makes sense.
-		jquery_split: function($o) {
-			return jaja.map($.makeArray($o), function(x) {return $(x);});
+		//=====================================================================
+		// determines if lhs is a subset of rhs
+		// EXPECTS SORTED ARRAYS
+		//=====================================================================
+		subset_of: function(lhs, rhs, pred) {
+			pred = pred || jaja.default_predicate;
+			var i = 0, ie = lhs.length, j = 0, je = rhs.length, result = undefined;
+			
+			while (i != ie) {
+				while (j != je && (result = pred(lhs[i], rhs[j])) > 0)
+					++j;
+				if (result !== 0) {
+					return false;
+				}
+				++i;
+				++j;
+			}
+			return true;
 		},
 
-
-		default_predicate: function(lhs, rhs) {
-			return (lhs < rhs) ? -1 : (rhs < lhs) ? 1 : 0;
+		//=====================================================================
+		// splits a jquery object consisting of multiple objects into an array of jquery objects,
+		// each object containing a single object. if that makes sense.
+		//=====================================================================
+		jquery_split: function($o) {
+			return jaja.map($o.get(), function(x) {return $(x);});
 		},
 
 		//=====================================================================
@@ -178,13 +228,18 @@ var jaja = (function($, undefined) {
 			return {found: r == 0, value: middle};
 		},
 
+		//=====================================================================
+		// searches for a particular element with an optional predicate
+		//=====================================================================
 		binary_search_for: function(range, element, pred, opt_bounds) {
 			return jaja.binary_search(range, function(x) {
 				return pred(x, element);
 			}, opt_bounds);
 		},
 
-
+		//=====================================================================
+		// returns true if a sorted array has duplicate values
+		//=====================================================================
 		has_duplicates: function(sorted_array)
 		{
 			for (var i = 0, ie = sorted_array.length; i != ie; ++i) {
@@ -196,9 +251,48 @@ var jaja = (function($, undefined) {
 			return false;
 		},
 
+		//=====================================================================
+		// merges two sorted arrays together
+		//=====================================================================
+		merge: function(lhs, rhs, pred)
+		{
+			var result = [],
+			    lhs_length = lhs.length,
+			    rhs_length = rhs.length
+			    ;
+			
+			while(lhs_length != 0 && rhs_length != 0)
+			{
+				if (pred(lhs[0], rhs[0]) < 0) {
+					result.push(lhs.shift());
+					--lhs_length;
+				}
+				else {
+					result.push(rhs.shift());
+					--rhs_length;
+				}
+			}
 
+			// one of these two arrays will have something left over
+			for ( ; lhs_length != 0; --lhs_length)
+				result.push(lhs.shift());	
+			for ( ; rhs_length != 0; --rhs_length)
+				result.push(rhs.shift());
+			
+			return result;
+		},
 
-
+		merge_inplace: function(array, begin, begin_right, end)
+		{
+			for (; begin < begin_right; ++begin) {
+				if (array[begin] > array[begin_right]) {
+					var v = array[begin];
+					array[begin] = array[begin_right];
+					//insert(array, begin_right, end, v);
+					//array.splice(begin_right, 0, )
+				}
+			}
+		}
 	});
 
 	if (Array.prototype.swap === undefined) {
@@ -233,7 +327,7 @@ var jaja = (function($, undefined) {
 		};
 	}
 	else {
-		console.error("Array.prototype.unique is alrady defined");
+		console.error("Array.prototype.unique is already defined");
 	}
 	
 	if (Function.prototype.partial === undefined)
@@ -252,7 +346,16 @@ var jaja = (function($, undefined) {
 			};
 		};
 	}
+	else {
+		console.error("Function.prototype.partial is already defined");
+	}
 	
+
+
+
+	//=====================================================================
+	// this shit shouldn't be here
+	//=====================================================================
 	jaja.ui = {};
 	jaja.page = {
 		mousedown_position: {x: 0, y: 0},
