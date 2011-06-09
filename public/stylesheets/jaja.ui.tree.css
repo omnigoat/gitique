@@ -5,28 +5,45 @@ div.ui-filetree-pane {
 }
 
 
-div.ui-filetree-table {
-	display: table;
+table.ui-filetree-table {
 	width: 100%;
 	height: 100%;
+	border-spacing: 0;
 }
 
-div.ui-filetree-entry {
-	display: table-row;
+th.ui-filetree-header {
+	text-align: left;
+	font-family: monospace;
+	padding: 0.3em 0.5em;
+}
+tr.ui-filetree-entry {
+	padding: 0;
 }
 
-div.ui-filetree-entry:hover {
+
+td.ui-filetree-cell {
+	font-family: monospace;
+	background: #f8f8f8;
+	border-bottom: 1px solid #e1e1e1;
+	border-collapse: collapse;
+	padding: 0.3em 0.5em;
+	white-space: nowrap;
+}
+
+td.ui-filetree-cell:hover {
 	background: #aaffff;
 }
 
-div.ui-filetree-name, div.ui-filetree-last_modified {
-	display: table-cell;
-	padding: 0.2em;
+
+td.ui-filetree-cell span {
+	display: block;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: 350px;
 }
 
-div.ui-filetree-commit_message {
-	display: table-cell;
-}
+
+
 
 
 

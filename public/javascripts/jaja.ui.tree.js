@@ -86,23 +86,50 @@
 		{
 			var node = this.current_node,
 			    $pane = $("<div class='ui-filetree-pane'/>"),
-			    $table = $("<div class='ui-filetree-table' />").appendTo($pane)
+			    $table = $("<table class='ui-filetree-table' />").appendTo($pane)
 			    ;
+			
+			/*
+			node.children.sort(function(lhs, rhs) {
+				if (lhs.type < rhs.type)
+					return -1;
+				if (lhs.type === rhs.type)
+					return 0;
+				return 1;
+			});
+			*/
+			var ths = $(
+				"<th class='ui-filetree-header'>Name</th>" +
+			  "<th class='ui-filetree-header'>Modified</th>" +
+			  "<th class='ui-filetree-header'>Commit</th>"
+			).appendTo($table);
+			
 
-			$.each(node.children, function(key, value) {
-				var entry = $("<div class='ui-filetree-entry' />")
-				  .append("<div class='ui-filetree-name'>" + key + "</div>")
+			$.each(node.children, function(key, value)
+			{
+				var entry = $("<tr class='ui-filetree-entry' />")
+				  .append("<td class='ui-filetree-cell ui-filetree-name'>" + key + "</td>")
 				  ;
 				
-				$.each(value, function(key, value) {
-					if (key == "last_modified" || key == "commit_message") {
-						entry.append("<div class='ui-filetree-" + key + "'><span>" + value + "</span></div>");
-					}
-				});
+				if (value.last_modified) {
+					entry.append("<td class='ui-filetree-cell'><span>" + value.last_modified + "</span></td>");
+				}
 
+				if (value.commit_message) {
+					entry.append("<td class='ui-filetree-cell'><span>" + value.commit_message + "</span></td>");
+				}
+				
 				$table.append(entry);
 			});
 
+			this.$dom_node.parent().append($pane);
+			$pane.find("td.ui-filetree-cell").each(function(i, x) {
+				var $this = $(this);
+				console.log($this.position().left, $this.outerWidth(), $table.innerWidth());
+				if ($this.position().left + $this.outerWidth() > $table.innerWidth()) {
+					console.log($this.text());
+				}
+			});
 			return $pane;
 		},
 
@@ -112,8 +139,6 @@
 			    node = this.current_node,
 			    $pane = this._build_new_pane()
 			    ;
-
-			this.$dom_node.parent().append($pane);
 
 			// change to absolute so we don't mess things around
 			$pane.css({

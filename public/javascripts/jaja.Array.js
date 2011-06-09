@@ -118,10 +118,56 @@
 		//=====================================================================
 		// remove
 		//=====================================================================
-		remove: function(begin, end) {
-			begin = this._reindex(begin);
-			end = this._reindex(end);
-			return jaja.Array( Array.prototype.splice.apply(this, [begin, end - begin]) );			
+		remove: function(options)
+		{
+			if (options instanceof Object) {
+				options = this._optionise(options, true);
+			}
+			// allow for a single number as the first parameter
+			else {
+				options = {
+					from: options,
+					to: options + 1,
+					step: 1
+				}
+			}
+
+			var result = jaja.Array()
+			    ;
+
+			// even faster if the step is 1
+			if (options.step === 1) {
+				return jaja.Array( Array.prototype.splice.call(this, options.from, options.until) );			
+			}
+		
+			var offset = 0,
+			    i = options.from,
+			    s = options.from
+			    ;
+			
+			for ( ; i != options.until; ++i )
+			{
+				if (i === s) {
+					s += options.step;
+					options.reverse ? result.push_front(this[i]) : result.push_back(this[i]);
+					++offset;
+					--this.length;
+					continue;
+				}
+
+				if (offset > 0) {
+					this[i - offset] = this[i];
+				}
+			}
+
+			if (offset > 0) {
+				for (var ie = this.length + offset; i != ie; ++i) {
+					this[i - offset] = this[i];
+					delete this[i];
+				}
+			}
+
+			return result;
 		},
 
 
@@ -145,58 +191,62 @@
 		//=====================================================================
 		// each
 		//=====================================================================
-		each: function(fn, this_object) {
-			this_object = this_object || this;
-			if (Array.prototype.forEach)
-				return Array.prototype.forEach.apply(this_object, [fn]);
-			else {
-				var i = 0, ie = this.length, result = true;
-				while (i != ie && (result = fn.call(this_object, this[i])))
-					++i;
-				return result;
+		each: function(options, fn)
+		{
+			if (fn === undefined) {
+				fn = options;
+				options = this._default_options();
 			}
+			else {
+				options = this._optionise(options);
+			}
+
+			var i = options.from, ie = options.until, result = true;
+			while (i != ie && (result = fn(this[i])))
+				i += options.step;
+			return result;
 		},
 
 
 		//=====================================================================
 		// fold
 		//=====================================================================
-		fold: function()
-		{
-			var initial, fn;
-			if (arguments.length === 1) {
-				fn = arguments[1];
 
-				return fold
-			}
-			else if (argument.length === 2) {
-				initial = arguments[0];
-				fn = arguments[1];
-			}
-
-
-		},
 
 
 		//=====================================================================
 		// map (mutative), and mapped (pure)
 		//=====================================================================
-		map: function(fn)
+		map: function(options, fn)
 		{
-			for (var i = 0, ie = this.length; i != ie; ++i)
+			if (fn === undefined) {
+				fn = options;
+				options = this._default_options();
+			}
+			else {
+				options = this._optionise(options);
+			}
+
+			for (var i = options.from, ie = options.until; i != ie; i += options.step)
 				this[i] = fn(this[i]);
 			return this;
 		},
 
-		mapped: function(fn, callback_object)
+		mapped: function(options, fn)
 		{
-			callback_object = callback_object || this;
-			if (Array.prototype.map !== undefined) {
-				return Array.prototype.map.apply(callback_object, [fn]);
+			if (fn === undefined) {
+				if (Array.prototype.map !== undefined) {
+					return Array.prototype.map.call(this, options);
+				}
+				fn = options;
+				options = this._default_options();
+			}
+			else {
+				options = this._optionise(options);
 			}
 
 			var result = jaja.Array();
-			for (var i = 0, ie = this.length; i != ie; ++i)
+			for (var i = options.from, ie = options.until; i != ie; i += options.step)
 				result.push_back( fn.apply(callback_object, [this[i]]) );
 			return result;
 		},
@@ -274,7 +324,7 @@
 		// sort
 		//=====================================================================
 		sort: function(pred) {
-			Array.prototype.sort.apply(this, [pred || jaja.default_predicate]);
+			Array.prototype.sort.call(this, pred || jaja.default_predicate);
 		},
 
 		//=====================================================================
@@ -440,6 +490,26 @@
 			i = i === undefined ? this.length : i;
 			return i >= 0 ? i : i + this.length + 1;
 		},
+
+		_default_options: function() {
+			return {from: 0, until: this.length, step: 1};
+		},
+
+		_optionise: function(options, ignore_reverse)
+		{
+			options = $.extend(this._default_options(), options);
+			options.from = this._reindex(options.from);
+			options.until = this._reindex(options.until);
+
+			if (!ignore_reverse && options.reverse) {
+				options.step = -options.step;
+				var t = options.from;
+				options.from = options.until + options.step;
+				options.until = t + options.step;
+			}
+		
+			return options;
+		}
 
 
 	});
