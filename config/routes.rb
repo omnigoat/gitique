@@ -1,11 +1,7 @@
 Gitique::Application.routes.draw do
   get "pages/random"
   
-  
-  
-  #match "critiques/add", :to => 'critiques#add'
-  #match "critiques/get_all", :to => 'critiques#get_all'
-  
+  get "/", :to => "apikaiyay#test"
   
   match "pages/random/post", :to => "pages#post"
   match "pages/ajax/load", :to => 'pages#load'
@@ -40,5 +36,4 @@ Gitique::Application.routes.draw do
   get ":username/:repo_name", :to => "repositories#show"
   get ":username/:repo_name/tree/:branch(/*path)", :to => "repositories#structure"
   
-  #map.connect "*path", :controller => :repositories, :action => :show
 end

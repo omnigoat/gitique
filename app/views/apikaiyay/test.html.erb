@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Gitique</title>
+	
+	<!-- jquery -->
+		<!-- core -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+	<!-- end -->
+	
+	<!-- pure -->
+	<script type="text/javascript" src="/javascripts/pure.min.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.core.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.Array.js"></script>
+</head>
+<body>
+
+<div class="quicklinks">
+</div>
+
+<div class="template" style="width: 60%; margin: auto;">
+	
+	<div class="function">
+		<a class="link"></a>
+		<h1></h1>
+		Since version: <span class="version"></span><br /><span class="synopsis"></span>
+		<ul>
+			<li class="signature" />
+		</ul>
+		<div class="parameter">
+			<h2></h2>
+			<p></p>
+		</div>
+	</div>
+</div>
+
+
+<script>
+var javascript_template = {
+	"for class in classes":
+	{
+		h1: "class",
+
+		// navigation bar
+		"div.method-navigation": {
+			"for fn in class.functions": {
+				a: {
+					".": "fn",
+					"@href": "fn"
+				},
+				span: ", "			
+			}
+		},
+
+		// function listing
+		"for fn in class.functions": {
+			"for param in fn.parameters": function() {
+				//jam.pyre.render()
+			}
+		}
+	}
+};
+
+
+var data = {
+	classes: {
+		Array: {
+			functions: {
+				each: {
+					synopsis: "applies a function against each element in sequence",
+					
+					parameters: {
+						options: {
+							optional: true,
+						},
+
+						fn: {
+							callback: true,
+							synopsis: "yep"
+						}
+					}
+				},
+
+				filter: {
+					synopsis: "removes elements that fail a predicate",
+				}
+			}
+		}
+	}
+};
+
+var jj = {};
+jj.render = function(template, data)
+{
+	var s =  $("<div />");
+	jj.render._impl([], template, data, undefined, undefined, undefined, undefined, undefined, s);
+	
+	return {
+		into: function($o) {
+			$o.append(s);
+		},
+
+		value: function() {
+			return s;
+		}
+	};
+};
+
+jj.render._loop_test = /for\s+(\w+)\s+in\s+([\w\.]+)/;
+jj.render._selector_test =  /~?(\w+)(?:#(\w+))?((\.\w+)*)(?:\s+from\s+(\$|jQuery)\((.+)\))?/;
+jj.render._attribute_test = /@(\w+)/;
+jj.render.stack_node = function(key, value) {
+	this.key = key;
+	this.value = value;
+	return this;
+}
+
+jj.render._impl = function(stack, template, data, t_key, t_value, d_container, d_key, d_value, dom_parent)
+{
+	// DO THIS FIRST
+	if (t_key === undefined) {
+		jaja.assert(stack.length === 0, "stack should be empty");
+		stack.push(data);
+		$.each(template, function(key, value) {
+			jj.render._impl(stack, template, data, key, value, undefined, undefined, undefined, dom_parent);
+		});
+		return;
+	}
+
+	var result;
+
+	// 1) loop
+	if ((result = t_key.match(jj.render._loop_test)) !== null)
+	{
+		var n = jj.render._data_element(stack, result[2]);
+
+		
+		// for each x in data
+		$.each(n, function(d_key, d_value)
+		{
+			var k = {};
+			k[result[1]] = new jj.render.stack_node(d_key, d_value);
+			stack.push(k);
+			
+			// if a function is the value of the template, then we call the function once for
+			// each data associated
+			if (typeof t_value === "function") {
+				t_value(template, data, t_key, t_value, d_container, d_key, d_value, dom_parent);
+			}
+			// if instead it is an object, render each key
+			else {
+				$.each(t_value, function(t_key, t_value) {
+					jj.render._impl(stack, template, data, t_key, t_value, n, d_key, d_value, dom_parent);
+				});
+			}
+
+			stack.pop();
+		});
+	}
+
+	// 2) self-element
+	else if (t_key === ".") {
+		dom_parent.text(jj.render._data_value(stack, template, data, t_key, t_value, d_container, d_key, d_value, dom_parent));
+	}
+
+	// 3) attribute
+	else if ((result = t_key.match(jj.render._attribute_test)) !== null) {
+		dom_parent.prop(result[1], jj.render._data_value(stack, template, data, t_key, t_value, d_container, d_key, d_value, dom_parent));
+	}
+
+	// 4) new (or cloned) child element
+	else if ( (result = t_key.match(jj.render._selector_test)) !== null )
+	{
+		jaja.assert(result !== null, "bad key!");
+
+		var e = jj.render._node(result, dom_parent);
+
+		if (typeof t_value === "string") {
+			e.text(jj.render._data_value(stack, template, data, t_key, t_value, d_container, d_key, d_value, e));
+		}
+		else {
+			$.each(t_value, function(t_key, t_value) {
+				jj.render._impl(stack, template, data, t_key, t_value, d_container, d_key, d_value, e);
+			});
+		}
+	}
+};
+
+jj.render._node = function(regex, dom_parent)
+{
+	var tag = regex[1],
+	    id = regex[2],
+	    classes = regex[3].split(".").slice(1),
+	    clone_expr = regex[6],
+	    e = undefined
+	    ;
+	
+	if (clone_expr !== undefined) {
+		e = $(clone_expr).clone();
+	}
+
+	if (regex[1][0] == "~") {
+		if (e) {
+			dom_parent.find(t_key.slice(1)).replaceWith(e);
+		}
+		else {
+			e = dom_parent.find(t_key.slice(1));
+			jaja.assert(e !== undefined, "could not find node");
+		}
+	}
+	else {
+		if (e === undefined) {
+			e = $("<" + tag + (id !== undefined ? "id='" + id + "'" : "") + " class='" + classes.join(" ") + "' />");
+		}
+
+		e.appendTo(dom_parent);
+	}
+
+	return e;
+}
+
+jj.render._data_value = function(stack, template, data, t_key, t_value, d_container, d_key, d_value, element) {
+	var element = jj.render._data_element(stack, t_value);
+
+	if (typeof element === "function") {
+		element = element(template, data, t_key, t_value, d_container, d_key, d_value, element);
+	}
+
+	return element;
+};
+
+jj.render._data_element = function(stack, id)
+{
+	var parts = id.split("."),
+	    initial_part = parts.shift(),
+	    node = jj.render._stack_property(stack, initial_part)
+	    ;
+	
+	while (parts.length > 0 && node !== undefined) {
+		node = node.value[parts.shift()];
+	}
+	
+	if (node instanceof jj.render.stack_node) {
+		node = node.key;
+	}
+	
+	if (node === undefined) {
+		node = id;
+	}
+
+	return node;
+};
+
+jj.render._stack_property = function(stack, name) {
+	var e = undefined;
+	for (var i = stack.length - 1, ie = -1; i != ie; --i) {
+		if ((e = stack[i][name]) !== undefined) {
+			break;
+		}
+	}
+	return e;
+};
+
+
+jj.render(javascript_template, data).into( $("div.quicklinks") );
+
+/*
+apikaiyay.add("jam", "javascript", {
+	classes: { Array: {
+		
+	}},
+
+	functions: { each: {
+		
+	}}
+});
+*/
+
+
+var jajae = {};
+
+jajae.Array =
+{
+	functions: [
+		{
+			name: "each",
+			version: 1,
+			
+			synopsis: "applies a function against each element in sequence",
+			
+			signatures: [
+				"each(fn, /callbacks/)",
+				"each(options, fn, /callbacks/)"
+			],
+
+			parameters: {
+				options: "an options object from {{jaja.Sequence#options}}",
+				
+				fn: {
+					_type: "javascript.callback",
+
+					v1: {
+						_type: "javascript.function",
+						is: "the function that will be applied to each element",
+						signature: "function(element, index, array)",
+						remarks: "/this/ will be "
+					},
+				},
+			}
+		}
+	]
+};
+
+//$("div.template").render(jajae.Array, javascript.class_page);
+
+
+</script>
+
+</body>
+
+</html>

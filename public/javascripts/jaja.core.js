@@ -109,17 +109,37 @@ var jaja = (function($, undefined) {
 		},
 
 		fold: function(xs, f, init) {
-			for (var i = 0, z = xs.length; i != z; ++i) {
+			f = f || function(lhs, rhs) {
+				return lhs + rhs;
+			}
+
+			var i = 0;
+			if (init === undefined && xs.length > 1) {
+				i = 1;
+				init = xs[0];
+			}
+
+			for (var z = xs.length; i != z; ++i) {
 				init = f(init, xs[i]);
 			}
+			
 			return init;
 		},
 		
-		map: function(xs, f) {
+		map: function(xs, f)
+		{
 			var ys = [];
-			for (var i = 0, z = xs.length; i != z; ++i) {
-				ys.push(f(xs[i]));
+			if (Array.isArray(xs)) {
+				for (var i = 0, z = xs.length; i != z; ++i) {
+					ys.push(f(xs[i]));
+				}
 			}
+			else {
+				for (x in xs) {
+					ys.push( f(x, xs[x]) );
+				}
+			}
+
 			return ys;
 		},
 		
@@ -198,19 +218,32 @@ var jaja = (function($, undefined) {
 			return jaja.map($o.get(), function(x) {return $(x);});
 		},
 
+		assert: function(v, m) {
+			if (v === false) {
+				jaja.assert.handler(m);
+			}
+		},
+
+
 		//=====================================================================
 		// binary search! :D
+		//  guarantees: if not found, will return the index we could insert to
+		//              and not mess up the order - similar to upper_bound.
+		//              HOWEVER - if there are multiple equal values, will
+		//              return a RANDOM valid index.
 		//=====================================================================
 		binary_search: function(range, pred, opt_bounds)
 		{
 			pred = pred || jaja.default_predicate;
-			var lbound = opt_bounds ? opt_bounds[0] : 0;
-			var ubound = opt_bounds ? opt_bounds[1] : range.length;
-			var r = null;
+			var lbound = opt_bounds ? opt_bounds[0] : 0,
+			    ubound = opt_bounds ? opt_bounds[1] : range.length,
+			    r = null,
+			    middle = 0
+			    ;
 
 			while (ubound - lbound > 0)
 			{
-				var middle = (ubound + lbound) >> 1;
+				middle = (ubound + lbound) >> 1;
 				
 				r = pred(range[middle]);
 
@@ -218,20 +251,25 @@ var jaja = (function($, undefined) {
 					break;
 				}
 				else if (r < 0) {
-					lbound = middle;
+					lbound = middle + 1;
 				}
 				else if (r > 0) {
 					ubound = middle;
 				}
 			}
 
-			return {found: r == 0, value: middle};
+			if (r === -1) {
+				++middle;
+			}
+
+			return {found: r === 0, value: middle};
 		},
 
 		//=====================================================================
 		// searches for a particular element with an optional predicate
 		//=====================================================================
 		binary_search_for: function(range, element, pred, opt_bounds) {
+			pred = pred || jaja.default_predicate;
 			return jaja.binary_search(range, function(x) {
 				return pred(x, element);
 			}, opt_bounds);
@@ -294,6 +332,16 @@ var jaja = (function($, undefined) {
 			}
 		}
 	});
+
+
+	$.extend(jaja.assert, {
+		default_handler: function(m) {
+			console.error(m);
+		},
+	});
+
+	jaja.assert.handler = jaja.assert.default_handler;
+
 
 	if (Array.prototype.swap === undefined) {
 		Array.prototype.swap = function(lhs, rhs) {

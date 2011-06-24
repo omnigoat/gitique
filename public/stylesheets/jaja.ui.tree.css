@@ -23,14 +23,14 @@ tr.ui-filetree-entry {
 
 td.ui-filetree-cell {
 	font-family: monospace;
-	background: #f8f8f8;
+	/*background: #f8f8f8;*/
 	border-bottom: 1px solid #e1e1e1;
 	border-collapse: collapse;
 	padding: 0.3em 0.5em;
 	white-space: nowrap;
 }
 
-td.ui-filetree-cell:hover {
+tr.ui-filetree-entry:hover {
 	background: #aaffff;
 }
 

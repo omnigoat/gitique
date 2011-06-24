@@ -4,53 +4,62 @@
 //=====================================================================
 (function(undefined) {
 
+	function jaja_Set() {
+		return {};
+	}
+
 	$.extend(jaja, {
-		set: function(init_list, predicate) {
-			return new jaja.set.init(init_list, predicate);
+		Set: function(predicate) {
+			return jaja.Set.init.call(new jaja_Set(), predicate);
 		}
 	});
 
-	$.extend(jaja.set, {
+	$.extend(jaja.Set, {
 		default_predicate: function(lhs, rhs) {
-			return (lhs < rhs) ? -1 : (rhs < lhs) ? 1 : 0;
+			return lhs < rhs;
 		},
 
-		init: function(init_list, predicate)
+		init: function(predicate)
 		{
-			// initialise object
-			$.extend(this, jaja.set);
+			$.extend(this, jaja.Sequence, jaja.Set);
+			this.length = 0;
 			predicate = predicate || this.default_predicate;
-			this._data = init_list;
 			this._predicate = function(lhs, rhs) {
 				return predicate(lhs, rhs) ? -1 : predicate(rhs, lhs) ? 1 : 0;
 			};
+			
+			var set = this;
+			jaja.Array("insert").each(function(x) {
+				set["_" + x] = set[x];
+				delete set[x];
+			});
 
-			// sort based upon predicate
-			this._data.sort(predicate);
-			// reject if duplicates exist
-			if (jaja.has_duplicates(this._data)) {
-				return false;
-			}
 
-			this.length = this._data.length;
 			return this;
 		},
 
 		add: function(element)
 		{
-			if (jaja.binary_search_for(this._data, element, this._predicate).found) {
+			var r = jaja.binary_search_for(this, element, this._predicate);
+			if (r.found) {
 				return false;
 			}
-			else {
-				this._data.push(element);
-				this._data.sort(this._predicate);
-				++this.length;
-				return true;
-			}
+			
+			this._insert(r.value, [element]);				
+			return true;
+		},
+
+		// abuse the fact that we KNOW this is not a multi-set
+		upper_bound: function(element) {
+			return jaja.binary_search_for(this, element, this._predicate).value;
+		},
+
+		lower_bound: function(element) {
+			return jaja.binary_search_for(this, element, this._predicate).value - 1;
 		},
 
 		index: function(element) {
-			var result = jaja.binary_search_for(this._data, element, this._predicate);
+			var result = jaja.binary_search_for(this, element, this._predicate);
 			if (!result.found) {
 				return undefined;
 			}
@@ -59,21 +68,9 @@
 			}
 		},
 
-		remove: function(index) {
-			this._data.remove(index);
-			--this.length;
-		},
-
-		sort: function() {
-			this._data.sort(this._predicate);
-		},
-
-		get: function(index) {
-			return this._data[index];
-		},
-
-		each: function(fn) {
-			$.each(this._data, fn);
+		find: function(v) {
+			var r = jaja.binary_search_for(this, v, this._predicate);
+			return r.found ? this[r.value] : undefined;
 		}
 
 	});

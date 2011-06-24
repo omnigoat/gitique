@@ -101,7 +101,7 @@
 			// the group of tabs themselves
 			this.$tabs = this.$bar.children();
 			// the tabs as a set, sorted by spatial position
-			this.tabs_set = jaja.set(this.$tabs.get(), function(lhs, rhs) {
+			this.tabs_set = jaja.Set(this.$tabs.get(), function(lhs, rhs) {
 				return $(lhs).offset().left < $(rhs).offset().left;
 			});
 			// the tabs as topology

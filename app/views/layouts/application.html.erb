@@ -19,13 +19,14 @@
 	
 		<!-- jaja -->
 	<script type="text/javascript" src="/javascripts/jaja.core.js"></script>
-	<script type="text/javascript" src="/javascripts/jaja.set.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.Sequence.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.Array.js"></script>
+	<script type="text/javascript" src="/javascripts/jaja.Set.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.dynasize.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.scrollbar.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.esh.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.ui.tabs.js"></script>
 	<script type="text/javascript" src="/javascripts/jaja.ui.tree.js"></script>
-	<script type="text/javascript" src="/javascripts/jaja.Array.js"></script>
 	<!-- end -->
 	
 
@@ -168,8 +169,19 @@
 		});
 	}
 
-	var a = jaja.Array(1, 2, 3, 4, 5);
-	console.log( a.remove({from: 0, until: 3, step: 2}) );
+	var a = jaja.Array("a", "b", "d", "e", "f");
+	console.log( jaja.binary_search_for(a, "c") );
+	a.pop_back();
+	a.pop_back();
+	a.pop_back();
+	a.pop_back();
+	console.log( jaja.binary_search_for(a, "c") );
+
+	var s = jaja.Set();
+	s.add("a");
+	s.add("b");
+	s.add("c");
+	console.log("upper_bound:", s.upper_bound("b") );
 
 	var tabs = jaja.ui.tabs("#the-tabs", {close_button: true});
 	

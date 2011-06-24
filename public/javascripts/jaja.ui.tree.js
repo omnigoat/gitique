@@ -12,6 +12,19 @@
 		}
 	});
 
+	function make_node(name, type, last_modified, commit_message) {
+		return {
+			name: name,
+			type: type,
+			loaded: false,
+			last_modified: last_modified,
+			commit_message: commit_message,
+			children: jaja.Set(function(lhs, rhs) {
+				return lhs.type < rhs.type || (!(rhs.type < lhs.type) && lhs.name < rhs.name);
+			})
+		};
+	}
+
 	$.extend(jaja.ui.filetree, {
 		init: function($root_ul, fetch_fn)
 		{
@@ -19,7 +32,7 @@
 				// where we are currently
 				location: [],
 				// type: 0-folder, 1-file
-				root_node: {type: 0, children: {}},
+				root_node: make_node("root", 0),
 				// save the fetch function for later
 				fetch_fn: fetch_fn,
 				// hold onto the element
@@ -43,8 +56,11 @@
 				    text = $.trim($this.children(".ui-filetree-name").text())
 				    ;
 				
+				if (text[text.length - 1] === '/') {
+					text = text.slice(0, -1);
+				}
+
 				self.cd( self.location.concat([text]) );
-				//self.animate_cd(self.current_node, "rtl");
 			});
 		},
 
@@ -104,19 +120,20 @@
 			  "<th class='ui-filetree-header'>Commit</th>"
 			).appendTo($table);
 			
-
-			$.each(node.children, function(key, value)
+			console.log(node.children);
+			node.children.each(function(x)
 			{
-				var entry = $("<tr class='ui-filetree-entry' />")
-				  .append("<td class='ui-filetree-cell ui-filetree-name'>" + key + "</td>")
+				var name = (x.name + (x.type === 0 ? "/" : "")),
+				    entry = $("<tr class='ui-filetree-entry' />")
+				  		.append("<td class='ui-filetree-cell ui-filetree-name'>" + name + "</td>")
 				  ;
 				
-				if (value.last_modified) {
-					entry.append("<td class='ui-filetree-cell'><span>" + value.last_modified + "</span></td>");
+				if (x.last_modified) {
+					entry.append("<td class='ui-filetree-cell'><span>" + x.last_modified + "</span></td>");
 				}
 
-				if (value.commit_message) {
-					entry.append("<td class='ui-filetree-cell'><span>" + value.commit_message + "</span></td>");
+				if (x.commit_message) {
+					entry.append("<td class='ui-filetree-cell'><span>" + x.commit_message + "</span></td>");
 				}
 				
 				$table.append(entry);
@@ -246,10 +263,10 @@
 			}
 
 			var child_name = nodes.shift(),
-			    child = this.current_node.children[child_name],
+			    child = this.current_node.children.find({type: 0, name: child_name}),
 			    full_path = this.location.concat([child_name])
 			    ;
-			  
+			
 			// verify child exists
 			if (child === undefined) {
 				console.error("node '" + child_name + "' isn't there.");
@@ -274,7 +291,11 @@
 						}
 					}
 					
-					child.children = result;
+					$.each(result, function() {
+						child.children.add( make_node(this.name, this.type) );
+					});
+
+					//child.children = result;
 					child.loaded = true;
 					self.current_node = child;
 					self.location.push(child_name);
@@ -297,7 +318,11 @@
 			var self = this;
 			this.fetch_fn(location, function(result) {
 				if (result !== undefined) {
-					self.root_node = {children: result, loaded: true, type: 0};
+					console.dir(self.root_node);
+					$.each(result, function() {
+						self.root_node.children.add( make_node(this.name, this.type, this.last_modified, this.commit_message) );
+					});
+					self.root_node.loaded = true;
 					self.current_node = self.root_node;
 					self.location = [];
 				}

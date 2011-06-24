@@ -210,7 +210,7 @@ class RepositoriesController < ApplicationController
 		fs_repo = Grit::Repo.new db_repo.path, :is_bare => true
 
 		fs_branch = fs_repo.branches[0]
-		filelist = {}
+		filelist = []
 		GitNative.in_git_dir(db_repo.path) do
 			GitNative.ls_tree({}, fs_branch.name, (params[:path] && params[:path] + "/*")) do |thread, stdout|
 				stdout.readlines.map do |x|
@@ -227,12 +227,10 @@ class RepositoriesController < ApplicationController
 						commit_message = lines[1]
 					end
 
-					filelist[leaf_name] = {:type => type, :loaded => false, :children => {}, :last_modified => last_modified, :commit_message => commit_message}
+					filelist.push({:name => leaf_name, :type => type, :loaded => false, :children => {}, :last_modified => last_modified, :commit_message => commit_message})
 				end
 			end
 		end
-		
-		#logger.info("#{filelist}")
 		
 		respond_to do |format|
 			format.json { render :json => filelist }

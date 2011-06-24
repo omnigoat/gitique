@@ -1,0 +1,10 @@
+
+{"classes": {
+  "Array": {
+    "functions": {
+      "each": {
+          "synopsis": "applies a function across each element in sequence"
+      }
+    }
+  }
+}}

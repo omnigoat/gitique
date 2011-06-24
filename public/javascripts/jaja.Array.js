@@ -1,23 +1,65 @@
 
 
-
-
 (function(undefined) {
-	function jaja_Array() {
-		return this;
+	function jaja_Range() {
+		return {};
 	}
 
 	$.extend(jaja, {
-		Array: function() {
-			return jaja.Array.init.apply(new jaja_Array(), arguments);
+		Range: function(data, begin, end) {
+			return jaja.Range.init.apply(jaja_Range(), arguments);
 		}
 	});
 
+	$.extend(jaja.Range, {
+		init: function(data, begin, end) {
+			$.extend(this, jaja.Indexable, jaja.Range);
+
+			this.__proto__.constructor = jaja.Array;
+			this._data = data;
+			this._begin = begin;
+			this._end = end;
+		},
+
+		each: function(options, fn) {
+			if (options instanceof Function) {
+				fn = options;
+				options = this._default_options();
+			}
+			else {
+				options = this._optionise(options);
+			}
+
+			options.from += this._begin;
+			options.until = options.from + this._end;
+
+			for (var i = options.from; i != options.until; ++i) {
+				fn( this._data[i] );
+			}
+
+			return this;
+		}
+	});
+})();
+
+
+
+
+(function(undefined) {
+	jaja.Array = function()
+	{
+		if (this.constructor == jaja.Array) {
+			return this;
+		}
+
+		return jaja.Array.init.apply(new jaja.Array(), arguments);		
+	};
+	
 
 	$.extend(jaja.Array, {
 		init: function(init_list)
 		{
-			$.extend(this, jaja.Array);
+			$.extend(this, jaja.Sequence, jaja.Array);
 
 			this.length = 0;
 			if (init_list !== undefined) {
@@ -26,15 +68,15 @@
 				else
 					this.insert(0, arguments);
 			}
-
+			
 			return this;
 		},
 
 		//=====================================================================
 		// fall-throughs
 		//=====================================================================
-		push_back: function(e) {
-			Array.prototype.push.apply(this, [e]);
+		push_back: function() {
+			Array.prototype.push.apply(this, arguments);
 			return this;
 		},
 
@@ -54,7 +96,7 @@
 		slice: function(begin, end) {
 			begin = this._reindex(begin);
 			end = this._reindex(end);
-			return Array.prototype.slice.apply(this, arguments);
+			return Array.prototype.slice.call(this, begin, end);
 		},
 
 		splice: function() {
@@ -92,27 +134,7 @@
 			return this;
 		},
 
-		insert: function(index, elements)
-		{
-			index = this._reindex(index);
-			var elements_length = elements.length,
-			    i = this.length - 1,
-			    ie = index - 1,
-			    j = elements_length - 1,
-			    je = -1
-			    ;
-			
-			for (; i != ie; --i) {
-				this[i + elements_length] = this[i];
-			}
-
-			for (i = index + j; j != je; --i, --j) {
-				this[i] = elements[j];
-			}
-
-			this.length += elements_length;
-			return this;
-		},
+		
 
 
 		//=====================================================================
@@ -160,6 +182,7 @@
 				}
 			}
 
+			// if we *did* remove elements, reposition trailing elements
 			if (offset > 0) {
 				for (var ie = this.length + offset; i != ie; ++i) {
 					this[i - offset] = this[i];
@@ -188,30 +211,13 @@
 		},
 
 
-		//=====================================================================
-		// each
-		//=====================================================================
-		each: function(options, fn)
-		{
-			if (fn === undefined) {
-				fn = options;
-				options = this._default_options();
-			}
-			else {
-				options = this._optionise(options);
-			}
-
-			var i = options.from, ie = options.until, result = true;
-			while (i != ie && (result = fn(this[i])))
-				i += options.step;
-			return result;
-		},
+		
 
 
 		//=====================================================================
 		// fold
 		//=====================================================================
-
+		// probably should do this at some point
 
 
 		//=====================================================================
@@ -256,6 +262,7 @@
 		//=====================================================================
 		// filter (mutative), and filtered(pure)
 		//=====================================================================
+		// filter: function(options, pred, callback_this)
 		filter: function(pred, callback_object)
 		{
 			if (this.length == 0)
@@ -264,8 +271,9 @@
 			// filter elements, moving them "up" in the array steadily.
 			// this algorithm maintiains .length correctly between calls.
 			var offset = 0;
+			callback_this = callback_this || this;
 			for (var i = 0, ie = this.length; i != ie; ++i) {
-				if (pred.apply(callback_object, [this[i]])) {
+				if (pred.call(callback_this, this[i])) {
 					if (offset > 0) {
 						this[i - offset] = this[i];
 					}
@@ -313,8 +321,12 @@
 
 			from = from || 0;
 			to = to || this.length;
-			while (from < to) {
-				this.swap(from++, --to);
+			while (from < to)
+			{
+				// don't use this.swap because it will be slower
+				var t = this[from];
+				this[from] = this[to];
+				this[to] = t;
 			}
 		},
 
@@ -330,29 +342,25 @@
 		//=====================================================================
 		// stable_sort
 		//=====================================================================
-		stable_sort: function()
+		stable_sort: function(options, pred)
 		{
-			var from, to, pred;
-			if (arguments.length <= 1) {
-				from = 0;
-				to = this.length;
-				pred = arguments[0] || jaja.default_predicate;
+			if (pred === undefined) {
+				pred = options;
+				options = this._default_options();
 			}
-			else if (arguments.length <= 3) {
-				from = arguments[0];
-				to = arguments[1];
-				pred = arguments[2] || jaja.default_predicate;
+			else {
+				options = this._optionise(options);
 			}
 
-			if (to - from < 12) {
-				this._insert_sort(from, to, pred);
+			if (options.until - options.from < 12) {
+				this._insert_sort(options.from, options.until, pred);
 				return;
 			}
 
-			var middle = (from + to) / 2;
-			this.stable_sort(from, middle);
-			this.stable_sort(middle, to);
-			this._merge(from, middle, to, middle - from, to - middle, pred);
+			var middle = (options.from + options.until) / 2;
+			this.stable_sort(options.from, middle);
+			this.stable_sort(middle, options.until);
+			this._merge(options.from, middle, options.until, middle - options.from, options.until - middle, pred);
 			return this;
 		},
 
@@ -486,30 +494,7 @@
 			this._merge(new_mid, second_cut, to, length1 - length11, length2 - length22, pred);
 		},
 
-		_reindex: function(i) {
-			i = i === undefined ? this.length : i;
-			return i >= 0 ? i : i + this.length + 1;
-		},
 
-		_default_options: function() {
-			return {from: 0, until: this.length, step: 1};
-		},
-
-		_optionise: function(options, ignore_reverse)
-		{
-			options = $.extend(this._default_options(), options);
-			options.from = this._reindex(options.from);
-			options.until = this._reindex(options.until);
-
-			if (!ignore_reverse && options.reverse) {
-				options.step = -options.step;
-				var t = options.from;
-				options.from = options.until + options.step;
-				options.until = t + options.step;
-			}
-		
-			return options;
-		}
 
 
 	});
